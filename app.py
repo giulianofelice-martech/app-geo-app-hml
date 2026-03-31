@@ -113,35 +113,42 @@ st.markdown("""
         color: #111827 !important;
     }
 
-    /* === BOTÃO GERAR ARTIGO (Preto, Arredondado e Texto Branco) === */
-    
-    /* 1. Ataca diretamente a classe cta-button que envelopa o botão */
-    .cta-button button {
-        background: #000000 !important;
-        background-color: #000000 !important;
-        border: 2px solid #000000 !important;
+    /* === BOTÃO GERAR ARTIGO (Preto e Arredondado) === */
+    /* Este CSS afeta os botões marcados com 'type="primary"' */
+    button[kind="primary"] {
+        background-color: #111827 !important; /* Preto absoluto */
         border-radius: 50px !important;
-        padding: 12px 30px !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-        transition: all 0.3s ease !important;
+        border: none !important;
+        padding: 12px 48px !important;
+        font-family: 'Inter', sans-serif;
+        transition: transform 0.2s, box-shadow 0.2s;
+        /* As próximas 3 linhas forçam o botão a ser block e centralizar */
+        width: 100% !important;
+        max-width: 300px !important;
+        margin: 0 auto !important;
+        display: block !important;
     }
-
-    /* 2. Força o texto interno a ser branco absoluto */
-    .cta-button button p, 
-    .cta-button button span, 
-    .cta-button button div {
-        color: #FFFFFF !important;
+    
+    /* O SEGREDO DO TEXTO BRANCO ESTÁ AQUI: O Streamlit joga o texto dentro de um 'div' e um 'p' dentro do botão */
+    button[kind="primary"] div,
+    button[kind="primary"] p {
+        color: #FFFFFF !important; /* Texto branco forçado */
         font-weight: 600 !important;
         font-size: 1.1rem !important;
         margin: 0 !important;
     }
 
-    /* 3. Efeito de Hover (Cinza escuro) */
-    .cta-button button:hover {
-        background: #333333 !important;
-        background-color: #333333 !important;
-        border-color: #333333 !important;
+    button[kind="primary"]:hover {
+        background-color: #374151 !important; /* Cinza escuro no hover */
         transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Centraliza a div pai do botão nativo do Streamlit */
+    div[data-testid="stButton"] {
+        display: flex;
+        justify-content: center;
+        width: 100%;
     }
     
     /* ESTILO DOS CARDS DE VENDA (LLMs) */
