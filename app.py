@@ -659,6 +659,7 @@ def listar_posts_drupal(d_url, d_user, d_pwd):
 
 def gerar_reverse_queries(palavra_chave):
     system = """
+    
     Você é um analista de comportamento de LLMs e SearchGPT.
     Dada uma keyword principal, gere perguntas que mecanismos de IA provavelmente fazem internamente para construir respostas e as perguntas mais comuns e básicas feitas por usuários reais no Google.
     Retorne APENAS um JSON estrito:
@@ -938,7 +939,7 @@ def calcular_information_gain(artigo_html, google_ctx):
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
-def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional=""):
+def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", modo_humanizado=False):
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
@@ -1036,7 +1037,48 @@ Instruções:
 
     st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 3.7 Sonnet)...")
 
-    system_2 = """
+    if modo_humanizado:
+        st.write("✨ Modo Empático ativado: Focando em cadência humana e fluidez...")
+        system_2 = """
+Você é um Especialista em SEO Semântico (GEO) e um profissional de educação/gestão com vasta experiência prática. 
+Sua missão é traduzir o Tom de Voz corporativo em um texto que não pareça um artigo de blog encomendado, mas sim um relato ou análise de quem vive a realidade educacional diariamente.
+
+1. A VOZ DA TRINCHEIRA (EXPERIÊNCIA REAL):
+- Escreva como alguém que já participou de reuniões tensas com mantenedores, ouviu reclamações de pais e acompanhou dinâmicas reais de sala de aula. 
+- Evite a empatia genérica e enlatada de IA (Ex: NUNCA use "Sabemos que gerir uma escola é um desafio..."). Vá direto para o problema real.
+- IMPERFEIÇÃO HUMANA CONTROLADA: A cadência deve parecer orgânica. Não tente fechar todos os parágrafos com uma conclusão perfeita ou "redonda". Use transições secas. Textos humanos reais têm cortes e vão direto ao ponto.
+
+2. O DETECTOR DE ROBÔS E CLICHÊS (BLACKLIST ABSOLUTA):
+- VETO A FRASES DE IMPACTO GENÉRICAS: Se usar uma frase curta, ela deve trazer INFORMAÇÃO, não drama. Estão TERMINANTEMENTE PROIBIDAS as frases: "Os números não mentem", "Esta é uma falsa dicotomia", "O segredo está em", "Estamos diante de".
+- VETO DE VOCABULÁRIO "IA": Jamais use: "no cenário atual", "cada vez mais", "divisor de águas", "é inegável que", "neste artigo veremos", "em resumo", "por fim", "transcendeu".
+
+3. ANCORAGEM NO MUNDO REAL (CRÍTICO PARA INDETECTABILIDADE):
+- MEMÓRIA OPERACIONAL: Sempre que explicar um conceito teórico, obrigatoriamente "encoste a ideia na realidade" com uma micro-cena plausível (Ex: um professor lidando com celulares no fundo da sala, uma decisão financeira no meio do semestre, o momento da renovação de matrículas).
+- DETALHE IMPERFEITO: Inclua pequenos detalhes contextuais em suas explicações que não são essenciais para o argumento central, mas gritam "fator humano" (ex: "em turmas mais agitadas", "na primeira semana de provas", "quando o sistema trava").
+- FRICÇÃO ANALÍTICA: O texto não pode ser um mar de positividade. Em pelo menos um H2, questione uma prática comum do mercado, aponte um efeito colateral inesperado ou discorde do senso comum. Mostre atrito intelectual.
+
+4. ESTRUTURA GEO INVISÍVEL E SEO:
+- CONCEITO FLUIDO: Logo no início, entregue o conceito da palavra-chave em um parágrafo normal, sem usar etiquetas como "Definição:".
+- RESPOSTA RÁPIDA: Crie um <h2>Resposta rápida para: [palavra-chave]</h2>. Abaixo dele, responda a dúvida principal em 2 ou 3 linhas narrativas e diretas.
+- SÍNTESE VISUAL: Insira a tag exata `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points valiosos. Limite absoluto de 2 listas no artigo todo.
+- CITAÇÃO NATURAL: Inclua a visão de um especialista começando o parágrafo de forma orgânica, como: <p><strong>A visão dos especialistas:</strong> ...</p>
+
+5. REGRAS DE LINKAGEM E BLINDAGEM E-E-A-T (TOLERÂNCIA ZERO):
+- VETO TOTAL A RIVAIS: É ESTRITAMENTE PROIBIDO citar o nome ou link de QUALQUER outra escola privada ou sistema de ensino concorrente no Brasil (ex: Balão Vermelho, Anglo, Bernoulli). Ignore-os se aparecerem na pesquisa. A única marca privada permitida é a [Marca Alvo].
+- LINK DA MARCA: Sempre que citar a [Marca Alvo], transforme-a num link HTML OBRIGATÓRIO: <a href="[URL_DA_MARCA]" target="_blank">[NOME_DA_MARCA]</a>.
+- RASTREABILIDADE (DEEP LINKS): Use os links externos fornecidos no briefing (MEC, OCDE, Portais de Notícias). Ancore-os naturalmente. Se não tiver a URL real fornecida no briefing para um dado/pesquisa, NÃO cite a instituição ou os números. Evite alucinação de fontes.
+- RAG REVERSO (LINKS INTERNOS): Você receberá "ARTIGOS INTERNOS DISPONÍVEIS". É uma exigência técnica inegociável inserir hiperlinks <a> para 1 ou 2 desses artigos no meio do seu texto, de forma natural.
+
+6. DIRECIONAMENTO E HTML:
+- BÚSSOLA DO ARTIGO: Absorva o bloco "Conteúdo Adicional" (teorias, autores). Expanda esses elementos com seu conhecimento interno, aplicando a memória operacional e a fricção analítica descritas acima.
+- ESTUDO DE CASO: Ao falar da solução da [Marca Alvo], não faça um texto de vendas. Mostre o contexto operacional de como a ferramenta/método deles destravou um problema.
+- REGRAS TÉCNICAS: Use APENAS <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. O <h1> DEVE TER NO MÁXIMO 60 CARACTERES. Títulos em "Sentence case" (Maiúscula só no início).
+
+Finalize o texto com um corte seco ou uma última reflexão técnica. É rigorosamente proibido usar parágrafos de conclusão clichês. Pare de gerar texto imediatamente após fechar a última tag HTML.
+"""
+    else:
+        st.write("⚙️ Modo GEO Restrito ativado: Focando em compliance estrutural...")
+        system_2 = """        
 Você é Especialista em SEO Semântico (GEO), Copywriter Sênior e Redator de Autoridade E‑E‑A‑T.
 Sua missão é traduzir o Tom de Voz corporativo em um texto altamente engajador, focando cirurgicamente nas dores e aspirações do público-alvo.
 
@@ -1051,8 +1093,8 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 4) LINK OFICIAL DA MARCA (OBRIGATÓRIO): A marca alvo e sua URL serão enviadas a você. Toda vez que você citar o nome da marca no texto, você É OBRIGADO a transformá-la em um hiperlink para o site oficial. Exemplo: <a href="[URL_AQUI]" target="_blank">[NOME_DA_MARCA]</a>.
 
 GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS:
-4) BLOCO DE DEFINIÇÃO CONCISA: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>. A explicação DEVE ter menos de 30 palavras. IAs odeiam definições longas.
-5) ANSWER ANCHOR: Logo após a introdução, crie: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>. Vá direto ao ponto e seja objetivo.
+4) BLOCO DE DEFINIÇÃO ORGÂNICA (SEM ETIQUETAS): Logo no início do texto, você DEVE explicar o conceito central da palavra-chave em menos de 30 palavras. Faça isso de forma natural e fluida no meio de um parágrafo. É ESTRITAMENTE PROIBIDO usar etiquetas robóticas como "Definição:" ou "O que é:". Apenas explique o conceito grifando o termo em negrito.
+5) ANSWER ANCHOR (RESPOSTA RÁPIDA SUAVIZADA): Logo após a introdução, crie um <h2>Resposta rápida para: [insira a palavra-chave]</h2>. Abaixo deste H2, entregue a resposta direta e mastigada em no máximo 2 linhas. NÃO USE etiquetas como "Resposta direta:". Apenas escreva o parágrafo indo direto ao ponto, como um jornalista experiente faria.
 6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
 7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA EXTREMA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). É OBRIGATÓRIO QUEBRAR A SIMETRIA: Intercale parágrafos "maiores" (25 a 35 palavras) com parágrafos de impacto ultracurtos formados por UMA ÚNICA FRASE (8 a 15 palavras). É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho visual. LIMITAÇÃO DE LISTAS: Use no máximo 2 a 3 listas (<ul>) em todo o artigo.
 8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
@@ -1290,16 +1332,20 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
     import base64
     # Descobre o nome da rota dinamicamente (ex: node--quark_blog)
     node_type = "node--" + d_url.rstrip('/').split('/')[-1] 
+    
     payload = {
         "data": {
             "type": node_type,
             "attributes": {
                 "title": titulo,
                 "body": {"value": conteudo_html, "format": "full_html"},
-                "status": False
+                "status": False,
+                # TENTATIVA DE BYPASS: Preenchendo o campo obrigatório do SAS com um placeholder genérico
+                "field_quark_blog_featured_image": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f" 
             }
         }
     }
+    
     token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 
@@ -1310,7 +1356,6 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
     try:
         return requests.post(d_url, json=payload, headers=headers, timeout=30)
     except Exception as e:
-        # Desempacotamos a classe de erro para respeitar a indentação do Python
         class ErrorRes: 
             status_code = 500
             text = f"Erro interno de conexão: {str(e)}"
@@ -1358,7 +1403,7 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     
     REGRAS DE GEO E HTML:
     8. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
-    9. ESTRUTURA DE TÍTULOS (SENTENCE CASE) E ANSWER-FIRST: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo um título chamativo, que OBRIGATORIAMENTE una o tema do PDF com a essência/posicionamento da marca. É PROIBIDO capitalizar todas as palavras. Use Sentence Case (Ex: "O impacto do ECA digital nas escolas"). Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2> com uma resposta direta em 2 linhas.
+    9. ESTRUTURA DE TÍTULOS (SENTENCE CASE) E ANSWER-FIRST SUAVIZADO: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo o título chamativo em Sentence Case. Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2>. Abaixo deste H2, entregue a resposta direta em 2 linhas, de forma fluida e natural. É ESTRITAMENTE PROIBIDO usar etiquetas robóticas como "Resposta direta:" ou "Definição:". Vá direto ao ponto como um texto corrido.
     10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por um json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <a href='link'>) em vez de aspas duplas. Se precisar usar aspas duplas no meio do texto, você DEVE escapá-las com contra-barra (\"). 
     
     RETORNE EXCLUSIVAMENTE UM JSON:
@@ -1455,6 +1500,11 @@ with tab1:
             placeholder="Exemplos do que inserir aqui:\n- Links de referência: https://site.com/pesquisa-recente\n- Autores/Teorias: Cite a teoria de Vygotsky sobre o assunto.\n- Insumos próprios: 'Nossa escola parceira aumentou as matrículas em 20%...'\n- Restrições: Não fale sobre provas do MEC neste texto."
         )
         
+        # O NOSSO NOVO INTERRUPTOR A/B
+        st.markdown("<br>", unsafe_allow_html=True)
+        modo_humanizado = st.toggle("✨ Ativar Escrita Empática / Mentoria (Beta)", value=False, help="Se ativado, a IA usa um prompt focado em fluidez humana e cadência vocal, reduzindo o tom corporativo. Se desativado, usa o motor GEO restrito clássico.")
+        st.markdown("<br>", unsafe_allow_html=True)
+
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", width="stretch", type="primary")
         st.markdown("---")
         
@@ -1510,7 +1560,7 @@ with tab1:
                             citation_score, entity_coverage, geo_score, retrieval_simulation, 
                             hijacking_risk, ai_simulation, chunk_citability, answer_first, 
                             rag_chunks, evidence_density, information_gain, contexto_wp
-                        ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado, conteudo_adicional_input)
+                        ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado, conteudo_adicional_input, modo_humanizado)
                         
                         st.session_state['art_gerado'] = artigo_html
                         st.session_state['metas_geradas'] = dicas_json
@@ -1562,17 +1612,55 @@ with tab1:
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ==========================================
-            # AS NOVAS SUB-ABAS DIDÁTICAS
+            # AS NOVAS SUB-ABAS DIDÁTICAS (REORGANIZADAS)
             # ==========================================
-            sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
+            tab_html, tab_dash, tab_seo, tab_ia = st.tabs([
+                "👁️ Ler e Copiar Artigo", 
                 "📊 Dashboard Rápido", 
                 "🧠 Raio-X Técnico de SEO", 
-                "🤖 Como as IAs Enxergam", 
-                "👁️ Ver e Copiar HTML"
+                "🤖 Como as IAs Enxergam"
             ])
 
-            # --- SUB-ABA 1: DASHBOARD RÁPIDO ---
-            with sub_tab1:
+            # --- SUB-ABA 1: O ENTREGÁVEL (HTML) E PUBLICAÇÃO ---
+            with tab_html:
+                st.info("Aqui está o resultado final do seu artigo. Leia a prévia e copie o código no final da página.")
+                
+                # 1. PRÉVIA DO TEXTO (PRIMEIRO)
+                st.markdown("### 👁️ Pré-visualização de como ficará no Blog")
+                
+                # CORREÇÃO: Juntando a <div> e o artigo em uma única string
+                html_preview = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF;'>{st.session_state['art_gerado']}</div>"
+                st.markdown(html_preview, unsafe_allow_html=True)
+                
+                st.markdown("---")
+                
+                # 2. CÓDIGO HTML (DEPOIS)
+                with st.expander("📋 Ver e Copiar Código HTML para Publicação", expanded=False):
+                    st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar tudo.")
+                    st.code(st.session_state['art_gerado'], language="html")
+                    
+                # 3. BOTÃO DE PUBLICAÇÃO DIRETA (AGORA FICA AQUI!)
+                st.markdown("<br>", unsafe_allow_html=True)
+                cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
+                if cms_u and cms_usr and cms_p:
+                    st.subheader(f"🌐 Publicação Direta ({cms_t.upper()})")
+                    if st.button(f"📤 Enviar Rascunho para {cms_t.upper()} ({st.session_state['marca_atual']})", type="primary", width="stretch", key="btn_pub_principal"):
+                        with st.spinner(f"Enviando via API para o {cms_t.upper()}..."):
+                            if cms_t == "drupal":
+                                res = publicar_drupal(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                            else:
+                                res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                            
+                            if hasattr(res, 'status_code') and res.status_code in [200, 201]:
+                                link_retorno = res.json().get('link') if hasattr(res, 'json') else "Rascunho criado!"
+                                st.success(f"✅ Rascunho criado com sucesso! | {link_retorno}")
+                            else:
+                                erro_status = res.status_code if hasattr(res, 'status_code') else 'Desconhecido'
+                                erro_texto = res.text if hasattr(res, 'text') else 'Sem detalhes'
+                                st.error(f"❌ Falha ao enviar (Erro HTTP {erro_status}). Resposta do Servidor: {erro_texto}")
+
+            # --- SUB-ABA 2: DASHBOARD RÁPIDO ---
+            with tab_dash:
                 st.info("**O que é esta aba?** Aqui estão as métricas essenciais para garantir que o seu texto será lido por humanos e ranqueado pelo Google.")
                 
                 with st.expander("🚀 Qualidade Global do Texto (GEO Score)", expanded=True):
@@ -1590,8 +1678,8 @@ with tab1:
                     st.json(st.session_state.get('information_gain', '{}'))
                     st.markdown(st.session_state.get('score_originalidade', '⚠️ Sem dados.'))
 
-            # --- SUB-ABA 2: RAIO-X TÉCNICO DE SEO ---
-            with sub_tab2:
+            # --- SUB-ABA 3: RAIO-X TÉCNICO DE SEO ---
+            with tab_seo:
                 st.info("**O que é esta aba?** Voltada para quem entende de SEO. Mostra se usamos o vocabulário certo e como amarrar este artigo com outros no seu blog.")
                 
                 with st.expander("🧩 Uso de Jargões do Nicho (Entity Coverage)", expanded=True):
@@ -1607,8 +1695,8 @@ with tab1:
                     st.markdown("O Motor vasculhou seu WordPress e obrigou a IA a linkar este artigo novo com posts antigos da sua marca para fortalecer seu SEO.")
                     st.markdown(st.session_state.get('contexto_wp', '⚠️ Sem dados.'))
 
-            # --- SUB-ABA 3: COMO AS IAS ENXERGAM ---
-            with sub_tab3:
+            # --- SUB-ABA 4: COMO AS IAS ENXERGAM ---
+            with tab_ia:
                 st.info("**O que é esta aba?** Descubra se o ChatGPT ou o Perplexity usariam o seu texto como fonte oficial para responder a um usuário.")
                 
                 with st.expander("🔎 Chance de virar Fonte Oficial (Retrieval Simulation)", expanded=True):
@@ -1627,33 +1715,6 @@ with tab1:
                 with st.expander("🔄 O que as pessoas realmente perguntam? (Search Intent)", expanded=False):
                     st.markdown("Engenharia reversa: mapeamos as perguntas exatas que usuários leigos digitam no Google e as dúvidas profundas que a IA tenta resolver.")
                     st.json(st.session_state.get('reverse_queries', '{}'))
-
-            # --- SUB-ABA 4: O ENTREGÁVEL ---
-            with sub_tab4:
-                st.info("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone 📋 para copiar tudo.")
-                st.code(st.session_state['art_gerado'], language="html")
-                
-                with st.expander("👁️ Pré-visualização de como ficará no Blog", expanded=True):
-                    st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
-            
-            st.markdown("---")
-            
-            # --- BOTÃO DE PUBLICAÇÃO NO WORDPRESS ---
-            cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
-            if cms_u and cms_usr and cms_p:
-                st.subheader(f"🌐 Publicação Direta ({cms_t.upper()})")
-                if st.button(f"📤 Enviar Rascunho para {cms_t.upper()} ({st.session_state['marca_atual']})", type="primary", width="stretch"):
-                    with st.spinner(f"Enviando via API para o {cms_t.upper()}..."):
-                        if cms_t == "drupal":
-                            res = publicar_drupal(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
-                        else:
-                            res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
-                        
-                        if hasattr(res, 'status_code') and res.status_code in [200, 201]:
-                            link_retorno = res.json().get('link') if hasattr(res, 'json') else "Rascunho criado!"
-                            st.success(f"✅ Rascunho criado com sucesso! | {link_retorno}")
-                        else:
-                            st.error(f"❌ Falha ao enviar. Verifique o console ou firewall.")
                             
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
