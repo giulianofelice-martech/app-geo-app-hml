@@ -18,51 +18,28 @@ st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layo
 
 st.markdown("""
     <style>
-    /* Sistema de Cores */
-    :root {
-        --color-primary: #F05D23;
-        --color-secondary: #418EDE;
-        --color-dark: #111827;
-        --color-light: #FFFFFF;
-        --color-gray-100: #F3F4F6;
-        --color-gray-200: #E5E7EB;
-        --color-gray-300: #D1D5DB;
-        --color-gray-600: #6B7280;
-    }
+    /* Importando as fontes do site da Arco */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap');
 
-    /* Reset e Configurações Base */
+    /* Forçando a tipografia global */
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
 
-    .stApp {
-        background-color: var(--color-gray-100);
-    }
-
-    /* Tipografia */
+    /* Estilizando os Títulos para Montserrat (Idêntico ao site) */
     h1, h2, h3 {
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 700 !important;
-        color: var(--color-dark) !important;
+        color: #111827 !important;
         letter-spacing: -0.02em;
-        margin-bottom: 1rem;
     }
 
-    /* Container Principal */
-    .main-container {
-        background-color: var(--color-light);
-        border-radius: 12px;
-        padding: 2rem;
-        margin: 1rem 0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    /* Header e Tags */
+    /* TAG ESTILO ARCO (Azulzinha) - ADICIONADA AQUI */
     .arco-tag {
         display: inline-flex;
         align-items: center;
         background-color: #E8F2FA;
-        color: var(--color-secondary) !important;
+        color: #418EDE !important;
         font-family: 'Montserrat', sans-serif;
         font-weight: 700;
         font-size: 0.75rem;
@@ -70,89 +47,84 @@ st.markdown("""
         padding: 4px 12px;
         border-radius: 50px;
         text-transform: uppercase;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
     }
 
-    /* Inputs e Selects */
-    .stSelectbox > div > div,
-    .stTextInput > div > div > input {
-        background-color: var(--color-light);
-        border-radius: 8px;
-        border: 1px solid var(--color-gray-200);
-        padding: 0.75rem 1rem;
-        min-height: 48px;
-        font-size: 1rem;
-    }
-
-    /* Botões */
+    /* Botões Primários (Estilo Botão Header Arco) */
     .stButton > button {
-        background-color: var(--color-dark) !important;
-        color: var(--color-light) !important;
+        background-color: #111827 !important; /* Fundo escuro elegante */
+        color: #FFFFFF !important;
         border-radius: 8px !important;
         border: none !important;
         height: 3.2em;
         font-family: 'Inter', sans-serif;
         font-weight: 600 !important;
-        padding: 0 1.5rem;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
     
     .stButton > button:hover {
-        background-color: #374151 !important;
+        background-color: #374151 !important; /* Cinza mais claro no hover */
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        color: #FFFFFF !important;
     }
 
-    /* Tabs */
+    /* Estilo das Abas (Tabs) */
     [data-baseweb="tab-list"] {
-        gap: 1.5rem;
-        border-bottom: 2px solid var(--color-gray-200);
+        gap: 24px;
+        border-bottom: 2px solid #E5E7EB;
     }
-
     [data-baseweb="tab"] {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600;
-        color: var(--color-gray-600);
-        padding: 1rem 0;
+        color: #6B7280;
+        padding-top: 16px;
+        padding-bottom: 16px;
     }
-
     [data-baseweb="tab"][aria-selected="true"] {
-        color: var(--color-primary) !important;
-        border-bottom-color: var(--color-primary) !important;
+        color: #F05D23 !important; /* Laranja Arco ativo */
+        border-bottom-color: #F05D23 !important;
     }
 
-    /* Expanders */
+    /* Melhorando os Expanders (Para parecerem Cards) */
     .streamlit-expanderHeader {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600 !important;
-        color: var(--color-dark);
-        background-color: var(--color-light);
+        color: #111827;
+        background-color: #FFFFFF;
         border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 0.5rem;
     }
     
     div[data-testid="stExpander"] {
-        background-color: var(--color-light);
+        background-color: #FFFFFF;
+        border: 1px solid #E5E7EB;
         border-radius: 8px;
-        border: 1px solid var(--color-gray-200);
-        margin-bottom: 1rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        margin-bottom: 16px;
     }
 
-    /* Responsividade */
-    @media (max-width: 768px) {
-        .main-container {
-            padding: 1rem;
-        }
-        
-        h1 {
-            font-size: 1.5rem !important;
-        }
-        
-        .stButton > button {
-            width: 100%;
-        }
+    /* Customizando o Tooltip (Pipeline Ultimate) */
+    .pipeline-container {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9em; 
+        color: #6B7280; 
+        margin-bottom: 2rem;
+        background-color: #FFFFFF;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #E5E7EB;
+    }
+    .pipeline-step {
+        cursor: help; 
+        color: #374151;
+        font-weight: 500;
+        border-bottom: 1px dashed #D1D5DB;
+        transition: color 0.2s;
+    }
+    .pipeline-step:hover {
+        color: #F05D23;
+        border-bottom-color: #F05D23;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -161,13 +133,11 @@ st.markdown("""
 # CABEÇALHO ALINHADO COM A TAG
 # ==========================================
 st.markdown("""
-<div class="main-container">
-    <div style="display: flex; align-items: center; margin-bottom: 24px;">
-        <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 180px; margin-right: -10px;" alt="Logo Arco">
-        <div style="display: flex; flex-direction: column; justify-content: center;">
-            <div class="arco-tag" style="width: fit-content; margin-bottom: 4px;">MOTOR DE INTELIGÊNCIA</div>
-            <h1 style="margin: 0; padding: 0; font-size: 2.4rem;">Motor GEO v7.0 <span style="color: #F05D23; font-size: 0.6em;">AI Search Native</span></h1>
-        </div>
+<div style="display: flex; align-items: center; margin-bottom: 24px;">
+    <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 180px; margin-right: -10px;" alt="Logo Arco">
+    <div style="display: flex; flex-direction: column; justify-content: center;">
+        <div class="arco-tag" style="width: fit-content; margin-bottom: 4px;">MOTOR DE INTELIGÊNCIA</div>
+        <h1 style="margin: 0; padding: 0; font-size: 2.4rem;">Motor GEO v7.0 <span style="color: #F05D23; font-size: 0.6em;">AI Search Native</span></h1>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -176,7 +146,7 @@ st.markdown("""
 # PIPELINE COM TOOLTIPS TRADUZIDOS E SIMPLIFICADOS
 # ==========================================
 pipeline_html = """
-<div class="main-container">
+<div class="pipeline-container">
     <strong style="color: #111827; font-family: 'Montserrat', sans-serif;">O Caminho do Conteúdo:</strong> 
     <span title="1. Pesquisa: Espiona o Top 3 do Google e o que as IAs (como ChatGPT) já dizem sobre o tema." class="pipeline-step">1. Pesquisa</span> ➔ 
     <span title="2. Intenção: Descobre a verdadeira dúvida por trás das buscas (o que o leitor realmente quer saber)." class="pipeline-step">2. Intenção</span> ➔ 
