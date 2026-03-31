@@ -16,12 +16,16 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 # ==========================================
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide", initial_sidebar_state="collapsed")
 
-# Inicializa as variáveis de navegação e exibição no session_state
+# Lógica de Navegação via Query Parameters (Mais estável que botões)
+query_params = st.query_params
 if 'current_page' not in st.session_state:
-    st.session_state['current_page'] = "Gerador de Artigos"
+    st.session_state['current_page'] = query_params.get("page", "Gerador de Artigos")
 if 'show_inputs' not in st.session_state:
     st.session_state['show_inputs'] = False
 
+# ==========================================
+# ESTILOS GLOBAIS
+# ==========================================
 st.markdown("""
     <style>
     /* Importando as fontes do site da Arco */
@@ -61,47 +65,69 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* MENU DE NAVEGAÇÃO NO TOPO - À PROVA DE FALHAS */
-    div[data-testid="stHorizontalBlock"]:first-of-type button {
-        background-color: transparent !important;
-        color: #6B7280 !important;
-        border: none !important;
-        box-shadow: none !important;
-        font-family: 'Montserrat', sans-serif !important;
-        font-weight: 600 !important;
-        font-size: 1.05rem !important;
-        padding: 8px 0px !important;
-        margin: 0 !important;
+    /* MENU DE NAVEGAÇÃO CUSTOMIZADO (HTML Puro) */
+    .custom-nav-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 40px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #E5E7EB;
+        margin-bottom: 30px;
     }
-    div[data-testid="stHorizontalBlock"]:first-of-type button:hover {
-        color: #111827 !important;
+    .custom-nav-item {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #6B7280;
+        text-decoration: none;
+        padding-bottom: 8px;
+        position: relative;
+        transition: color 0.2s ease;
     }
-    div[data-testid="stHorizontalBlock"]:first-of-type button:focus,
-    div[data-testid="stHorizontalBlock"]:first-of-type button:active {
-        outline: none !important;
-        box-shadow: none !important;
-        background-color: transparent !important;
-        color: #111827 !important;
+    .custom-nav-item:hover {
+        color: #111827;
+    }
+    .custom-nav-item.active {
+        color: #111827;
+        font-weight: 800;
+    }
+    .custom-nav-item.active::after {
+        content: '';
+        position: absolute;
+        bottom: -11px; /* Ajuste fino para a linha bater na borda da div pai */
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: #F05D23;
+        border-radius: 3px 3px 0 0;
     }
 
-    /* BOTÃO CTA PRETO ARREDONDADO */
-    .cta-button button {
-        background-color: #000000 !important;
-        color: #FFFFFF !important;
-        border-radius: 50px !important;
-        padding: 12px 48px !important;
+    /* BOTÃO PRIMÁRIO STREAMLIT (Global) */
+    div[data-testid="stButton"] button[kind="primary"] {
+        background-color: #111827 !important; /* Fundo Preto */
+        color: #FFFFFF !important; /* Texto Branco */
+        border-radius: 8px !important;
+        border: none !important;
+        height: 3.2em;
         font-family: 'Inter', sans-serif;
         font-weight: 600 !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    div[data-testid="stButton"] button[kind="primary"]:hover {
+        background-color: #374151 !important; /* Cinza Escuro no Hover */
+        color: #FFFFFF !important;
+    }
+    /* Estilo específico do botão central de Iniciar na home */
+    .cta-button button {
+        border-radius: 50px !important;
+        padding: 12px 48px !important;
         font-size: 1.1rem !important;
         width: 100% !important;
         max-width: 300px;
         margin: 0 auto !important;
         display: block !important;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .cta-button button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
     }
 
     /* ESTILO DOS CARDS DE VENDA (LLMs) */
@@ -117,10 +143,6 @@ st.markdown("""
         transform: translateY(-5px);
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         border-color: #D1D5DB;
-    }
-    .card-icon {
-        height: 40px;
-        margin-bottom: 16px;
     }
     .card-title {
         font-family: 'Montserrat', sans-serif;
@@ -163,88 +185,50 @@ st.markdown("""
         left: 40px;
         z-index: 99999;
     }
-   /* Botões Primários (Estilo Botão Header Arco) */
-    button[kind="primary"] {
-        background-color: #111827 !important; /* Fundo escuro elegante */
-        color: #FFFFFF !important;
-        border-radius: 8px !important;
+    /* Estilizando o Popover nativo do Streamlit para parecer um botão circular */
+    div[data-testid="stPopover"] > button {
+        background-color: #E21B22 !important; /* Vermelho Arco */
+        color: white !important;
+        border-radius: 50% !important;
+        width: 65px !important;
+        height: 65px !important;
         border: none !important;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600 !important;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 10px 15px -3px rgba(226, 27, 34, 0.4) !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.2s;
     }
-    button[kind="primary"]:hover {
-        background-color: #374151 !important; /* Cinza mais claro no hover */
-        color: #FFFFFF !important;
+    div[data-testid="stPopover"] > button:hover {
+        transform: scale(1.1);
     }
-    /* Estilo específico do botão central de Iniciar na home */
-    .cta-button button {
-        border-radius: 50px !important;
-        padding: 12px 48px !important;
-        font-size: 1.1rem !important;
-        width: 100% !important;
-        max-width: 300px;
-        margin: 0 auto !important;
-        display: block !important;
+    /* Texto dentro do botão flutuante */
+    div[data-testid="stPopover"] > button p {
+        font-size: 28px !important;
+        font-weight: bold;
+        margin: 0 !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 1.1 MENU DE NAVEGAÇÃO SAAS NO TOPO (CSS BLINDADO)
+# 1.1 MENU DE NAVEGAÇÃO CUSTOMIZADO (HTML)
 # ==========================================
-nav_cols = st.columns([2, 2, 2, 2, 2, 2])
-
-with nav_cols[0]:
-    st.markdown('<img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 140px; margin-top: -5px;" alt="Logo Arco">', unsafe_allow_html=True)
-
 opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de GEO", "Auditor de Artigos"]
+pagina_atual = st.session_state['current_page']
 
-# CSS Global agressivo para "matar" a borda de TODOS os botões nas colunas 2 a 6 (o menu)
-st.markdown("""
-<style>
-/* Remove fundo, borda e sombra de TODOS os botões nessas colunas específicas */
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:not(:first-child) button {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding-top: 10px !important;
-    color: #6B7280 !important;
-    font-family: 'Montserrat', sans-serif !important;
-    font-size: 1rem !important;
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:not(:first-child) button:hover {
-    color: #111827 !important;
-    background: transparent !important;
-}
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:not(:first-child) button:active,
-div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:not(:first-child) button:focus {
-    background: transparent !important;
-    box-shadow: none !important;
-    color: #111827 !important;
-}
-</style>
-""", unsafe_allow_html=True)
+nav_html = f"""
+<div class="custom-nav-container">
+    <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 120px; margin-right: 20px;" alt="Logo Arco">
+"""
 
-for i, opcao in enumerate(opcoes_menu):
-    with nav_cols[i+1]:
-        # Aqui injetamos o CSS de "Ativo" apenas na coluna específica (Bold simulado + Cor Escura)
-        if st.session_state['current_page'] == opcao:
-            st.markdown(f"""
-            <style>
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child({i+2}) button {{
-                color: #111827 !important;
-                -webkit-text-stroke: 0.6px #111827 !important; /* Bold sem empurrar o layout */
-            }}
-            </style>
-            """, unsafe_allow_html=True)
-            
-        if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
-            st.session_state['current_page'] = opcao
-            st.rerun()
-            
-st.markdown("<hr style='margin-top: 0; margin-bottom: 3rem;'>", unsafe_allow_html=True)
+for opcao in opcoes_menu:
+    active_class = "active" if pagina_atual == opcao else ""
+    # Usamos query parameters para navegar sem usar o componente de botão nativo
+    nav_html += f'<a href="/?page={urllib.parse.quote(opcao)}" target="_self" class="custom-nav-item {active_class}">{opcao}</a>'
+
+nav_html += "</div>"
+st.markdown(nav_html, unsafe_allow_html=True)
 
 # ==========================================
 # BOTÃO FLUTUANTE DE AJUDA (ESQUERDA)
