@@ -1704,7 +1704,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
             <div class="saas-card">
                 <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
                 <div class="card-title">AI Search Native</div>
-                <div class="card-text">Espiona o Google e o LinkedIn em tempo real para encontrar o 'Entity Gap' do seu nicho.</div>
+                <div class="card-text">Realiza uma varredura profunda na web em tempo real, extraindo o conteúdo de concorrentes para mapear o 'Entity Gap' exato do seu nicho.</div>
             </div>
             """, unsafe_allow_html=True)
         with c4:
