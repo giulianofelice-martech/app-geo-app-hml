@@ -113,41 +113,34 @@ st.markdown("""
         color: #111827 !important;
     }
 
-    /* === BOTÃO GERAR ARTIGO (Preto, Arredondado e Centralizado) === */
+    /* === BOTÃO GERAR ARTIGO (Preto, Arredondado e Texto Branco) === */
     
-    /* Centraliza o container pai do botão */
-    div[data-testid="stButton"] {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-        margin: 0 auto !important;
-    }
-
-    /* Estiliza o botão */
+    /* 1. Estiliza a caixa do botão */
     button[kind="primary"] {
         background-color: #000000 !important;
-        border-radius: 50px !important;
         border: none !important;
-        padding: 12px 40px !important;
-        font-weight: 600 !important;
+        border-radius: 50px !important;
+        padding: 12px 30px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
         transition: all 0.3s ease !important;
     }
 
-    /* Força ABSOLUTAMENTE TUDO dentro do botão (texto, parágrafos, spans) a ficar branco */
-    button[kind="primary"], 
+    /* 2. Força o texto interno a ser branco e grande (Atinge os parágrafos escondidos do Streamlit) */
+    button[kind="primary"] div, 
     button[kind="primary"] p, 
-    button[kind="primary"] span,
-    button[kind="primary"] * {
-        color: #ffffff !important; 
+    button[kind="primary"] span {
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
         font-size: 1.1rem !important;
+        margin: 0 !important;
     }
 
-    /* Efeito ao passar o mouse */
+    /* 3. Efeito de Hover (Cinza escuro ao passar o mouse) */
     button[kind="primary"]:hover {
-        background-color: #374151 !important; /* Cinza escuro */
+        background-color: #333333 !important;
         transform: translateY(-2px);
     }
+    
     /* ESTILO DOS CARDS DE VENDA (LLMs) */
     .saas-card {
         background: #FFFFFF;
@@ -1656,7 +1649,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
         with col_cta2:
             st.markdown('<div class="cta-button hero-btn">', unsafe_allow_html=True)
-            if st.button("Gerar artigo 🚀", type="primary"):
+            if st.button("Gerar artigo 🚀", type="primary", use_container_width=True):
                 st.session_state['show_inputs'] = True
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
