@@ -1298,15 +1298,12 @@ ANTI-CLOAKING E VALIDAÇÃO:
     ai_simulation = simular_resposta_ai(palavra_chave, artigo_html)
 
     return (
-                            artigo_html, dicas_json, google_data, ia_data, entity_gap, 
-                            score_originalidade, citabilidade, cluster, reverse_queries, 
-                            citation_score, entity_coverage, geo_score, retrieval_simulation, 
-                            hijacking_risk, ai_simulation, chunk_citability, answer_first, 
-                            rag_chunks, evidence_density, information_gain, contexto_wp
-                        ) = executar_geracao_completa(
-                            palavra_chave_input, marca_selecionada, publico_selecionado, 
-                            conteudo_adicional_input, conteudo_proprietario_input, modo_humanizado
-                        )
+        artigo_html, dicas_json, contexto_google, baseline_ia, entity_gap, 
+        score_originalidade, citabilidade, cluster, reverse_queries, 
+        citation_score, entity_coverage, geo_score, retrieval_simulation, 
+        hijacking_risk, ai_simulation, chunk_citability, answer_first, 
+        rag_chunks, evidence_density, information_gain, contexto_wp
+    )
 
 def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     import base64
