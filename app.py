@@ -113,29 +113,34 @@ st.markdown("""
         color: #111827 !important;
     }
 
-    /* === BOTÃO GERAR ARTIGO (PRETO E BRANCO NATIVO) === */
-    button[kind="primary"] {
-        background-color: #000000 !important;
-        border-color: #000000 !important;
+   /* === BOTÃO GERAR ARTIGO (PRETO E TEXTO BRANCO) === */
+    div[data-testid="stButton"] button[kind="primary"] {
+        background-color: #111827 !important;
         border-radius: 50px !important;
-        padding: 10px 30px !important;
+        padding: 12px 48px !important;
+        width: 100% !important;
+        max-width: 300px !important;
+        margin: 0 auto !important;
+        display: block !important;
+        border: none !important;
+        transition: all 0.2s ease-in-out !important;
     }
     
-    /* O Streamlit sempre coloca o texto dentro de um <p>. É AQUI que a cor branca entra! */
-    button[kind="primary"] p {
+    /* O Segredo: Atingir TODAS as tags internas que o Streamlit usa para o texto */
+    div[data-testid="stButton"] button[kind="primary"] *,
+    div[data-testid="stButton"] button[kind="primary"] div,
+    div[data-testid="stButton"] button[kind="primary"] p {
         color: #FFFFFF !important;
+        fill: #FFFFFF !important; /* Para garantir que até o ícone de foguete, se for svg, fique visível */
+        font-family: 'Inter', sans-serif !important;
         font-weight: 600 !important;
         font-size: 1.1rem !important;
-        margin: 0 !important;
     }
-    
-    /* Efeito ao passar o mouse */
-    button[kind="primary"]:hover {
-        background-color: #333333 !important;
-        border-color: #333333 !important;
-    }
-    button[kind="primary"]:hover p {
-        color: #FFFFFF !important;
+
+    div[data-testid="stButton"] button[kind="primary"]:hover {
+        background-color: #374151 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
     }
     
     /* ESTILO DOS CARDS DE VENDA (LLMs) */
