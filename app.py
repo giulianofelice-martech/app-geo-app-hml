@@ -1659,7 +1659,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
         with col_cta2:
             st.markdown('<div class="cta-button hero-btn">', unsafe_allow_html=True)
-            if st.button("Gerar artigo 🚀", type="primary", use_container_width=True):
+            if st.button("Gerar artigo 🚀", type="primary"):
                 st.session_state['show_inputs'] = True
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
