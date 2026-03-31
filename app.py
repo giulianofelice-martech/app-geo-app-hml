@@ -402,6 +402,25 @@ if 'brandbook_df' not in st.session_state:
     st.session_state['brandbook_df'] = pd.DataFrame(dados_iniciais)
 
 # ==========================================
+# 2.1 BASE DE DADOS DOS ESPECIALISTAS (GHOSTWRITING)
+# ==========================================
+if 'especialistas_df' not in st.session_state:
+    dados_especialistas = [
+        {"Especialista": "Professor Idelfranio Moreira De Sousa", "Link do Artigo": "https://exemplo.com"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/alunos-mais-ricos-do-brasil-t%25C3%25AAm-notas-inferiores-aos-celed%25C3%25B4nio-g-jr-eav6f/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/como-atualidades-podem-ser-cobradas-enem-ademar-celed%25C3%25B4nio-g-jr-cjedf/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/como-educa%25C3%25A7%25C3%25A3o-do-futuro-pode-ser-moldada-partir-uso-celed%25C3%25B4nio-g-jr-4cl7f/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/l%25C3%25ADderes-que-moldam-vidas-celebrando-o-dia-do-diretor-celed%25C3%25B4nio-g-jr-iyizf/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/vacinas-de-mrna-da-rejei%25C3%25A7%25C3%25A3o-acad%25C3%25AAmica-ao-pr%25C3%25AAmio-nobel-ademar/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/5-formas-de-investir-na-educa%25C3%25A7%25C3%25A3o-do-seu-filho-e-o-celed%25C3%25B4nio-g-jr/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/construindo-repert%25C3%25B3rio-cultural-para-o-enem-e-fuvest-celed%25C3%25B4nio-g-jr/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/bncc-e-educa%25C3%25A7%25C3%25A3o-midi%25C3%25A1tica-ferramentas-cruciais-em-um-celed%25C3%25B4nio-g-jr/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/quanto-maior-o-investimento-em-tecnologia-ser%25C3%25A1-de-celed%25C3%25B4nio-g-jr/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/censo-escolar-2025-brasil-perde-11-milh%C3%A3o-de-alunos-ademar-m1oae/"}
+    ]
+    st.session_state['especialistas_df'] = pd.DataFrame(dados_especialistas)
+    
+# ==========================================
 # 3. CONEXÃO SEGURA E CREDENCIAIS
 # ==========================================
 try:
@@ -578,6 +597,29 @@ def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
         return f"Erro Drupal RAG (Status {res.status_code})"
     except Exception as e:
         return f"Erro Drupal RAG: {e}"
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def buscar_estilo_especialista(nome_especialista, df_especialistas):
+    """Puxa até 3 artigos do especialista via Jina AI para a IA clonar o estilo de escrita."""
+    if not nome_especialista: return ""
+    
+    links = df_especialistas[df_especialistas['Especialista'] == nome_especialista]['Link do Artigo'].tolist()
+    import random
+    links_selecionados = random.sample(links, min(3, len(links))) # Pega 3 aleatórios para não estourar limite
+    
+    contexto = f"📚 CLONAGEM DE PERSONA E REFERÊNCIAS: {nome_especialista}\n"
+    
+    for link in links_selecionados:
+        try:
+            jina_headers = {'User-Agent': 'Mozilla/5.0', 'X-Return-Format': 'markdown', 'Accept': 'text/plain'}
+            res = requests.get(f"https://r.jina.ai/{link}", headers=jina_headers, timeout=12)
+            if res.status_code == 200:
+                contexto += f"\n--- Artigo Anterior Escrito por {nome_especialista} ---\n"
+                contexto += res.text[:1500] + "...\n" # Pega os primeiros 1500 chars (o ouro do tom de voz)
+        except Exception:
+            pass
+            
+    return contexto
 
 @st.cache_data(ttl=300, show_spinner=False)
 def listar_posts_wp(wp_url, wp_user, wp_pwd):
@@ -953,7 +995,7 @@ def refinar_artigo_html(html_atual, instrucoes):
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
-def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", conteudo_proprietario="", modo_humanizado=False):
+def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", conteudo_proprietario="", modo_humanizado=False, especialista_nome=None):
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
@@ -964,6 +1006,13 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
     cms_url, cms_user, cms_pwd, cms_type = obter_credenciais_cms(marca_alvo)
 
     st.write(f"🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina), IAs e RAG Reverso ({cms_type.upper()})...")
+    
+    # EXTRAI O ESTILO DO ESPECIALISTA SE ELE FOI SELECIONADO
+    contexto_ghostwriting = ""
+    if especialista_nome:
+        st.write(f"👔 Lendo artigos do autor: {especialista_nome}...")
+        contexto_ghostwriting = buscar_estilo_especialista(especialista_nome, st.session_state['especialistas_df'])
+        
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
@@ -1197,6 +1246,8 @@ Você DEVE obrigatoriamente usar pelo menos um destes links como hiperlink no me
 12. O seu título <h1> tem menos de 60 caracteres? Conte as letras.
 13. CONTEÚDO PROPRIETÁRIO (CRÍTICO): Verifique se foi fornecido algum "CONTEÚDO PROPRIETÁRIO INEGOCIÁVEL". Se sim, procure no seu texto gerado. A frase está EXACTAMENTE igual ao original, sem nenhuma palavra alterada? Se você resumiu ou alterou a frase, corrija agora colando a frase original.
 </checklist_de_seguranca_obrigatorio>
+14. DIRETRIZ DE GHOSTWRITING E AUTORIA (CRÍTICO):{contexto_ghostwriting if contexto_ghostwriting else "Nenhum autor específico selecionado. Use o tom da marca padrão."}
+ATENÇÃO: Se o bloco acima contiver artigos de um especialista, você assumirá a IDENTIDADE dele. Absorva o vocabulário, o ritmo e o nível de formalidade que ele usa nos artigos fornecidos. Integre o seu conhecimento sobre a palavra-chave com os conceitos que ele costuma defender. 
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
 <br>Resumo Estratégico<br>
@@ -1463,9 +1514,14 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab2:
-    st.markdown("### Edite as regras, marcas e diretrizes:")
+    st.markdown("### 🏢 Edite as regras, marcas e diretrizes:")
     st.session_state['brandbook_df'] = st.data_editor(st.session_state['brandbook_df'], num_rows="dynamic", width="stretch")
     st.info("💡 Dica: Adicione regras específicas na coluna 'RegrasPositivas'.")
+    
+    st.markdown("---")
+    st.markdown("### ✍️ Especialistas e Autores (Ghostwriting)")
+    st.caption("Adicione o nome do especialista e o link de um artigo escrito por ele (LinkedIn, Blog, etc). O Motor lerá os links para clonar o tom de voz do autor.")
+    st.session_state['especialistas_df'] = st.data_editor(st.session_state['especialistas_df'], num_rows="dynamic", width="stretch", key="editor_esp")
 
 with tab1:
     # 1. CRIANDO A "CAIXA" NO TOPO ANTES DAS COLUNAS
@@ -1528,9 +1584,18 @@ with tab1:
         
         # O NOSSO NOVO INTERRUPTOR A/B
         st.markdown("<br>", unsafe_allow_html=True)
-        modo_humanizado = st.toggle("✨ Ativar Escrita Empática / Mentoria (Beta)", value=False, help="Se ativado, a IA usa um prompt focado em fluidez humana e cadência vocal, reduzindo o tom corporativo. Se desativado, usa o motor GEO restrito clássico.")
+        modo_humanizado = st.toggle("✨ Ativar Escrita Empática / Mentoria (Beta)", value=False, help="Se ativado, a IA usa um prompt focado em fluidez humana e cadência vocal, reduzindo o tom corporativo.")
+        
+        # --- NOVO RECURSO: GHOSTWRITING ---
+        modo_especialista = st.toggle("👔 Ativar Escrita de Especialista", value=False, help="A IA vai ler os artigos do especialista no Brandbook e escrever o texto usando o tom de voz, maneirismos e referências dele.")
+        especialista_selecionado = None
+        if modo_especialista:
+            lista_autores = st.session_state['especialistas_df']['Especialista'].unique().tolist()
+            especialista_selecionado = st.selectbox("Selecione o Autor/Especialista:", lista_autores)
+        st.markdown("<br>", unsafe_allow_html=True)
 
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", width="stretch", type="primary")
+    
         st.markdown("---")
         
         cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(marca_selecionada)
@@ -1585,7 +1650,10 @@ with tab1:
                             citation_score, entity_coverage, geo_score, retrieval_simulation, 
                             hijacking_risk, ai_simulation, chunk_citability, answer_first, 
                             rag_chunks, evidence_density, information_gain, contexto_wp
-                        ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado, conteudo_adicional_input, modo_humanizado)
+                        ) = executar_geracao_completa(
+                            palavra_chave_input, marca_selecionada, publico_selecionado, 
+                            conteudo_adicional_input, conteudo_proprietario_input, modo_humanizado, especialista_selecionado
+                        )
                         
                         st.session_state['art_gerado'] = artigo_html
                         st.session_state['metas_geradas'] = dicas_json
