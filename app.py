@@ -192,7 +192,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 1.1 MENU DE NAVEGAÇÃO SAAS NO TOPO
+# 1.1 MENU DE NAVEGAÇÃO SAAS NO TOPO (CSS BLINDADO)
 # ==========================================
 nav_cols = st.columns([2, 2, 2, 2, 2, 2])
 
@@ -201,24 +201,49 @@ with nav_cols[0]:
 
 opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de GEO", "Auditor de Artigos"]
 
+# CSS Global agressivo para "matar" a borda de TODOS os botões nas colunas 2 a 6 (o menu)
+st.markdown("""
+<style>
+/* Remove fundo, borda e sombra de TODOS os botões nessas colunas específicas */
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:not(:first-child) button {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding-top: 10px !important;
+    color: #6B7280 !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 1rem !important;
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:not(:first-child) button:hover {
+    color: #111827 !important;
+    background: transparent !important;
+}
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:not(:first-child) button:active,
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:not(:first-child) button:focus {
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #111827 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 for i, opcao in enumerate(opcoes_menu):
     with nav_cols[i+1]:
-        # O segredo do alinhamento perfeito: 
-        # text-shadow simula o negrito sem empurrar o layout para o lado.
-        # box-shadow inset cria a linha laranja sem empurrar o layout para cima.
+        # Aqui injetamos o CSS de "Ativo" apenas na coluna específica (Bold simulado + Cor Escura)
         if st.session_state['current_page'] == opcao:
-            st.markdown(f"""<style>
-            div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stColumn"]:nth-child({i+2}) button {{
-                color: #111827 !important; 
-                text-shadow: 0 0 0.8px #111827 !important; 
-                box-shadow: inset 0 -3px 0 0 #F05D23 !important;
+            st.markdown(f"""
+            <style>
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:nth-child({i+2}) button {{
+                color: #111827 !important;
+                -webkit-text-stroke: 0.6px #111827 !important; /* Bold sem empurrar o layout */
             }}
-            </style>""", unsafe_allow_html=True)
+            </style>
+            """, unsafe_allow_html=True)
             
         if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
             st.session_state['current_page'] = opcao
             st.rerun()
-
+            
 st.markdown("<hr style='margin-top: 0; margin-bottom: 3rem;'>", unsafe_allow_html=True)
 
 # ==========================================
