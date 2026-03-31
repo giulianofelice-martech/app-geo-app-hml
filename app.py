@@ -156,28 +156,30 @@ st.markdown("""
         left: 40px;
         z-index: 99999;
     }
-    /* Estilizando o Popover nativo do Streamlit para parecer um botão circular */
-    div[data-testid="stPopover"] > button {
-        background-color: #E21B22 !important; /* Vermelho Arco */
-        color: white !important;
-        border-radius: 50% !important;
-        width: 65px !important;
-        height: 65px !important;
+   /* Botões Primários (Estilo Botão Header Arco) */
+    button[kind="primary"] {
+        background-color: #111827 !important; /* Fundo escuro elegante */
+        color: #FFFFFF !important;
+        border-radius: 8px !important;
         border: none !important;
-        box-shadow: 0 10px 15px -3px rgba(226, 27, 34, 0.4) !important;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: transform 0.2s;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600 !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
-    div[data-testid="stPopover"] > button:hover {
-        transform: scale(1.1);
+    button[kind="primary"]:hover {
+        background-color: #374151 !important; /* Cinza mais claro no hover */
+        color: #FFFFFF !important;
     }
-    /* Texto dentro do botão flutuante */
-    div[data-testid="stPopover"] > button p {
-        font-size: 28px !important;
-        font-weight: bold;
-        margin: 0 !important;
+    /* Estilo específico do botão central de Iniciar na home */
+    .cta-button button {
+        border-radius: 50px !important;
+        padding: 12px 48px !important;
+        font-size: 1.1rem !important;
+        width: 100% !important;
+        max-width: 300px;
+        margin: 0 auto !important;
+        display: block !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -194,13 +196,13 @@ opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de 
 
 for i, opcao in enumerate(opcoes_menu):
     with nav_cols[i+1]:
-        # Gambiarra CSS para deixar o menu selecionado em negrito e preto
+        # Gambiarra CSS para deixar o menu selecionado em negrito e laranja (sem bordas pra não tremer)
         if st.session_state['current_page'] == opcao:
-            st.markdown(f"""<style>div[data-testid="stColumn"]:nth-child({i+2}) > div > button {{color: #111827 !important; border-bottom: 2px solid #F05D23 !important; border-radius: 0 !important; padding-bottom: 4px !important;}}</style>""", unsafe_allow_html=True)
+            st.markdown(f"""<style>div[data-testid="stColumn"]:nth-child({i+2}) > div > button {{color: #F05D23 !important; font-weight: 800 !important;}}</style>""", unsafe_allow_html=True)
             
         if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
             st.session_state['current_page'] = opcao
-            st.session_state['show_inputs'] = False # Reseta a home ao trocar de aba
+            # Removido o 'show_inputs = False' para não apagar seu trabalho ao voltar pra aba!
             st.rerun()
 
 st.markdown("<hr style='margin-top: 0; margin-bottom: 3rem;'>", unsafe_allow_html=True)
@@ -222,13 +224,13 @@ st.markdown('</div>', unsafe_allow_html=True)
 pipeline_html = """
 <div class="pipeline-container">
     <strong style="color: #111827; font-family: 'Montserrat', sans-serif;">O Caminho do Conteúdo:</strong> 
-    <span title="1. Pesquisa: Espiona o Google." class="pipeline-step">1. Pesquisa</span> ➔ 
-    <span title="2. Intenção: Descobre a verdadeira dúvida." class="pipeline-step">2. Intenção</span> ➔ 
-    <span title="3. Vocabulário: Mapeia jargões." class="pipeline-step">3. Vocabulário</span> ➔ 
-    <span title="4. Escrita: Redige o texto." class="pipeline-step">4. Escrita</span> ➔ 
-    <span title="5. Código SEO: Cria Schema." class="pipeline-step">5. Código SEO</span> ➔ 
-    <span title="6. Auditoria: Calcula notas." class="pipeline-step">6. Auditoria</span> ➔ 
-    <span title="7. Teste de IAs: Simula fontes." class="pipeline-step">7. Teste de IAs</span>
+    <span title="1. Pesquisa: Espiona o Top 3 do Google e as IAs (como ChatGPT) já dizem sobre o tema." class="pipeline-step">1. Pesquisa</span> ➔ 
+    <span title="2. Intenção: Descobre a verdadeira dúvida por trás das buscas (o que o leitor quer saber)." class="pipeline-step">2. Intenção</span> ➔ 
+    <span title="3. Vocabulário: Mapeia os jargões e conceitos obrigatórios de autoridade." class="pipeline-step">3. Vocabulário</span> ➔ 
+    <span title="4. Escrita: Redige o texto usando o tom de voz e regras anti-IA." class="pipeline-step">4. Escrita</span> ➔ 
+    <span title="5. Código SEO: Cria os dados ocultos (Schema) para o Google." class="pipeline-step">5. Código SEO</span> ➔ 
+    <span title="6. Auditoria: Calcula notas de leitura, resposta direta e evidências." class="pipeline-step">6. Auditoria</span> ➔ 
+    <span title="7. Teste de IAs: Simula se o seu texto está bom para virar fonte do SGE." class="pipeline-step">7. Teste de IAs</span>
 </div>
 """
 
@@ -1545,6 +1547,7 @@ if st.session_state['current_page'] == "BrandBook":
     st.session_state['especialistas_df'] = st.data_editor(st.session_state['especialistas_df'], num_rows="dynamic", width="stretch", key="editor_esp")
 
 elif st.session_state['current_page'] == "Gerador de Artigos":
+    gerar_btn = False # <--- ISTO AQUI MATA O NAMEERROR PARA SEMPRE!
     
     if not st.session_state['show_inputs']:
         # ==========================================
@@ -1557,11 +1560,11 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         </div>
         """, unsafe_allow_html=True)
 
-        # BOTÃO PRETO CENTRALIZADO
+        # BOTÃO PRETO CENTRALIZADO (Usa a classe .cta-button configurada no CSS)
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
         with col_cta2:
             st.markdown('<div class="cta-button">', unsafe_allow_html=True)
-            if st.button("Gerar artigo", use_container_width=True):
+            if st.button("Gerar artigo", use_container_width=True, type="primary"):
                 st.session_state['show_inputs'] = True
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
@@ -1569,14 +1572,14 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         # PIPELINE EMBAIXO DO BOTÃO
         st.markdown(pipeline_html, unsafe_allow_html=True)
 
-        # CARDS SELLING LLMS
+        # CARDS SELLING LLMS (COM ÍCONES NATIVOS À PROVA DE FALHAS)
         st.markdown("<h3 style='margin-top: 3rem; font-size: 1.5rem;'>As novidades. Veja o que acabou de chegar.</h3>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
         
         with c1:
             st.markdown("""
             <div class="saas-card">
-                <img class="card-icon" src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🧠</div>
                 <div class="card-title">Estrategista (GPT-4o)</div>
                 <div class="card-text">Analisa a concorrência e cria o briefing estrutural com alto Information Gain e regras E-E-A-T.</div>
             </div>
@@ -1584,7 +1587,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         with c2:
             st.markdown("""
             <div class="saas-card">
-                <img class="card-icon" src="https://upload.wikimedia.org/wikipedia/commons/3/36/Anthropic_logo.svg" style="filter: invert(1);">
+                <div style="font-size: 2rem; margin-bottom: 8px;">✍️</div>
                 <div class="card-title">Redator (Claude 3.7)</div>
                 <div class="card-text">A inteligência mais avançada para Copywriting. Escreve com fluidez humana e variação rítmica.</div>
             </div>
@@ -1592,7 +1595,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         with c3:
             st.markdown("""
             <div class="saas-card">
-                <img class="card-icon" src="https://logo.clearbit.com/google.com">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
                 <div class="card-title">AI Search Native</div>
                 <div class="card-text">Espiona o Google e o LinkedIn em tempo real para encontrar o 'Entity Gap' do seu nicho.</div>
             </div>
@@ -1600,7 +1603,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         with c4:
             st.markdown("""
             <div class="saas-card">
-                <img class="card-icon" src="https://logo.clearbit.com/wordpress.com">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🔗</div>
                 <div class="card-title">RAG Reverso (WP)</div>
                 <div class="card-text">Conecta-se ao seu CMS e faz a linkagem interna automática com os artigos que você já publicou.</div>
             </div>
