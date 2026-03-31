@@ -61,21 +61,26 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* MENU DE NAVEGAÇÃO NO TOPO */
-    div[data-testid="stColumn"] > div > button {
+    /* MENU DE NAVEGAÇÃO NO TOPO - À PROVA DE FALHAS */
+    div[data-testid="stHorizontalBlock"]:first-of-type button {
         background-color: transparent !important;
         color: #6B7280 !important;
         border: none !important;
-        /* A borda transparente abaixo cria o espaço fixo para não pular depois */
-        border-bottom: 2px solid transparent !important; 
         box-shadow: none !important;
-        font-family: 'Montserrat', sans-serif;
+        font-family: 'Montserrat', sans-serif !important;
         font-weight: 600 !important;
-        font-size: 1rem !important;
-        padding: 0 0 4px 0 !important;
-        transition: color 0.2s ease;
+        font-size: 1.05rem !important;
+        padding: 8px 0px !important;
+        margin: 0 !important;
     }
-    div[data-testid="stColumn"] > div > button:hover {
+    div[data-testid="stHorizontalBlock"]:first-of-type button:hover {
+        color: #111827 !important;
+    }
+    div[data-testid="stHorizontalBlock"]:first-of-type button:focus,
+    div[data-testid="stHorizontalBlock"]:first-of-type button:active {
+        outline: none !important;
+        box-shadow: none !important;
+        background-color: transparent !important;
         color: #111827 !important;
     }
 
@@ -198,11 +203,17 @@ opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de 
 
 for i, opcao in enumerate(opcoes_menu):
     with nav_cols[i+1]:
-        # Gambiarra CSS para selecionar o menu: 
-        # Usamos text-stroke para fazer o "Bold" sem alterar a largura do texto (não pula)
-        # E colorimos a borda invisível que já existe no CSS base
+        # O segredo do alinhamento perfeito: 
+        # text-shadow simula o negrito sem empurrar o layout para o lado.
+        # box-shadow inset cria a linha laranja sem empurrar o layout para cima.
         if st.session_state['current_page'] == opcao:
-            st.markdown(f"""<style>div[data-testid="stColumn"]:nth-child({i+2}) > div > button {{color: #111827 !important; -webkit-text-stroke: 0.5px #111827 !important; border-bottom-color: #F05D23 !important;}}</style>""", unsafe_allow_html=True)
+            st.markdown(f"""<style>
+            div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stColumn"]:nth-child({i+2}) button {{
+                color: #111827 !important; 
+                text-shadow: 0 0 0.8px #111827 !important; 
+                box-shadow: inset 0 -3px 0 0 #F05D23 !important;
+            }}
+            </style>""", unsafe_allow_html=True)
             
         if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
             st.session_state['current_page'] = opcao
