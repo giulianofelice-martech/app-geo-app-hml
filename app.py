@@ -44,6 +44,27 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
+    /* Transforma apenas o botão 'primary' em preto e arredondado */
+    button[kind="primary"] {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border-radius: 30px !important;
+        border: none !important;
+        padding: 10px 30px !important;
+        font-weight: 600 !important;
+    }
+    button[kind="primary"]:hover {
+        background-color: #333333 !important;
+        color: #ffffff !important;
+    }
+    /* Centraliza o botão */
+    div[data-testid="stButton"] {
+        display: flex;
+        justify-content: center;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT */
     [data-testid="stSidebar"] { display: none !important; }
     header[data-testid="stHeader"] { display: none !important; }
@@ -245,10 +266,41 @@ st.markdown('<div class="floating-help-container">', unsafe_allow_html=True)
 with st.popover("?"):
     st.header("📖 Guia Prático do Motor")
     st.markdown("Bem-vindo à v7.0. Este motor funciona como sua **equipe particular de especialistas**. Ele espiona a concorrência, entende as regras do Google e das IAs, e escreve conteúdos usando a voz exata da sua marca.")
+    
     with st.expander("🚀 Como usar as 5 Abas?"):
-        st.markdown("**1. Gerador:** Cria artigos completos do zero.\n**2. Brandbook:** O 'cérebro' do sistema.\n**3. Monitor:** Auditoria de textos via GPT-4o.\n**4. Adaptador & Revisor:** Transforma PDFs em iscas ou revisa textos antigos.\n**5. Auditor de Visibilidade:** Rastreamento do seu artigo no Google e SGE.")
+        st.markdown("""
+        **1. Gerador:** Cria artigos completos do zero. Você dá o tema (e links de referência se quiser), ele pesquisa o mercado e redige.
+        
+        **2. Brandbook:** O 'cérebro' do sistema. É aqui que dizemos o que cada marca da Arco pode ou não falar.
+        
+        **3. Monitor:** Ferramenta de auditoria. Cole um texto qualquer aqui para a IA dar uma nota de confiabilidade e sugerir melhorias.
+        
+        **4. Adaptador & Revisor:** Transforme seus E-books/PDFs em artigos "Teaser" para captar Leads, ou conserte textos antigos do blog para voltarem a ranquear.
+        
+        **5. Auditor de Visibilidade:** Coloque o link de um artigo seu e descubra se o Google ou as IAs já estão recomendando ele.
+        """)
+        
     with st.expander("📚 O que significam as Notas Matemáticas?"):
-        st.markdown("**Chunk Citability:** Texto fácil de ler por IA.\n**Answer-First:** Resposta direta no topo.\n**Evidence Density:** Uso de dados e links reais.\n**Information Gain:** O quanto de dado inédito você trouxe.")
+        st.markdown("""
+        O nosso motor avalia seu texto em duas frentes: **Estrutura** e **Autoridade**.
+        
+        **Notas de Estrutura:**
+        * **Chunk Citability (Legibilidade):** Mede se o texto é fácil de ler. Parágrafos curtos, listas e frases de impacto aumentam a nota.
+        * **Answer-First:** Avalia se você enrolou ou se entregou a resposta principal logo no começo do texto.
+        
+        **Notas de Autoridade:**
+        * **Evidence Density (Evidências):** Mede se você usou números, estatísticas reais e links para provar o que diz.
+        * **Information Gain (Ineditismo):** Calcula o quanto de informação nova você trouxe em relação ao que já existe no Top 3 do Google.
+        * **Entity Coverage:** Avalia se você usou o vocabulário que todo especialista do seu nicho deveria usar.
+        """)
+        
+    with st.expander("🤖 O que são os Testes de IA?"):
+        st.markdown("""
+        Nós simulamos como o ChatGPT ou Perplexity julgariam o seu texto:
+        
+        * **Retrieval Simulation:** É a chance de uma IA escolher o seu texto como fonte oficial para responder a um usuário.
+        * **Risco de Hijacking:** Mede o risco de um concorrente "roubar" o seu clique por ter explicado o assunto de forma mais direta e didática que você.
+        """)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Armazenando o HTML do pipeline para usar depois
@@ -1595,7 +1647,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
         with col_cta2:
             st.markdown('<div class="cta-button hero-btn">', unsafe_allow_html=True)
-            if st.button("Gerar artigo 🚀", use_container_width=True):
+            if st.button("Gerar artigo 🚀", type="primary"):
                 st.session_state['show_inputs'] = True
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
@@ -1610,7 +1662,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         with c1:
             st.markdown("""
             <div class="saas-card">
-                <div style="font-size: 2rem; margin-bottom: 8px;">🧠</div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="GPT-4o Logo" style="height: 32px; margin-bottom: 16px;">
                 <div class="card-title">Estrategista (GPT-4o)</div>
                 <div class="card-text">Analisa a concorrência e cria o briefing estrutural com alto Information Gain e regras E-E-A-T.</div>
             </div>
@@ -1618,7 +1670,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         with c2:
             st.markdown("""
             <div class="saas-card">
-                <div style="font-size: 2rem; margin-bottom: 8px;">✍️</div>
+                <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Claude_AI_symbol.svg" alt="Claude 3.7 Logo" style="height: 32px; margin-bottom: 16px;">
                 <div class="card-title">Redator (Claude 3.7)</div>
                 <div class="card-text">A inteligência mais avançada para Copywriting. Escreve com fluidez humana e variação rítmica.</div>
             </div>
@@ -2456,3 +2508,10 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
                 
                 st.markdown("**Como as IAs responderam às perguntas hoje:**")
                 st.code(resultados_ia_agregados if resultados_ia_agregados else "Sem dados.", language="markdown")
+
+st.markdown("""
+<div style="text-align: center; color: #6b7280; font-size: 13px; margin-top: 60px; padding-top: 20px; border-top: 1px solid #e5e7eb; line-height: 1.8;">
+    ⚙️ <strong>Feito para simplificar o complexo.</strong> Criação otimizada para humanos e novos motores de busca.<br>
+    ⚙️ <strong>Stack:</strong> Python | Streamlit | Pydantic &nbsp;&nbsp;&nbsp;&nbsp; 🧠 <strong>LLMs:</strong> GPT-4o | Claude 3.7 Sonnet &nbsp;&nbsp;&nbsp;&nbsp; 🔌 <strong>APIs:</strong> Serper.dev | Jina AI | Unsplash
+</div>
+""", unsafe_allow_html=True)
