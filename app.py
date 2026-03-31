@@ -1977,7 +1977,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
 # ==========================================
-lif st.session_state['current_page'] == "Monitor de GEO":
+elif st.session_state['current_page'] == "Monitor de GEO":
     st.subheader("🔍 Monitor de Autoridade GEO")
     st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca, auditar seu texto e gerar insights estruturais.")
     
