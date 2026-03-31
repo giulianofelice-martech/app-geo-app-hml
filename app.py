@@ -135,6 +135,8 @@ st.markdown("""
         font-family: 'Inter', sans-serif !important;
         font-weight: 600 !important;
         font-size: 1.1rem !important;
+        -webkit-text-stroke: 0px transparent !important; /* MATA A BORDA PRETA DO TEXTO */
+        text-shadow: none !important; /* MATA QUALQUER SOMBRA RESIDUAL */
     }
 
     div[data-testid="stButton"] button[kind="primary"]:hover {
