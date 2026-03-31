@@ -65,65 +65,54 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* MENU DE NAVEGAÇÃO CUSTOMIZADO (HTML Puro) */
-    .custom-nav-container {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 40px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #E5E7EB;
-        margin-bottom: 30px;
+    /* MENU DE NAVEGAÇÃO NO TOPO (Desativando o formato de botão nativo) */
+    div[data-testid="stHorizontalBlock"]:first-of-type button {
+        background-color: transparent !important;
+        color: #6B7280 !important;
+        border: none !important;
+        box-shadow: none !important;
+        font-family: 'Montserrat', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 1.05rem !important;
+        padding: 8px 0px !important;
+        margin: 0 !important;
+        /* A borda invisível abaixo garante que a linha laranja não empurre o layout */
+        border-bottom: 3px solid transparent !important;
+        border-radius: 0 !important;
     }
-    .custom-nav-item {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 600;
-        font-size: 1rem;
-        color: #6B7280;
-        text-decoration: none;
-        padding-bottom: 8px;
-        position: relative;
-        transition: color 0.2s ease;
+    div[data-testid="stHorizontalBlock"]:first-of-type button:hover {
+        color: #111827 !important;
     }
-    .custom-nav-item:hover {
-        color: #111827;
-    }
-    .custom-nav-item.active {
-        color: #111827;
-        font-weight: 800;
-    }
-    .custom-nav-item.active::after {
-        content: '';
-        position: absolute;
-        bottom: -11px; /* Ajuste fino para a linha bater na borda da div pai */
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background-color: #F05D23;
-        border-radius: 3px 3px 0 0;
+    /* Retira qualquer outline ou alteração de fundo no clique do menu */
+    div[data-testid="stHorizontalBlock"]:first-of-type button:focus,
+    div[data-testid="stHorizontalBlock"]:first-of-type button:active {
+        outline: none !important;
+        box-shadow: none !important;
+        background-color: transparent !important;
+        color: #111827 !important;
     }
 
-    /* BOTÃO PRIMÁRIO STREAMLIT (Global) */
-    div[data-testid="stButton"] button[kind="primary"] {
-        background-color: #111827 !important; /* Fundo Preto */
-        color: #FFFFFF !important; /* Texto Branco */
-        border-radius: 8px !important;
-        border: none !important;
-        height: 3.2em;
+    /* BOTÃO CTA PRETO ARREDONDADO (Ajuste forçado para todos os botões de ação) */
+    .cta-button button, div[data-testid="stButton"] button {
+        background-color: #111827 !important; /* PRETO ABSOLUTO */
+        color: #FFFFFF !important; /* TEXTO BRANCO ABSOLUTO */
+        border-radius: 50px !important;
+        padding: 12px 24px !important;
         font-family: 'Inter', sans-serif;
         font-weight: 600 !important;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-    div[data-testid="stButton"] button[kind="primary"]:hover {
-        background-color: #374151 !important; /* Cinza Escuro no Hover */
-        color: #FFFFFF !important;
-    }
-    /* Estilo específico do botão central de Iniciar na home */
-    .cta-button button {
-        border-radius: 50px !important;
-        padding: 12px 48px !important;
         font-size: 1.1rem !important;
+        border: none !important;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cta-button button:hover, div[data-testid="stButton"] button:hover {
+        background-color: #374151 !important; /* CINZA ESCURO NO HOVER */
+        color: #FFFFFF !important;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Centralização e largura específica SÓ para o botão Hero principal */
+    .hero-btn button {
         width: 100% !important;
         max-width: 300px;
         margin: 0 auto !important;
@@ -198,38 +187,53 @@ st.markdown("""
         justify-content: center;
         align-items: center;
         transition: transform 0.2s;
+        padding: 0 !important;
+        margin: 0 !important;
     }
     div[data-testid="stPopover"] > button:hover {
         transform: scale(1.1);
+        background-color: #C0141A !important;
     }
     /* Texto dentro do botão flutuante */
     div[data-testid="stPopover"] > button p {
         font-size: 28px !important;
         font-weight: bold;
         margin: 0 !important;
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 1.1 MENU DE NAVEGAÇÃO CUSTOMIZADO (HTML)
+# 1.1 MENU DE NAVEGAÇÃO SAAS NO TOPO
 # ==========================================
+nav_cols = st.columns([2, 2, 2, 2, 2, 2])
+
+with nav_cols[0]:
+    st.markdown('<img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 140px; margin-top: -5px;" alt="Logo Arco">', unsafe_allow_html=True)
+
 opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de GEO", "Auditor de Artigos"]
-pagina_atual = st.session_state['current_page']
 
-nav_html = f"""
-<div class="custom-nav-container">
-    <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 120px; margin-right: 20px;" alt="Logo Arco">
-"""
+for i, opcao in enumerate(opcoes_menu):
+    with nav_cols[i+1]:
+        # O segredo do alinhamento perfeito: 
+        # text-shadow simula o negrito sem empurrar o layout para o lado.
+        # border-bottom colore a linha invisível que já existe no CSS.
+        if st.session_state['current_page'] == opcao:
+            st.markdown(f"""<style>
+            div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stColumn"]:nth-child({i+2}) button {{
+                color: #111827 !important; 
+                text-shadow: 0 0 0.8px #111827 !important; 
+                border-bottom-color: #F05D23 !important;
+            }}
+            </style>""", unsafe_allow_html=True)
+            
+        if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
+            st.session_state['current_page'] = opcao
+            st.rerun()
 
-for opcao in opcoes_menu:
-    active_class = "active" if pagina_atual == opcao else ""
-    # Usamos query parameters para navegar sem usar o componente de botão nativo
-    nav_html += f'<a href="/?page={urllib.parse.quote(opcao)}" target="_self" class="custom-nav-item {active_class}">{opcao}</a>'
-
-nav_html += "</div>"
-st.markdown(nav_html, unsafe_allow_html=True)
-
+st.markdown("<hr style='margin-top: 0; margin-bottom: 3rem;'>", unsafe_allow_html=True)
+    
 # ==========================================
 # BOTÃO FLUTUANTE DE AJUDA (ESQUERDA)
 # ==========================================
