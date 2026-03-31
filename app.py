@@ -113,42 +113,28 @@ st.markdown("""
         color: #111827 !important;
     }
 
-    /* === BOTÃO GERAR ARTIGO (Preto e Arredondado) === */
-    /* Este CSS afeta os botões marcados com 'type="primary"' */
-    button[kind="primary"] {
-        background-color: #111827 !important; /* Preto absoluto */
+    /* === BOTÃO GERAR ARTIGO (MÉTODO DEFINITIVO) === */
+    .botao-gerar-wrapper button {
+        background-color: #000000 !important;
         border-radius: 50px !important;
         border: none !important;
-        padding: 12px 48px !important;
-        font-family: 'Inter', sans-serif;
-        transition: transform 0.2s, box-shadow 0.2s;
-        /* As próximas 3 linhas forçam o botão a ser block e centralizar */
-        width: 100% !important;
-        max-width: 300px !important;
-        margin: 0 auto !important;
-        display: block !important;
+        padding: 15px 50px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        transition: transform 0.2s, box-shadow 0.2s !important;
     }
     
-    /* O SEGREDO DO TEXTO BRANCO ESTÁ AQUI: O Streamlit joga o texto dentro de um 'div' e um 'p' dentro do botão */
-    button[kind="primary"] div,
-    button[kind="primary"] p {
-        color: #FFFFFF !important; /* Texto branco forçado */
+    /* Força o texto a ficar branco */
+    .botao-gerar-wrapper button * {
+        color: #ffffff !important;
+        font-family: 'Inter', sans-serif !important;
         font-weight: 600 !important;
-        font-size: 1.1rem !important;
-        margin: 0 !important;
-    }
-
-    button[kind="primary"]:hover {
-        background-color: #374151 !important; /* Cinza escuro no hover */
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        font-size: 18px !important;
     }
     
-    /* Centraliza a div pai do botão nativo do Streamlit */
-    div[data-testid="stButton"] {
-        display: flex;
-        justify-content: center;
-        width: 100%;
+    /* Hover */
+    .botao-gerar-wrapper button:hover {
+        background-color: #374151 !important;
+        transform: translateY(-2px);
     }
     
     /* ESTILO DOS CARDS DE VENDA (LLMs) */
@@ -1658,8 +1644,8 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         # BOTÃO PRETO CENTRALIZADO (Usa a classe .cta-button configurada no CSS)
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
         with col_cta2:
-            st.markdown('<div class="cta-button hero-btn">', unsafe_allow_html=True)
-            if st.button("Gerar artigo 🚀", type="primary", use_container_width=True):
+            st.markdown('<div class="botao-gerar-wrapper">', unsafe_allow_html=True)
+            if st.button("Gerar artigo 🚀", use_container_width=True):
                 st.session_state['show_inputs'] = True
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
