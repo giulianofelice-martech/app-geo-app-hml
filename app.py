@@ -113,30 +113,41 @@ st.markdown("""
         color: #111827 !important;
     }
 
-    /* === BOTÃO GERAR ARTIGO (Preto e Arredondado) === */
-    /* Este CSS afeta os botões marcados com 'type="primary"' */
-    div[data-testid="stButton"] button[kind="primary"], .cta-button button {
-        background-color: #111827 !important; /* PRETO ABSOLUTO */
-        color: #FFFFFF !important; /* TEXTO BRANCO */
-        border-radius: 50px !important;
-        padding: 12px 48px !important;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600 !important;
-        font-size: 1.1rem !important;
+    /* === BOTÃO GERAR ARTIGO (Preto, Arredondado e Centralizado) === */
+    
+    /* Centraliza o container pai do botão */
+    div[data-testid="stButton"] {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
         width: 100% !important;
-        max-width: 300px;
         margin: 0 auto !important;
-        display: block !important;
-        transition: transform 0.2s, box-shadow 0.2s;
-        border: none !important;
-    }
-    div[data-testid="stButton"] button[kind="primary"]:hover, .cta-button button:hover {
-        background-color: #374151 !important; /* CINZA ESCURO NO HOVER */
-        color: #FFFFFF !important;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
     }
 
+    /* Estiliza o botão */
+    button[kind="primary"] {
+        background-color: #000000 !important;
+        border-radius: 50px !important;
+        border: none !important;
+        padding: 12px 40px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+    }
+
+    /* Força ABSOLUTAMENTE TUDO dentro do botão (texto, parágrafos, spans) a ficar branco */
+    button[kind="primary"], 
+    button[kind="primary"] p, 
+    button[kind="primary"] span,
+    button[kind="primary"] * {
+        color: #ffffff !important; 
+        font-size: 1.1rem !important;
+    }
+
+    /* Efeito ao passar o mouse */
+    button[kind="primary"]:hover {
+        background-color: #374151 !important; /* Cinza escuro */
+        transform: translateY(-2px);
+    }
     /* ESTILO DOS CARDS DE VENDA (LLMs) */
     .saas-card {
         background: #FFFFFF;
