@@ -113,28 +113,22 @@ st.markdown("""
         color: #111827 !important;
     }
 
-    /* === BOTÃO GERAR ARTIGO (MÉTODO DEFINITIVO) === */
-    .botao-gerar-wrapper button {
+    /* === BOTÃO GERAR ARTIGO (PRETO E BRANCO) === */
+    button[kind="primary"] {
         background-color: #000000 !important;
+        border-color: #000000 !important;
         border-radius: 50px !important;
-        border: none !important;
-        padding: 15px 50px !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-        transition: transform 0.2s, box-shadow 0.2s !important;
+        padding: 12px 30px !important;
     }
-    
-    /* Força o texto a ficar branco */
-    .botao-gerar-wrapper button * {
-        color: #ffffff !important;
-        font-family: 'Inter', sans-serif !important;
+    /* O asterisco força QUALQUER texto escondido do Streamlit a ficar branco */
+    button[kind="primary"] * {
+        color: #FFFFFF !important;
         font-weight: 600 !important;
-        font-size: 18px !important;
+        font-size: 1.1rem !important;
     }
-    
-    /* Hover */
-    .botao-gerar-wrapper button:hover {
-        background-color: #374151 !important;
-        transform: translateY(-2px);
+    button[kind="primary"]:hover {
+        background-color: #333333 !important;
+        border-color: #333333 !important;
     }
     
     /* ESTILO DOS CARDS DE VENDA (LLMs) */
@@ -1644,11 +1638,9 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         # BOTÃO PRETO CENTRALIZADO (Usa a classe .cta-button configurada no CSS)
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
         with col_cta2:
-            st.markdown('<div class="botao-gerar-wrapper">', unsafe_allow_html=True)
-            if st.button("Gerar artigo 🚀", use_container_width=True):
+           if st.button("Gerar artigo 🚀", type="primary", use_container_width=True):
                 st.session_state['show_inputs'] = True
                 st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
         
         # PIPELINE EMBAIXO DO BOTÃO
         st.markdown(pipeline_html, unsafe_allow_html=True)
