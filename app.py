@@ -115,29 +115,32 @@ st.markdown("""
 
     /* === BOTÃO GERAR ARTIGO (Preto, Arredondado e Texto Branco) === */
     
-    /* 1. Estiliza a caixa do botão */
-    button[kind="primary"] {
+    /* 1. Ataca diretamente a classe cta-button que envelopa o botão */
+    .cta-button button {
+        background: #000000 !important;
         background-color: #000000 !important;
-        border: none !important;
+        border: 2px solid #000000 !important;
         border-radius: 50px !important;
         padding: 12px 30px !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
         transition: all 0.3s ease !important;
     }
 
-    /* 2. Força o texto interno a ser branco e grande (Atinge os parágrafos escondidos do Streamlit) */
-    button[kind="primary"] div, 
-    button[kind="primary"] p, 
-    button[kind="primary"] span {
+    /* 2. Força o texto interno a ser branco absoluto */
+    .cta-button button p, 
+    .cta-button button span, 
+    .cta-button button div {
         color: #FFFFFF !important;
         font-weight: 600 !important;
         font-size: 1.1rem !important;
         margin: 0 !important;
     }
 
-    /* 3. Efeito de Hover (Cinza escuro ao passar o mouse) */
-    button[kind="primary"]:hover {
+    /* 3. Efeito de Hover (Cinza escuro) */
+    .cta-button button:hover {
+        background: #333333 !important;
         background-color: #333333 !important;
+        border-color: #333333 !important;
         transform: translateY(-2px);
     }
     
