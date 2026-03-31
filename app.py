@@ -936,6 +936,20 @@ def calcular_information_gain(artigo_html, google_ctx):
     score = min(len(novas) / 8, 100) # Matemático bruto
     return {"information_gain_score": round(score, 2), "palavras_unicas_trazidas": len(novas)}
 
+def refinar_artigo_html(html_atual, instrucoes):
+    """Permite que a IA edite apenas partes específicas de um artigo já gerado."""
+    system = """Você é um Revisor Sênior e Editor de HTML.
+    Sua tarefa é modificar um artigo HTML existente ESTRITAMENTE de acordo com as instruções do usuário.
+    
+    REGRAS CRÍTICAS:
+    1. APLIQUE APENAS A MUDANÇA SOLICITADA. Não reescreva o tom de voz e não altere partes do texto que não foram mencionadas na instrução.
+    2. MANTENHA TODO O CÓDIGO HTML INTACTO. Preserve todas as tags (<h1>, <h2>, <p>, <ul>), links (<a href...>) e imagens (<img>) exatamente como estão, a menos que a instrução peça para alterá-las.
+    3. Retorne EXCLUSIVAMENTE o código HTML finalizado e completo. Pare de gerar texto imediatamente após a última tag HTML. Nada de introduções, comentários ou marcações (```html).
+    """
+    user = f"INSTRUÇÃO DE ALTERAÇÃO:\n{instrucoes}\n\nARTIGO ORIGINAL (HTML):\n{html_atual}"
+    
+    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.2)
+
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
@@ -1679,6 +1693,37 @@ with tab1:
                     with st.expander("📋 Ver Código Fonte (HTML puro)"):
                         st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar as tags HTML.")
                         st.code(st.session_state['art_gerado'], language="html")
+
+                    # ==========================================
+                    # NOVO RECURSO: CAIXA DE COMENTÁRIOS DA IA
+                    # ==========================================
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown("### 🪄 Comentários para edição com IA")
+                    st.caption("Escreva o que você deseja alterar no texto acima. A IA vai modificar apenas o trecho solicitado e manter o resto do artigo intacto.")
+                    
+                    # O campo de input em branco
+                    instrucao_ajuste = st.text_area("Instruções:", placeholder="Ex: Substitua a palavra 'alunos' por 'estudantes' no segundo parágrafo... ou Remova o último tópico.", label_visibility="collapsed")
+                    
+                    # O botão só fica habilitado (clicável) se tiver algum texto na caixa
+                    botao_habilitado = bool(instrucao_ajuste.strip())
+                    
+                    if st.button("✨ Refinar Texto com IA", type="secondary", disabled=not botao_habilitado, use_container_width=True):
+                        with st.spinner("Cirurgia em andamento... A IA está reescrevendo apenas o trecho solicitado..."):
+                            try:
+                                novo_html = refinar_artigo_html(st.session_state['art_gerado'], instrucao_ajuste)
+                                
+                                # Guilhotina de segurança para limpar o markdown
+                                novo_html = re.sub(r'^```html\n|```$', '', novo_html, flags=re.MULTILINE).strip()
+                                if '<' in novo_html and '>' in novo_html:
+                                    novo_html = novo_html[novo_html.find('<') : novo_html.rfind('>') + 1]
+                                
+                                # Atualiza o estado com o novo texto e recarrega a tela instantaneamente
+                                st.session_state['art_gerado'] = novo_html
+                                st.success("✅ Ajuste aplicado com sucesso!")
+                                time.sleep(1)
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Erro ao tentar refinar o texto: {e}")
 
                 else:
                     # MODO DE EDIÇÃO MANUAL DO CÓDIGO
