@@ -953,7 +953,7 @@ def refinar_artigo_html(html_atual, instrucoes):
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
-def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", modo_humanizado=False):
+def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", conteudo_proprietario="", modo_humanizado=False):
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
@@ -1157,6 +1157,10 @@ CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
 CONTEÚDO ADICIONAL DO ESPECIALISTA (DIRECIONAMENTO HUMANO OBRIGATÓRIO):
 {conteudo_adicional if conteudo_adicional else "Nenhum conteúdo extra fornecido. Siga apenas o briefing."}
 
+CONTEÚDO PROPRIETÁRIO INEGOCIÁVEL (COPIAR E COLAR EXATAMENTE COMO ESTÁ):
+{conteudo_proprietario if conteudo_proprietario else "Nenhum conteúdo proprietário exigido."}
+ATENÇÃO: Se houver texto no bloco acima, você é OBRIGADO a encontrar um espaço lógico no artigo e transcrever essa frase ou bloco de texto LITERALMENTE, palavra por palavra, sem resumir ou alterar nenhuma vírgula.
+
 O QUE A CONCORRÊNCIA DIZ HOJE:
 {contexto_google}
 
@@ -1182,15 +1186,16 @@ Você DEVE obrigatoriamente usar pelo menos um destes links como hiperlink no me
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
 3. ASSIMETRIA VISUAL: Você quebrou os parágrafos corretamente? Há frases isoladas servindo como parágrafos curtos misturadas com parágrafos de 3 linhas? Se o texto estiver um "bloco de tijolo" igual, altere agora.
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
-5. VETO A ESCOLAS E RIVAIS: Verifique seu texto e as URLs dos seus links (<a href="...>). Você citou o nome ou o site de ALGUMA OUTRA ESCOLA PRIVADA ou sistema de ensino que não seja a {marca_alvo} (ex: Escola Balão Vermelho, Colégio X, Edify)? SE SIM, remova o link imediatamente, apague o nome da escola e mantenha apenas a explicação do conceito de forma neutra.
+5. VETO A ESCOLAS E RIVAIS: Verifique seu texto e as URLs dos seus links (<a href="...>). Você citou o nome ou o site de ALGUMA OUTRA ESCOLA PRIVADA ou sistema de ensino que não seja a {marca_alvo}? SE SIM, remova imediatamente.
 6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
-7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais (com caminho completo/slug, ex: /artigos/nome-do-estudo), ou você fez lazy linking para uma página inicial (ex: .com.br/)? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico de um relatório ou apague o link.
+7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico ou apague o link.
 8. Você garantiu que TODAS as menções à {marca_alvo} contêm o link <a href="{url_marca}">?
-8.1 VERIFICAÇÃO DE RAG: Leia o seu texto final. Você incluiu a tag <a href="..."> usando as URLs da lista de Artigos Internos Disponíveis? Se o texto não contiver as URLs daquela lista, refaça o parágrafo e insira.
+8.1 VERIFICAÇÃO DE RAG: Leia o seu texto final. Você incluiu a tag <a href="..."> usando as URLs da lista de Artigos Internos Disponíveis? Se não, insira.
 9. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
-10. AUDITORIA DE FONTES (TOLERÂNCIA ZERO): Você citou alguma Associação, Instituto, Estudo, Pesquisa, Ministério (ex: MEC) ou Órgão Governamental no texto? Se sim, a tag de link (<a href="...">) está EXATAMENTE junto ao nome deles? Se estiver sem link, APAGUE a frase inteira imediatamente. Não tente consertar, apenas apague a afirmação.
-11. Você analisou o "CONTEÚDO ADICIONAL DO ESPECIALISTA"? O artigo reflete as ideias, autores ou referências sugeridas ali de forma natural e profunda? Se o texto estiver genérico e não estiver se apoiando na linha de raciocínio pedida pelo humano, ajuste a narrativa para incorporar e expandir esses conceitos agora.
-12. O seu título <h1> tem menos de 60 caracteres? Conte as letras. Se passar de 60, resuma o título agora antes de me entregar.
+10. AUDITORIA DE FONTES (TOLERÂNCIA ZERO): Você citou alguma Associação, Instituto, Estudo, Pesquisa, Ministério no texto? Se sim, a tag de link (<a href="...">) está EXATAMENTE junto ao nome deles? Se estiver sem link, APAGUE a frase inteira imediatamente.
+11. Você analisou o "CONTEÚDO ADICIONAL DO ESPECIALISTA"? O artigo reflete as ideias, autores ou referências sugeridas ali de forma natural e profunda?
+12. O seu título <h1> tem menos de 60 caracteres? Conte as letras.
+13. CONTEÚDO PROPRIETÁRIO (CRÍTICO): Verifique se foi fornecido algum "CONTEÚDO PROPRIETÁRIO INEGOCIÁVEL". Se sim, procure no seu texto gerado. A frase está EXACTAMENTE igual ao original, sem nenhuma palavra alterada? Se você resumiu ou alterou a frase, corrija agora colando a frase original.
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
@@ -1199,7 +1204,6 @@ Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os
 
 ATENÇÃO: Pare de escrever IMEDIATAMENTE após a última tag HTML. NUNCA gere auto-avaliações, comentários ou textos que comecem com "AI:".
 """
-
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.45)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
     
@@ -1294,12 +1298,15 @@ ANTI-CLOAKING E VALIDAÇÃO:
     ai_simulation = simular_resposta_ai(palavra_chave, artigo_html)
 
     return (
-        artigo_html, dicas_json, contexto_google, baseline_ia, entity_gap, 
-        score_originalidade, citabilidade, cluster, reverse_queries, 
-        citation_score, entity_coverage, geo_score, retrieval_simulation, 
-        hijacking_risk, ai_simulation, chunk_citability, answer_first, 
-        rag_chunks, evidence_density, information_gain, contexto_wp
-    )
+                            artigo_html, dicas_json, google_data, ia_data, entity_gap, 
+                            score_originalidade, citabilidade, cluster, reverse_queries, 
+                            citation_score, entity_coverage, geo_score, retrieval_simulation, 
+                            hijacking_risk, ai_simulation, chunk_citability, answer_first, 
+                            rag_chunks, evidence_density, information_gain, contexto_wp
+                        ) = executar_geracao_completa(
+                            palavra_chave_input, marca_selecionada, publico_selecionado, 
+                            conteudo_adicional_input, conteudo_proprietario_input, modo_humanizado
+                        )
 
 def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     import base64
@@ -1514,10 +1521,17 @@ with tab1:
             placeholder="Exemplos do que inserir aqui:\n- Links de referência: https://site.com/pesquisa-recente\n- Autores/Teorias: Cite a teoria de Vygotsky sobre o assunto.\n- Insumos próprios: 'Nossa escola parceira aumentou as matrículas em 20%...'\n- Restrições: Não fale sobre provas do MEC neste texto."
         )
         
+        # ---> NOVO CAMPO: CONTEÚDO PROPRIETÁRIO <---
+        conteudo_proprietario_input = st.text_area(
+            "🔒 Conteúdo Proprietário Inegociável (Opcional)", 
+            height=100,
+            help="Frases exatas, citações ou parágrafos que a IA é OBRIGADA a incluir literalmente no texto gerado sem alterar nenhuma palavra.",
+            placeholder="Ex: 'Segundo nosso diretor João, a educação transforma o amanhã.' (A IA vai colar este texto exato dentro do artigo)."
+        )
+        
         # O NOSSO NOVO INTERRUPTOR A/B
         st.markdown("<br>", unsafe_allow_html=True)
         modo_humanizado = st.toggle("✨ Ativar Escrita Empática / Mentoria (Beta)", value=False, help="Se ativado, a IA usa um prompt focado em fluidez humana e cadência vocal, reduzindo o tom corporativo. Se desativado, usa o motor GEO restrito clássico.")
-        st.markdown("<br>", unsafe_allow_html=True)
 
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", width="stretch", type="primary")
         st.markdown("---")
