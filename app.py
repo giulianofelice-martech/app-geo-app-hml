@@ -1638,7 +1638,52 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         # BOTÃO PRETO CENTRALIZADO (Usa a classe .cta-button configurada no CSS)
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
         with col_cta2:
-           if st.button("Gerar artigo 🚀", type="primary", use_container_width=True):
+            # Aqui recriamos o botão com uma classe específica nossa
+            st.markdown("""
+            <style>
+            .btn-gerar-preto {
+                background-color: #000000 !important;
+                color: #FFFFFF !important;
+                border: none !important;
+                border-radius: 50px !important;
+                padding: 12px 48px !important;
+                font-family: 'Inter', sans-serif !important;
+                font-weight: 600 !important;
+                font-size: 1.1rem !important;
+                width: 100% !important;
+                cursor: pointer !important;
+                transition: background-color 0.3s ease !important;
+            }
+            .btn-gerar-preto:hover {
+                background-color: #333333 !important;
+            }
+            /* Esconde o botão original do Streamlit que fica por baixo */
+            div[data-testid="stButton"] > button {
+                display: none !important; 
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            # Renderizamos nosso botão preto visualmente e, ao clicar, ele "acorda" o Streamlit via query_params
+            st.components.v1.html("""
+            <script>
+                function acionarGeracao() {
+                    // Manda um comando pro pai (Streamlit) para mudar a URL
+                    window.parent.postMessage({
+                        type: 'streamlit:setQueryParam', 
+                        key: 'acao', 
+                        value: 'gerar'
+                    }, '*');
+                    // E força o reload
+                    window.parent.location.href = window.parent.location.pathname + "?acao=gerar";
+                }
+            </script>
+            <button class="btn-gerar-preto" onclick="acionarGeracao()">Gerar artigo 🚀</button>
+            """, height=60)
+            
+            # O Streamlit lê se o botão acima mandou a ação pela URL
+            if st.query_params.get("acao") == "gerar":
+                st.query_params.clear() # Limpa pra não ficar preso num loop
                 st.session_state['show_inputs'] = True
                 st.rerun()
         
