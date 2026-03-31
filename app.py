@@ -1590,8 +1590,8 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         # BOTÃO PRETO CENTRALIZADO (Usa a classe .cta-button configurada no CSS)
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
         with col_cta2:
-            st.markdown('<div class="cta-button">', unsafe_allow_html=True)
-            if st.button("Gerar artigo 🚀", use_container_width=True, type="primary"):
+            st.markdown('<div class="cta-button hero-btn">', unsafe_allow_html=True)
+            if st.button("Gerar artigo 🚀", use_container_width=True):
                 st.session_state['show_inputs'] = True
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
