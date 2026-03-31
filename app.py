@@ -1628,16 +1628,43 @@ with tab1:
                 modo_visualizacao = st.radio("O que você deseja fazer?", ["📖 Modo de Leitura", "✏️ Modo de Edição Manual"], horizontal=True, label_visibility="collapsed")
                 
                 if modo_visualizacao == "📖 Modo de Leitura":
-                    # Botão mágico para baixar o arquivo perfeitamente formatado para o Word/Docs
-                    st.download_button(
-                        label="📄 Baixar Formato de Leitura (Perfeito para Word e Google Docs)",
-                        data=st.session_state['art_gerado'],
-                        file_name=f"artigo_revisao_{st.session_state['marca_atual'].lower()}.html",
-                        mime="text/html",
-                        type="secondary",
-                        use_container_width=True,
-                        help="Baixe este arquivo e arraste para o Google Drive ou abra no Word. Ele mantém todas as formatações, negritos e imagens perfeitas para enviar para revisão!"
-                    )
+                    
+                    # O BOTÃO MÁGICO DE COPIAR TEXTO FORMATADO (JS CUSTOMIZADO)
+                    componente_copiar = f"""
+                    <div style="font-family: 'Inter', sans-serif;">
+                        <button id="copy-btn" onclick="copyText()" style="background-color: #111827; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.3s;">
+                            📋 Copiar Texto Formatado (Para colar no Docs/Word)
+                        </button>
+                        <div id="content-to-copy" style="position: absolute; left: -9999px;">
+                            {st.session_state['art_gerado']}
+                        </div>
+                        <script>
+                            function copyText() {{
+                                var content = document.getElementById("content-to-copy");
+                                var range = document.createRange();
+                                range.selectNodeContents(content);
+                                var selection = window.getSelection();
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                                try {{
+                                    document.execCommand("copy");
+                                    var btn = document.getElementById("copy-btn");
+                                    btn.innerHTML = "✅ Texto copiado com sucesso! Agora é só dar Ctrl+V no Docs.";
+                                    btn.style.backgroundColor = "#10B981"; // Fica Verde
+                                    setTimeout(function() {{
+                                        btn.innerHTML = "📋 Copiar Texto Formatado (Para colar no Docs/Word)";
+                                        btn.style.backgroundColor = "#111827"; // Volta pro Preto
+                                    }}, 3000);
+                                }} catch (err) {{
+                                    console.error("Erro ao copiar: ", err);
+                                }}
+                                selection.removeAllRanges();
+                            }}
+                        </script>
+                    </div>
+                    """
+                    # Renderiza o botão JS no Streamlit
+                    st.components.v1.html(componente_copiar, height=65)
                     
                     st.markdown("<br>", unsafe_allow_html=True)
                     st.markdown("### 👁️ Pré-visualização do Blog")
@@ -1648,8 +1675,8 @@ with tab1:
                     
                     st.markdown("---")
                     
-                    # O código HTML fica escondidinho embaixo para quem quiser copiar
-                    with st.expander("📋 Ver Código Fonte (HTML para colar no CMS)"):
+                    # O código HTML fica escondidinho embaixo para quem quiser colar no painel do WordPress/Drupal
+                    with st.expander("📋 Ver Código Fonte (HTML puro)"):
                         st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar as tags HTML.")
                         st.code(st.session_state['art_gerado'], language="html")
 
