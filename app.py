@@ -265,10 +265,10 @@ except ValueError:
 # Agora o loop só renderiza os botões, sem injetar tags extras no meio do caminho
 for i, opcao in enumerate(opcoes_menu):
     with nav_cols[i+1]:
-        if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
-            st.session_state['current_page'] = opcao
-            st.rerun()
-
+        if st.button("Gerar artigo 🚀", type="primary", use_container_width=True):
+                st.session_state['show_inputs'] = True
+                st.rerun()
+            
 st.markdown("<hr style='margin-top: 0; margin-bottom: 3rem;'>", unsafe_allow_html=True)
 
 # ==========================================
