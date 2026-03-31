@@ -66,11 +66,13 @@ st.markdown("""
         background-color: transparent !important;
         color: #6B7280 !important;
         border: none !important;
+        /* A borda transparente abaixo cria o espaço fixo para não pular depois */
+        border-bottom: 2px solid transparent !important; 
         box-shadow: none !important;
         font-family: 'Montserrat', sans-serif;
         font-weight: 600 !important;
         font-size: 1rem !important;
-        padding: 0 !important;
+        padding: 0 0 4px 0 !important;
         transition: color 0.2s ease;
     }
     div[data-testid="stColumn"] > div > button:hover {
@@ -196,13 +198,14 @@ opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de 
 
 for i, opcao in enumerate(opcoes_menu):
     with nav_cols[i+1]:
-        # Gambiarra CSS para deixar o menu selecionado em negrito e laranja (sem bordas pra não tremer)
+        # Gambiarra CSS para selecionar o menu: 
+        # Usamos text-stroke para fazer o "Bold" sem alterar a largura do texto (não pula)
+        # E colorimos a borda invisível que já existe no CSS base
         if st.session_state['current_page'] == opcao:
-            st.markdown(f"""<style>div[data-testid="stColumn"]:nth-child({i+2}) > div > button {{color: #F05D23 !important; font-weight: 800 !important;}}</style>""", unsafe_allow_html=True)
+            st.markdown(f"""<style>div[data-testid="stColumn"]:nth-child({i+2}) > div > button {{color: #111827 !important; -webkit-text-stroke: 0.5px #111827 !important; border-bottom-color: #F05D23 !important;}}</style>""", unsafe_allow_html=True)
             
         if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
             st.session_state['current_page'] = opcao
-            # Removido o 'show_inputs = False' para não apagar seu trabalho ao voltar pra aba!
             st.rerun()
 
 st.markdown("<hr style='margin-top: 0; margin-bottom: 3rem;'>", unsafe_allow_html=True)
@@ -1564,7 +1567,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
         with col_cta2:
             st.markdown('<div class="cta-button">', unsafe_allow_html=True)
-            if st.button("Gerar artigo", use_container_width=True, type="primary"):
+            if st.button("Gerar artigo 🚀", use_container_width=True, type="primary"):
                 st.session_state['show_inputs'] = True
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
