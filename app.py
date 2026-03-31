@@ -62,8 +62,6 @@ st.markdown("""
         display: flex;
         justify-content: center;
     }
-    </style>
-    """, unsafe_allow_html=True)
 
     /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT */
     [data-testid="stSidebar"] { display: none !important; }
