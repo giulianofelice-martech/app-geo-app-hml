@@ -14,7 +14,13 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
-st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide")
+st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide", initial_sidebar_state="collapsed")
+
+# Inicializa as variáveis de navegação e exibição no session_state
+if 'current_page' not in st.session_state:
+    st.session_state['current_page'] = "Gerador de Artigos"
+if 'show_inputs' not in st.session_state:
+    st.session_state['show_inputs'] = False
 
 st.markdown("""
     <style>
@@ -26,7 +32,7 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
 
-    /* Estilizando os Títulos para Montserrat (Idêntico ao site) */
+    /* Estilizando os Títulos para Montserrat */
     h1, h2, h3 {
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 700 !important;
@@ -34,7 +40,12 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
-    /* TAG ESTILO ARCO (Azulzinha) - ADICIONADA AQUI */
+    /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT */
+    [data-testid="stSidebar"] { display: none !important; }
+    header[data-testid="stHeader"] { display: none !important; }
+    .block-container { padding-top: 2rem; max-width: 1200px; }
+
+    /* TAG AZUL - MOTOR DE INTELIGÊNCIA */
     .arco-tag {
         display: inline-flex;
         align-items: center;
@@ -44,166 +55,183 @@ st.markdown("""
         font-weight: 700;
         font-size: 0.75rem;
         letter-spacing: 0.05em;
-        padding: 4px 12px;
+        padding: 6px 16px;
         border-radius: 50px;
         text-transform: uppercase;
-        margin-bottom: 4px;
+        margin-bottom: 1rem;
     }
 
-    /* Botões Primários (Estilo Botão Header Arco) */
-    .stButton > button {
-        background-color: #111827 !important; /* Fundo escuro elegante */
-        color: #FFFFFF !important;
-        border-radius: 8px !important;
+    /* MENU DE NAVEGAÇÃO NO TOPO */
+    div[data-testid="stColumn"] > div > button {
+        background-color: transparent !important;
+        color: #6B7280 !important;
         border: none !important;
-        height: 3.2em;
+        box-shadow: none !important;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        padding: 0 !important;
+        transition: color 0.2s ease;
+    }
+    div[data-testid="stColumn"] > div > button:hover {
+        color: #111827 !important;
+    }
+
+    /* BOTÃO CTA PRETO ARREDONDADO */
+    .cta-button button {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        border-radius: 50px !important;
+        padding: 12px 48px !important;
         font-family: 'Inter', sans-serif;
         font-weight: 600 !important;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        font-size: 1.1rem !important;
+        width: 100% !important;
+        max-width: 300px;
+        margin: 0 auto !important;
+        display: block !important;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
-    
-    .stButton > button:hover {
-        background-color: #374151 !important; /* Cinza mais claro no hover */
+    .cta-button button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        color: #FFFFFF !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
     }
 
-    /* Estilo das Abas (Tabs) */
-    [data-baseweb="tab-list"] {
-        gap: 24px;
-        border-bottom: 2px solid #E5E7EB;
-    }
-    [data-baseweb="tab"] {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 600;
-        color: #6B7280;
-        padding-top: 16px;
-        padding-bottom: 16px;
-    }
-    [data-baseweb="tab"][aria-selected="true"] {
-        color: #F05D23 !important; /* Laranja Arco ativo */
-        border-bottom-color: #F05D23 !important;
-    }
-
-    /* Melhorando os Expanders (Para parecerem Cards) */
-    .streamlit-expanderHeader {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 600 !important;
-        color: #111827;
-        background-color: #FFFFFF;
-        border-radius: 8px;
-    }
-    
-    div[data-testid="stExpander"] {
-        background-color: #FFFFFF;
+    /* ESTILO DOS CARDS DE VENDA (LLMs) */
+    .saas-card {
+        background: #FFFFFF;
         border: 1px solid #E5E7EB;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        height: 100%;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .saas-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        border-color: #D1D5DB;
+    }
+    .card-icon {
+        height: 40px;
         margin-bottom: 16px;
     }
+    .card-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #111827;
+        margin-bottom: 8px;
+    }
+    .card-text {
+        font-size: 0.9rem;
+        color: #4B5563;
+        line-height: 1.5;
+    }
 
-    /* Customizando o Tooltip (Pipeline Ultimate) */
+    /* PIPELINE STYLING */
     .pipeline-container {
         font-family: 'Inter', sans-serif;
-        font-size: 0.9em; 
+        font-size: 0.85em; 
         color: #6B7280; 
-        margin-bottom: 2rem;
-        background-color: #FFFFFF;
-        padding: 16px;
-        border-radius: 8px;
+        text-align: center;
+        margin: 2rem auto;
+        background-color: #F9FAFB;
+        padding: 12px;
+        border-radius: 50px;
         border: 1px solid #E5E7EB;
+        width: fit-content;
     }
     .pipeline-step {
         cursor: help; 
         color: #374151;
         font-weight: 500;
-        border-bottom: 1px dashed #D1D5DB;
         transition: color 0.2s;
     }
-    .pipeline-step:hover {
-        color: #F05D23;
-        border-bottom-color: #F05D23;
+    .pipeline-step:hover { color: #F05D23; }
+
+    /* BOTÃO FLUTUANTE DE AJUDA (ESQUERDA) */
+    .floating-help-container {
+        position: fixed;
+        bottom: 40px;
+        left: 40px;
+        z-index: 99999;
+    }
+    /* Estilizando o Popover nativo do Streamlit para parecer um botão circular */
+    div[data-testid="stPopover"] > button {
+        background-color: #E21B22 !important; /* Vermelho Arco */
+        color: white !important;
+        border-radius: 50% !important;
+        width: 65px !important;
+        height: 65px !important;
+        border: none !important;
+        box-shadow: 0 10px 15px -3px rgba(226, 27, 34, 0.4) !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.2s;
+    }
+    div[data-testid="stPopover"] > button:hover {
+        transform: scale(1.1);
+    }
+    /* Texto dentro do botão flutuante */
+    div[data-testid="stPopover"] > button p {
+        font-size: 28px !important;
+        font-weight: bold;
+        margin: 0 !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# CABEÇALHO ALINHADO COM A TAG
+# 1.1 MENU DE NAVEGAÇÃO SAAS NO TOPO
 # ==========================================
-st.markdown("""
-<div style="display: flex; align-items: center; margin-bottom: 24px;">
-    <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 180px; margin-right: -10px;" alt="Logo Arco">
-    <div style="display: flex; flex-direction: column; justify-content: center;">
-        <div class="arco-tag" style="width: fit-content; margin-bottom: 4px;">MOTOR DE INTELIGÊNCIA</div>
-        <h1 style="margin: 0; padding: 0; font-size: 2.4rem;">Motor GEO v7.0 <span style="color: #F05D23; font-size: 0.6em;">AI Search Native</span></h1>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+nav_cols = st.columns([2, 2, 2, 2, 2, 2])
+
+with nav_cols[0]:
+    st.markdown('<img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 140px; margin-top: -5px;" alt="Logo Arco">', unsafe_allow_html=True)
+
+opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de GEO", "Auditor de Artigos"]
+
+for i, opcao in enumerate(opcoes_menu):
+    with nav_cols[i+1]:
+        # Gambiarra CSS para deixar o menu selecionado em negrito e preto
+        if st.session_state['current_page'] == opcao:
+            st.markdown(f"""<style>div[data-testid="stColumn"]:nth-child({i+2}) > div > button {{color: #111827 !important; border-bottom: 2px solid #F05D23 !important; border-radius: 0 !important; padding-bottom: 4px !important;}}</style>""", unsafe_allow_html=True)
+            
+        if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
+            st.session_state['current_page'] = opcao
+            st.session_state['show_inputs'] = False # Reseta a home ao trocar de aba
+            st.rerun()
+
+st.markdown("<hr style='margin-top: 0; margin-bottom: 3rem;'>", unsafe_allow_html=True)
 
 # ==========================================
-# PIPELINE COM TOOLTIPS TRADUZIDOS E SIMPLIFICADOS
+# BOTÃO FLUTUANTE DE AJUDA (ESQUERDA)
 # ==========================================
+st.markdown('<div class="floating-help-container">', unsafe_allow_html=True)
+with st.popover("?"):
+    st.header("📖 Guia Prático do Motor")
+    st.markdown("Bem-vindo à v7.0. Este motor funciona como sua **equipe particular de especialistas**. Ele espiona a concorrência, entende as regras do Google e das IAs, e escreve conteúdos usando a voz exata da sua marca.")
+    with st.expander("🚀 Como usar as 5 Abas?"):
+        st.markdown("**1. Gerador:** Cria artigos completos do zero.\n**2. Brandbook:** O 'cérebro' do sistema.\n**3. Monitor:** Auditoria de textos via GPT-4o.\n**4. Adaptador & Revisor:** Transforma PDFs em iscas ou revisa textos antigos.\n**5. Auditor de Visibilidade:** Rastreamento do seu artigo no Google e SGE.")
+    with st.expander("📚 O que significam as Notas Matemáticas?"):
+        st.markdown("**Chunk Citability:** Texto fácil de ler por IA.\n**Answer-First:** Resposta direta no topo.\n**Evidence Density:** Uso de dados e links reais.\n**Information Gain:** O quanto de dado inédito você trouxe.")
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Armazenando o HTML do pipeline para usar depois
 pipeline_html = """
 <div class="pipeline-container">
     <strong style="color: #111827; font-family: 'Montserrat', sans-serif;">O Caminho do Conteúdo:</strong> 
-    <span title="1. Pesquisa: Espiona o Top 3 do Google e o que as IAs (como ChatGPT) já dizem sobre o tema." class="pipeline-step">1. Pesquisa</span> ➔ 
-    <span title="2. Intenção: Descobre a verdadeira dúvida por trás das buscas (o que o leitor realmente quer saber)." class="pipeline-step">2. Intenção</span> ➔ 
-    <span title="3. Vocabulário: Mapeia os jargões e conceitos obrigatórios que provam que sua marca é especialista no assunto." class="pipeline-step">3. Vocabulário</span> ➔ 
-    <span title="4. Escrita: Redige o texto usando o tom de voz da marca, quebrando blocos longos para não cansar o leitor." class="pipeline-step">4. Escrita</span> ➔ 
-    <span title="5. Código SEO: Cria os 'dados ocultos' (Schema) que ajudam o Google a ler a página mais rápido." class="pipeline-step">5. Código SEO</span> ➔ 
-    <span title="6. Auditoria: Calcula notas baseadas na facilidade de leitura e na quantidade de dados e links reais usados." class="pipeline-step">6. Auditoria</span> ➔ 
-    <span title="7. Teste das IAs: Simula se o seu texto está bom o suficiente para ser citado como 'Fonte Oficial' por uma IA." class="pipeline-step">7. Teste de IAs</span>
+    <span title="1. Pesquisa: Espiona o Google." class="pipeline-step">1. Pesquisa</span> ➔ 
+    <span title="2. Intenção: Descobre a verdadeira dúvida." class="pipeline-step">2. Intenção</span> ➔ 
+    <span title="3. Vocabulário: Mapeia jargões." class="pipeline-step">3. Vocabulário</span> ➔ 
+    <span title="4. Escrita: Redige o texto." class="pipeline-step">4. Escrita</span> ➔ 
+    <span title="5. Código SEO: Cria Schema." class="pipeline-step">5. Código SEO</span> ➔ 
+    <span title="6. Auditoria: Calcula notas." class="pipeline-step">6. Auditoria</span> ➔ 
+    <span title="7. Teste de IAs: Simula fontes." class="pipeline-step">7. Teste de IAs</span>
 </div>
 """
-st.markdown(pipeline_html, unsafe_allow_html=True)
 
-# ==========================================
-# MENU LATERAL (GUIA DO USUÁRIO TRADUZIDO)
-# ==========================================
-with st.sidebar:
-    st.header("📖 Guia Prático do Motor")
-    st.markdown("Bem-vindo à v7.0. Este motor funciona como sua **equipe particular de especialistas**. Ele espiona a concorrência, entende as regras do Google e das IAs, e escreve conteúdos usando a voz exata da sua marca.")
-    
-    with st.expander("🚀 Como usar as 5 Abas?", expanded=False):
-        st.markdown("""
-        **1. Gerador:** Cria artigos completos do zero. Você dá o tema (e links de referência se quiser), ele pesquisa o mercado e redige.
-        
-        **2. Brandbook:** O 'cérebro' do sistema. É aqui que dizemos o que cada marca da Arco pode ou não falar.
-        
-        **3. Monitor:** Ferramenta de auditoria. Cole um texto qualquer aqui para a IA dar uma nota de confiabilidade e sugerir melhorias.
-        
-        **4. Adaptador & Revisor:** Transforme seus E-books/PDFs em artigos "Teaser" para captar Leads, ou conserte textos antigos do blog para voltarem a ranquear.
-        
-        **5. Auditor de Visibilidade:** Coloque o link de um artigo seu e descubra se o Google ou as IAs já estão recomendando ele.
-        """)
-        
-    with st.expander("📚 O que significam as Notas Matemáticas?", expanded=False):
-        st.markdown("""
-        O nosso motor avalia seu texto em duas frentes: **Estrutura** e **Autoridade**.
-        
-        **Notas de Estrutura:**
-        * **Chunk Citability (Legibilidade):** Mede se o texto é fácil de ler. Parágrafos curtos, listas e frases de impacto aumentam a nota.
-        * **Answer-First:** Avalia se você enrolou ou se entregou a resposta principal logo no começo do texto.
-        
-        **Notas de Autoridade:**
-        * **Evidence Density (Evidências):** Mede se você usou números, estatísticas reais e links para provar o que diz.
-        * **Information Gain (Ineditismo):** Calcula o quanto de informação nova você trouxe em relação ao que já existe no Top 3 do Google.
-        * **Entity Coverage:** Avalia se você usou o vocabulário que todo especialista do seu nicho deveria usar.
-        """)
-        
-    with st.expander("🤖 O que são os Testes de IA?", expanded=False):
-        st.markdown("""
-        Nós simulamos como o ChatGPT ou Perplexity julgariam o seu texto:
-        
-        * **Retrieval Simulation:** É a chance de uma IA escolher o seu texto como fonte oficial para responder a um usuário.
-        * **Risco de Hijacking:** Mede o risco de um concorrente "roubar" o seu clique por ter explicado o assunto de forma mais direta e didática que você.
-        """)
-        
-    st.divider()
-    st.caption("⚙️ **Feito para simplificar o complexo.**\nCriação otimizada para humanos e novos motores de busca.\n⚙️ **Stack:** Python | Streamlit | Pydantic\n🧠 **LLMs:** GPT-4o | Claude 3.7 Sonnet\n🔌 **APIs:** Serper.dev | Jina AI | Unsplash")
-    
 # ==========================================
 # ESTRUTURAS PYDANTIC
 # ==========================================
@@ -1505,15 +1533,8 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
 # ==========================================
 # 5. INTERFACE PRINCIPAL
 # ==========================================
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "✍️ Gerador de Artigos", 
-    "📚 Brandbook", 
-    "🔍 Monitor de GEO", 
-    "📝 Revisor GEO WordPress", 
-    "📊 Auditor de Artigos"
-])
 
-with tab2:
+if st.session_state['current_page'] == "BrandBook":
     st.markdown("### 🏢 Edite as regras, marcas e diretrizes:")
     st.session_state['brandbook_df'] = st.data_editor(st.session_state['brandbook_df'], num_rows="dynamic", width="stretch")
     st.info("💡 Dica: Adicione regras específicas na coluna 'RegrasPositivas'.")
@@ -1523,43 +1544,102 @@ with tab2:
     st.caption("Adicione o nome do especialista e o link de um artigo escrito por ele (LinkedIn, Blog, etc). O Motor lerá os links para clonar o tom de voz do autor.")
     st.session_state['especialistas_df'] = st.data_editor(st.session_state['especialistas_df'], num_rows="dynamic", width="stretch", key="editor_esp")
 
-with tab1:
-    # 1. CRIANDO A "CAIXA" NO TOPO ANTES DAS COLUNAS
-    caixa_topo = st.container()
-    st.markdown("<br>", unsafe_allow_html=True) # Dá um pequeno respiro visual
+elif st.session_state['current_page'] == "Gerador de Artigos":
     
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        marca_selecionada = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist())
-        # --- EXTRAÇÃO DINÂMICA DE PÚBLICO-ALVO ---
-        try:
-            publicos_da_marca = st.session_state['brandbook_df'][st.session_state['brandbook_df']['Marca'] == marca_selecionada]['PublicoAlvo'].iloc[0]
+    if not st.session_state['show_inputs']:
+        # ==========================================
+        # HERO SECTION E CARDS DE VENDA (SÓ MOSTRA ANTES DO CLIQUE)
+        # ==========================================
+        st.markdown("""
+        <div style="text-align: center; margin-top: 1rem; margin-bottom: 2rem;">
+            <div class="arco-tag">MOTOR DE INTELIGÊNCIA</div>
+            <h1 style="font-size: 3rem; margin-top: 0.5rem; margin-bottom: 2rem;">Motor GEO v7.0 <span style="color: #F05D23;">AI Search Native</span></h1>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # BOTÃO PRETO CENTRALIZADO
+        col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
+        with col_cta2:
+            st.markdown('<div class="cta-button">', unsafe_allow_html=True)
+            if st.button("Gerar artigo", use_container_width=True):
+                st.session_state['show_inputs'] = True
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # PIPELINE EMBAIXO DO BOTÃO
+        st.markdown(pipeline_html, unsafe_allow_html=True)
+
+        # CARDS SELLING LLMS
+        st.markdown("<h3 style='margin-top: 3rem; font-size: 1.5rem;'>As novidades. Veja o que acabou de chegar.</h3>", unsafe_allow_html=True)
+        c1, c2, c3, c4 = st.columns(4)
+        
+        with c1:
+            st.markdown("""
+            <div class="saas-card">
+                <img class="card-icon" src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg">
+                <div class="card-title">Estrategista (GPT-4o)</div>
+                <div class="card-text">Analisa a concorrência e cria o briefing estrutural com alto Information Gain e regras E-E-A-T.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c2:
+            st.markdown("""
+            <div class="saas-card">
+                <img class="card-icon" src="https://upload.wikimedia.org/wikipedia/commons/3/36/Anthropic_logo.svg" style="filter: invert(1);">
+                <div class="card-title">Redator (Claude 3.7)</div>
+                <div class="card-text">A inteligência mais avançada para Copywriting. Escreve com fluidez humana e variação rítmica.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c3:
+            st.markdown("""
+            <div class="saas-card">
+                <img class="card-icon" src="https://logo.clearbit.com/google.com">
+                <div class="card-title">AI Search Native</div>
+                <div class="card-text">Espiona o Google e o LinkedIn em tempo real para encontrar o 'Entity Gap' do seu nicho.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c4:
+            st.markdown("""
+            <div class="saas-card">
+                <img class="card-icon" src="https://logo.clearbit.com/wordpress.com">
+                <div class="card-title">RAG Reverso (WP)</div>
+                <div class="card-text">Conecta-se ao seu CMS e faz a linkagem interna automática com os artigos que você já publicou.</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    else:
+        # ==========================================
+        # FORMULÁRIO DE GERAÇÃO (MOSTRADO APÓS CLICAR NO BOTÃO)
+        # ==========================================
+        st.markdown("""
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem;">Motor GEO v7.0 <span style="color: #F05D23; font-size: 1.2rem;">AI Search Native</span></h1>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(pipeline_html, unsafe_allow_html=True)
+
+        caixa_topo = st.container()
+        st.markdown("<br>", unsafe_allow_html=True) 
+        
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            marca_selecionada = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist())
             
-            # AGORA SIM: Cortando EXCLUSIVAMENTE pelo ponto final
-            opcoes_publico = [p.strip() for p in publicos_da_marca.split('.') if p.strip()]
-            
-            # Prevenção: Se a marca não tiver público cadastrado, joga o "Geral"
-            if not opcoes_publico:
+            try:
+                publicos_da_marca = st.session_state['brandbook_df'][st.session_state['brandbook_df']['Marca'] == marca_selecionada]['PublicoAlvo'].iloc[0]
+                opcoes_publico = [p.strip() for p in publicos_da_marca.split('.') if p.strip()]
+                if not opcoes_publico: opcoes_publico = ["Público Geral (Baseado na Keyword)"]
+                else: opcoes_publico.append("Público Geral (Baseado na Keyword)")
+            except Exception:
                 opcoes_publico = ["Público Geral (Baseado na Keyword)"]
-            else:
-                # Adiciona o "Público Geral" logo abaixo dos públicos da marca
-                opcoes_publico.append("Público Geral (Baseado na Keyword)")
                 
-        except Exception:
-            # Fallback de segurança se der erro
-            opcoes_publico = ["Público Geral (Baseado na Keyword)"]
+            opcoes_publico.append("✍️ Digitar outro público (Personalizado)...")
+            escolha_publico = st.selectbox("🎯 Para quem estamos escrevendo?", opcoes_publico)
             
-        # A opção de digitar sempre vai para o final da fila
-        opcoes_publico.append("✍️ Digitar outro público (Personalizado)...")
-        
-        # Selectbox para o usuário
-        escolha_publico = st.selectbox("🎯 Para quem estamos escrevendo?", opcoes_publico, help="Escolha uma persona do Brandbook ou selecione 'Digitar outro' para inserir uma nova.")
-        
-        # Se o usuário quiser digitar, abre o campo de texto
-        if escolha_publico == "✍️ Digitar outro público (Personalizado)...":
-            publico_selecionado = st.text_input("Qual é o público-alvo?", placeholder="Ex: pais de alunos, estudantes do ensino médio, professores...")
-        else:
-            publico_selecionado = escolha_publico
+            if escolha_publico == "✍️ Digitar outro público (Personalizado)...":
+                publico_selecionado = st.text_input("Qual é o público-alvo?", placeholder="Ex: pais de alunos, estudantes do ensino médio...")
+            else:
+                publico_selecionado = escolha_publico
         # ----------------------------------------------
         # NOVOS INPUTS DO GERADOR
         # ----------------------------------------------
@@ -1897,7 +1977,7 @@ with tab1:
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
 # ==========================================
-with tab3:
+lif st.session_state['current_page'] == "Monitor de GEO":
     st.subheader("🔍 Monitor de Autoridade GEO")
     st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca, auditar seu texto e gerar insights estruturais.")
     
@@ -2042,7 +2122,7 @@ with tab3:
 # ==========================================
 # 7. ADAPTADOR DE PDF & REVISOR GEO (ABA 4)
 # ==========================================
-with tab4:
+elif st.session_state['current_page'] == "Revisor de GEO":
     st.subheader("♻️ Adaptador & Revisor GEO")
     st.caption("Adapte um E-book/PDF proprietário para a voz de qualquer marca ou revise um artigo antigo do WordPress.")
     
@@ -2175,7 +2255,7 @@ with tab4:
 # ==========================================
 # 8. AUDITOR DE ARTIGOS (NOVA ABA 5)
 # ==========================================
-with tab5:
+elif st.session_state['current_page'] == "Auditor de Artigos":
     st.subheader("📊 Auditor de Visibilidade GEO")
     st.caption("Verifique se um artigo publicado está ranqueando no Google ou sendo recomendado espontaneamente pelas IAs.")
 
