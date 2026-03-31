@@ -65,24 +65,7 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* MENU DE NAVEGAÇÃO NO TOPO (Desativando o formato de botão nativo) */
-    div[data-testid="stHorizontalBlock"]:first-of-type button {
-        background-color: transparent !important;
-        color: #6B7280 !important;
-        border: none !important;
-        box-shadow: none !important;
-        font-family: 'Montserrat', sans-serif !important;
-        font-weight: 600 !important;
-        font-size: 1.05rem !important;
-        padding: 8px 0px !important;
-        margin: 0 !important;
-        /* A borda invisível abaixo garante que a linha laranja não empurre o layout */
-        border-bottom: 3px solid transparent !important;
-        border-radius: 0 !important;
-    }
-    div[data-testid="stHorizontalBlock"]:first-of-type button:hover {
-        color: #111827 !important;
-    }
+   
     /* Retira qualquer outline ou alteração de fundo no clique do menu */
     div[data-testid="stHorizontalBlock"]:first-of-type button:focus,
     div[data-testid="stHorizontalBlock"]:first-of-type button:active {
@@ -92,33 +75,28 @@ st.markdown("""
         color: #111827 !important;
     }
 
-    /* BOTÃO CTA PRETO ARREDONDADO (Ajuste forçado para todos os botões de ação) */
-    .cta-button button, div[data-testid="stButton"] button {
-        background-color: #111827 !important; /* PRETO ABSOLUTO */
-        color: #FFFFFF !important; /* TEXTO BRANCO ABSOLUTO */
+    /* BOTÃO CTA PRETO ARREDONDADO (Exclusivo para o Gerar Artigo) */
+    .cta-button button {
+        background-color: #111827 !important;
+        color: #FFFFFF !important;
         border-radius: 50px !important;
-        padding: 12px 24px !important;
+        padding: 12px 48px !important;
         font-family: 'Inter', sans-serif;
         font-weight: 600 !important;
         font-size: 1.1rem !important;
-        border: none !important;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .cta-button button:hover, div[data-testid="stButton"] button:hover {
-        background-color: #374151 !important; /* CINZA ESCURO NO HOVER */
-        color: #FFFFFF !important;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-    }
-    
-    /* Centralização e largura específica SÓ para o botão Hero principal */
-    .hero-btn button {
         width: 100% !important;
         max-width: 300px;
         margin: 0 auto !important;
         display: block !important;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none !important;
     }
-
+    .cta-button button:hover {
+        background-color: #374151 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+    
     /* ESTILO DOS CARDS DE VENDA (LLMs) */
     .saas-card {
         background: #FFFFFF;
@@ -205,35 +183,68 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 1.1 MENU DE NAVEGAÇÃO SAAS NO TOPO
+# 1.1 MENU DE NAVEGAÇÃO SAAS NO TOPO (HTML PURO)
 # ==========================================
+opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de GEO", "Auditor de Artigos"]
+
+# O CSS a seguir "desliga" apenas os botões dentro das colunas do menu (data-testid="stColumn") 
+# e mantém os botões principais do resto da página intactos.
+st.markdown("""
+<style>
+/* Resetando os botões apenas nas colunas do menu do topo para virarem texto limpo */
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stColumn"] button {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #6B7280 !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    justify-content: flex-start !important; /* Alinhamento forçado à esquerda */
+}
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stColumn"] button:hover {
+    color: #111827 !important;
+}
+/* Remove contornos e focos indesejados ao clicar */
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stColumn"] button:active,
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stColumn"] button:focus {
+    background-color: transparent !important;
+    color: #111827 !important;
+    box-shadow: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 nav_cols = st.columns([2, 2, 2, 2, 2, 2])
 
 with nav_cols[0]:
     st.markdown('<img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 140px; margin-top: -5px;" alt="Logo Arco">', unsafe_allow_html=True)
 
-opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de GEO", "Auditor de Artigos"]
-
 for i, opcao in enumerate(opcoes_menu):
     with nav_cols[i+1]:
-        # O segredo do alinhamento perfeito: 
-        # text-shadow simula o negrito sem empurrar o layout para o lado.
-        # border-bottom colore a linha invisível que já existe no CSS.
+        # Para evitar que o botão pule/caia: Usamos text-shadow e um border-bottom estrito apenas
+        # injetado com um style tag dinâmico focado no enésimo filho (nth-child).
         if st.session_state['current_page'] == opcao:
-            st.markdown(f"""<style>
+            st.markdown(f"""
+            <style>
             div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stColumn"]:nth-child({i+2}) button {{
                 color: #111827 !important; 
                 text-shadow: 0 0 0.8px #111827 !important; 
-                border-bottom-color: #F05D23 !important;
+                border-bottom: 2px solid #F05D23 !important;
+                padding-bottom: 5px !important;
+                border-radius: 0 !important;
             }}
-            </style>""", unsafe_allow_html=True)
+            </style>
+            """, unsafe_allow_html=True)
             
-        if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
+        if st.button(opcao, use_container_width=False, key=f"nav_{i}"):
             st.session_state['current_page'] = opcao
             st.rerun()
 
 st.markdown("<hr style='margin-top: 0; margin-bottom: 3rem;'>", unsafe_allow_html=True)
-    
+
 # ==========================================
 # BOTÃO FLUTUANTE DE AJUDA (ESQUERDA)
 # ==========================================
