@@ -193,13 +193,13 @@ st.markdown("""
     }
     .pipeline-step:hover { color: #F05D23; }
 
-    /* BOTÃO FLUTUANTE DE AJUDA (ESQUERDA) */
-    .floating-help-container {
-        position: fixed;
-        bottom: 40px;
-        left: 40px;
-        z-index: 99999;
-    }
+    /* BOTÃO FLUTUANTE DE AJUDA (DIREITA) */
+    .floating-help-container {
+        position: fixed;
+        bottom: 40px;
+        right: 40px; /* <--- Alterado de left para right */
+        z-index: 99999;
+    }
     /* Estilizando o Popover nativo do Streamlit para parecer um botão circular */
     div[data-testid="stPopover"] > button {
         background-color: #E21B22 !important; /* Vermelho Arco */
@@ -1640,14 +1640,34 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
     
     if not st.session_state['show_inputs']:
         # ==========================================
-        # HERO SECTION E CARDS DE VENDA (SÓ MOSTRA ANTES DO CLIQUE)
-        # ==========================================
-        st.markdown("""
-        <div style="text-align: center; margin-top: 1rem; margin-bottom: 2rem;">
-            <div class="arco-tag">MOTOR DE INTELIGÊNCIA</div>
-            <h1 style="font-size: 3rem; margin-top: 0.5rem; margin-bottom: 2rem;">Motor GEO v7.0 <span style="color: #F05D23;">AI Search Native</span></h1>
-        </div>
-        """, unsafe_allow_html=True)
+        # HERO SECTION E CARDS DE VENDA (SÓ MOSTRA ANTES DO CLIQUE)
+        # ==========================================
+        st.markdown("""
+        <style>
+        /* Animação CSS pura para alternar os nomes das IAs sem usar Javascript */
+        .animated-ia::after {
+            content: 'Gemini';
+            animation: switchWord 6s infinite; /* 6s total / 4 palavras = 1.5s cada */
+            color: #418EDE;
+            font-weight: 700;
+        }
+        @keyframes switchWord {
+            0%, 20%  { content: 'Gemini'; }
+            25%, 45% { content: 'Perplexity'; }
+            50%, 70% { content: 'Chat GPT'; }
+            75%, 95% { content: 'Copilot'; }
+            100%     { content: 'Gemini'; }
+        }
+        </style>
+        
+        <div style="text-align: center; margin-top: -2rem; margin-bottom: 2rem;">
+            <div class="arco-tag" style="margin-bottom: 0.5rem;">MOTOR DE INTELIGÊNCIA</div>
+            <h1 style="font-size: 3rem; margin-top: 0rem; margin-bottom: 0.5rem;">Motor GEO v7.0 <span style="color: #F05D23;">AI Search Native</span></h1>
+            <p style="font-size: 1.1rem; color: #4B5563; margin-top: 0; font-family: 'Inter', sans-serif;">
+                O objetivo dessa ferramenta é criar artigos otimizados para IAs como <span class="animated-ia"></span>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
         # BOTÃO PRETO CENTRALIZADO
         col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
