@@ -62,14 +62,30 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* === 1. MENU PRINCIPAL COM LOGO ALINHADA === */
-    /* Target estrito ao PRIMEIRO grupo de abas da página (O Menu). As sub-abas ignoram isso. */
-    div[data-testid="stTabs"]:first-of-type > div > div[data-baseweb="tab-list"] {
-        gap: 24px;
-        border-bottom: 2px solid #E5E7EB;
-        padding-left: 170px; /* Cria o espaço exato para a Logo */
-        position: relative;
+    /* === 1.2 NOVO ESTILO DOS BOTÕES DO MENU (Sem bordas e alinhados) === */
+    /* Força o alinhamento vertical exato entre a Logo (coluna 1) e os Botões */
+    div[data-testid="stHorizontalBlock"]:first-of-type {
+        align-items: center !important;
     }
+
+    /* Remove as bordas, box-shadow e fundos dos botões de navegação para virarem "links" */
+    div[data-testid="stHorizontalBlock"]:first-of-type button {
+        border: none !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        color: #6B7280 !important;
+        font-family: 'Montserrat', sans-serif !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+
+    /* Efeito suave ao passar o mouse sem quebrar o layout */
+    div[data-testid="stHorizontalBlock"]:first-of-type button:hover {
+        color: #111827 !important;
+        background-color: rgba(0,0,0,0.03) !important;
+        border-radius: 8px !important;
+    }
+    
     /* Injeta a Logo da Arco diretamente dentro da barra de abas principal */
     div[data-testid="stTabs"]:first-of-type > div > div[data-baseweb="tab-list"]::before {
         content: "";
@@ -220,27 +236,34 @@ st.markdown("""
 nav_cols = st.columns([2, 2, 2, 2, 2, 2])
 
 with nav_cols[0]:
-    st.markdown('<img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 140px; margin-top: -5px;" alt="Logo Arco">', unsafe_allow_html=True)
+    # Flexbox para garantir que a logo fique perfeitamente centralizada com os botões
+    st.markdown('''
+        <div style="display: flex; align-items: center; height: 100%; min-height: 42px;">
+            <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 140px;" alt="Logo Arco">
+        </div>
+    ''', unsafe_allow_html=True)
 
 opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de GEO", "Auditor de Artigos"]
 
-# Aplicamos o estilo do menu selecionado DE UMA VEZ AQUI EM CIMA, para não empurrar os botões no loop
+# Aplicamos o estilo do menu selecionado
 try:
     index_selecionado = opcoes_menu.index(st.session_state['current_page'])
-    # Usa stroke pra bold sem mudar a largura, e border-bottom na cor laranja
+    # Remove as bordas padrão e aplica apenas a borda inferior laranja (estilo aba)
     st.markdown(f"""
     <style>
     div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stColumn"]:nth-child({index_selecionado + 2}) button {{
         color: #111827 !important; 
         -webkit-text-stroke: 0.6px #111827 !important;
-        border-bottom-color: #F05D23 !important;
+        border-bottom: 3px solid #F05D23 !important; /* Linha laranja embaixo */
+        border-radius: 0px !important; /* Remove arredondamento na base para a aba */
+        background-color: transparent !important;
     }}
     </style>
     """, unsafe_allow_html=True)
 except ValueError:
     pass
 
-# Agora o loop só renderiza os botões, sem injetar tags extras no meio do caminho
+# Renderiza os botões
 for i, opcao in enumerate(opcoes_menu):
     with nav_cols[i+1]:
         if st.button(opcao, use_container_width=True, key=f"nav_{i}"):
