@@ -1669,6 +1669,29 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         # PIPELINE EMBAIXO DO BOTÃO
         st.markdown(pipeline_html, unsafe_allow_html=True)
 
+        # === NOVO: SETA ANIMADA INDICANDO SCROLL ===
+        st.markdown("""
+        <style>
+        @keyframes bounce-down {
+            0%, 100% { transform: translateY(0); opacity: 0.4; }
+            50% { transform: translateY(10px); opacity: 1; }
+        }
+        .scroll-indicator {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: -10px;
+            color: #9CA3AF;
+            animation: bounce-down 2s infinite ease-in-out;
+        }
+        </style>
+        <div class="scroll-indicator">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+            <div style="font-size: 12px; margin-top: 2px; font-family: 'Inter', sans-serif; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;">VEJA MAIS</div>
+        </div>
+        """, unsafe_allow_html=True)
+
         # CARDS SELLING LLMS (COM ÍCONES NATIVOS À PROVA DE FALHAS)
         st.markdown("<h3 style='margin-top: 3rem; font-size: 1.5rem;'>As novidades. Veja o que acabou de chegar.</h3>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
