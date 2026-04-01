@@ -1734,79 +1734,79 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                 publico_selecionado = st.text_input("Qual é o público-alvo?", placeholder="Ex: pais de alunos, estudantes do ensino médio...")
             else:
                 publico_selecionado = escolha_publico
-        # ----------------------------------------------
-        # NOVOS INPUTS DO GERADOR
-        # ----------------------------------------------
-        palavra_chave_input = st.text_area(
-            "🔑 Palavra-chave ou Consulta/Query de Pesquisa", 
-            placeholder="Ex: metodologia bilíngue nas escolas OU como implementar a cultura maker no ensino médio?"
-        )
-        
-        conteudo_adicional_input = st.text_area(
-            "📚 Conteúdo Adicional (Opcional)", 
-            height=120,
-            placeholder="Exemplos do que inserir aqui:\n- Links de referência: https://site.com/pesquisa-recente\n- Autores/Teorias: Cite a teoria de Vygotsky sobre o assunto.\n- Insumos próprios: 'Nossa escola parceira aumentou as matrículas em 20%...'\n- Restrições: Não fale sobre provas do MEC neste texto."
-        )
-        
-        # ---> NOVO CAMPO: CONTEÚDO PROPRIETÁRIO <---
-        conteudo_proprietario_input = st.text_area(
-            "🔒 Conteúdo Proprietário Inegociável (Opcional)", 
-            height=100,
-            help="Frases exatas, citações ou parágrafos que a IA é OBRIGADA a incluir literalmente no texto gerado sem alterar nenhuma palavra.",
-            placeholder="Ex: 'Segundo nosso diretor João, a educação transforma o amanhã.' (A IA vai colar este texto exato dentro do artigo)."
-        )
-        
-        # O NOSSO NOVO INTERRUPTOR A/B
-        st.markdown("<br>", unsafe_allow_html=True)
-        modo_humanizado = st.toggle("✨ Ativar Escrita Empática / Mentoria (Beta)", value=False, help="Se ativado, a IA usa um prompt focado em fluidez humana e cadência vocal, reduzindo o tom corporativo.")
-        
-        # --- NOVO RECURSO: GHOSTWRITING ---
-        modo_especialista = st.toggle("👔 Ativar Escrita de Especialista", value=False, help="A IA vai ler os artigos do especialista no Brandbook e escrever o texto usando o tom de voz, maneirismos e referências dele.")
-        especialista_selecionado = None
-        if modo_especialista:
-            lista_autores = st.session_state['especialistas_df']['Especialista'].unique().tolist()
-            especialista_selecionado = st.selectbox("Selecione o Autor/Especialista:", lista_autores)
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        gerar_btn = st.button("🚀 Gerar Artigo em HTML", width="stretch", type="primary")
+            # ----------------------------------------------
+            # NOVOS INPUTS DO GERADOR
+            # ----------------------------------------------
+            palavra_chave_input = st.text_area(
+                "🔑 Palavra-chave ou Consulta/Query de Pesquisa", 
+                placeholder="Ex: metodologia bilíngue nas escolas OU como implementar a cultura maker no ensino médio?"
+            )
+            
+            conteudo_adicional_input = st.text_area(
+                "📚 Conteúdo Adicional (Opcional)", 
+                height=120,
+                placeholder="Exemplos do que inserir aqui:\n- Links de referência: https://site.com/pesquisa-recente\n- Autores/Teorias: Cite a teoria de Vygotsky sobre o assunto.\n- Insumos próprios: 'Nossa escola parceira aumentou as matrículas em 20%...'\n- Restrições: Não fale sobre provas do MEC neste texto."
+            )
+            
+            # ---> NOVO CAMPO: CONTEÚDO PROPRIETÁRIO <---
+            conteudo_proprietario_input = st.text_area(
+                "🔒 Conteúdo Proprietário Inegociável (Opcional)", 
+                height=100,
+                help="Frases exatas, citações ou parágrafos que a IA é OBRIGADA a incluir literalmente no texto gerado sem alterar nenhuma palavra.",
+                placeholder="Ex: 'Segundo nosso diretor João, a educação transforma o amanhã.' (A IA vai colar este texto exato dentro do artigo)."
+            )
+            
+            # O NOSSO NOVO INTERRUPTOR A/B
+            st.markdown("<br>", unsafe_allow_html=True)
+            modo_humanizado = st.toggle("✨ Ativar Escrita Empática / Mentoria (Beta)", value=False, help="Se ativado, a IA usa um prompt focado em fluidez humana e cadência vocal, reduzindo o tom corporativo.")
+            
+            # --- NOVO RECURSO: GHOSTWRITING ---
+            modo_especialista = st.toggle("👔 Ativar Escrita de Especialista", value=False, help="A IA vai ler os artigos do especialista no Brandbook e escrever o texto usando o tom de voz, maneirismos e referências dele.")
+            especialista_selecionado = None
+            if modo_especialista:
+                lista_autores = st.session_state['especialistas_df']['Especialista'].unique().tolist()
+                especialista_selecionado = st.selectbox("Selecione o Autor/Especialista:", lista_autores)
+            st.markdown("<br>", unsafe_allow_html=True)
     
-        st.markdown("---")
+            gerar_btn = st.button("🚀 Gerar Artigo em HTML", width="stretch", type="primary")
         
-        cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(marca_selecionada)
-        WP_READY = bool(cms_u and cms_usr and cms_p)
-
-        if not WP_READY:
-            st.warning(f"🔌 Integração CMS inativa para a marca {marca_selecionada}. Faltam as credenciais no painel de Secrets.")
-        else:
-            # Faz um Ping real na API para ver se o Firewall está bloqueando
-            with st.spinner(f"Verificando conexão com o Firewall do {cms_t.upper()}..."):
-                try:
-                    import base64
-                    token_teste = base64.b64encode(f"{cms_usr}:{cms_p.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
-                    # Máscara de Chrome para TODOS (WP e Drupal)
-                    user_agent_ping = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                    
-                    headers_teste = {
-                        'User-Agent': user_agent_ping, 
-                        'Accept': 'application/json' if cms_t == 'wp' else 'application/vnd.api+json',
-                        'Authorization': f'Basic {token_teste}',
-                        'Connection': 'keep-alive'
-                    }
-                    
-                    # Ping rápido puxando só 1 post (bem leve)
-                    url_ping = f"{cms_u}?per_page=1" if cms_t == "wp" else f"{cms_u}?page[limit]=1"
-                    res_ping = requests.get(url_ping, headers=headers_teste, timeout=5)
-                    
-                    if res_ping.status_code == 200:
-                        st.success(f"🔌 Conectado e Autorizado no {cms_t.upper()} da marca: {marca_selecionada}")
-                    elif res_ping.status_code in [403, 401]:
-                        st.error(f"🛑 Credenciais OK, mas o Firewall (WAF) bloqueou a leitura da marca {marca_selecionada} (Erro {res_ping.status_code}). Solicite whitelist do User-Agent para a TI.")
-                        WP_READY = False # Força o desativamento do botão de postagem direta mais abaixo
-                    else:
-                        st.warning(f"⚠️ API respondeu com Erro {res_ping.status_code}. O RAG Reverso pode falhar.")
-                except Exception:
-                    st.error(f"🔌 O domínio da marca {marca_selecionada} não respondeu a tempo (Timeout).")
-                    WP_READY = False
+            st.markdown("---")
+            
+            cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(marca_selecionada)
+            WP_READY = bool(cms_u and cms_usr and cms_p)
+    
+            if not WP_READY:
+                st.warning(f"🔌 Integração CMS inativa para a marca {marca_selecionada}. Faltam as credenciais no painel de Secrets.")
+            else:
+                # Faz um Ping real na API para ver se o Firewall está bloqueando
+                with st.spinner(f"Verificando conexão com o Firewall do {cms_t.upper()}..."):
+                    try:
+                        import base64
+                        token_teste = base64.b64encode(f"{cms_usr}:{cms_p.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
+                        # Máscara de Chrome para TODOS (WP e Drupal)
+                        user_agent_ping = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                        
+                        headers_teste = {
+                            'User-Agent': user_agent_ping, 
+                            'Accept': 'application/json' if cms_t == 'wp' else 'application/vnd.api+json',
+                            'Authorization': f'Basic {token_teste}',
+                            'Connection': 'keep-alive'
+                        }
+                        
+                        # Ping rápido puxando só 1 post (bem leve)
+                        url_ping = f"{cms_u}?per_page=1" if cms_t == "wp" else f"{cms_u}?page[limit]=1"
+                        res_ping = requests.get(url_ping, headers=headers_teste, timeout=5)
+                        
+                        if res_ping.status_code == 200:
+                            st.success(f"🔌 Conectado e Autorizado no {cms_t.upper()} da marca: {marca_selecionada}")
+                        elif res_ping.status_code in [403, 401]:
+                            st.error(f"🛑 Credenciais OK, mas o Firewall (WAF) bloqueou a leitura da marca {marca_selecionada} (Erro {res_ping.status_code}). Solicite whitelist do User-Agent para a TI.")
+                            WP_READY = False # Força o desativamento do botão de postagem direta mais abaixo
+                        else:
+                            st.warning(f"⚠️ API respondeu com Erro {res_ping.status_code}. O RAG Reverso pode falhar.")
+                    except Exception:
+                        st.error(f"🔌 O domínio da marca {marca_selecionada} não respondeu a tempo (Timeout).")
+                        WP_READY = False
 
     # 2. DIRECIONANDO O CARREGAMENTO PARA A COLUNA 2 (DIREITA)
     if gerar_btn:
