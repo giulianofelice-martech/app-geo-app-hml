@@ -226,7 +226,7 @@ st.markdown("""
 nav_cols = st.columns([2, 2, 2, 2, 2, 2])
 
 with nav_cols[0]:
-    st.markdown('<img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 140px; margin-top: -15px;" alt="Logo Arco">', unsafe_allow_html=True)
+    st.markdown('<img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 140px; margin-top: -20px;" alt="Logo Arco">', unsafe_allow_html=True)
 
 opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de GEO", "Auditor de Artigos"]
 
