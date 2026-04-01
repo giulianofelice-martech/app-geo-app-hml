@@ -36,7 +36,6 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
 
-    /* Estilizando os Títulos para Montserrat */
     h1, h2, h3 {
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 700 !important;
@@ -44,31 +43,10 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
-    /* Transforma apenas o botão 'primary' em preto e arredondado */
-    button[kind="primary"] {
-        background-color: #000000 !important;
-        color: #ffffff !important;
-        border-radius: 30px !important;
-        border: none !important;
-        padding: 10px 30px !important;
-        font-weight: 600 !important;
-    }
-    button[kind="primary"]:hover {
-        background-color: #333333 !important;
-        color: #ffffff !important;
-    }
-    /* Centraliza o botão */
-    div[data-testid="stButton"] {
-        display: flex;
-        justify-content: center;
-    }
-
     /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT */
-    [data-testid="stSidebar"] { display: none !important; }
-    header[data-testid="stHeader"] { display: none !important; }
+    [data-testid="stSidebar"], header[data-testid="stHeader"] { display: none !important; }
     .block-container { padding-top: 2rem; max-width: 1200px; }
 
-    /* TAG AZUL - MOTOR DE INTELIGÊNCIA */
     .arco-tag {
         display: inline-flex;
         align-items: center;
@@ -84,68 +62,76 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* === MENU DE NAVEGAÇÃO NO TOPO (Fixado e sem pular) === */
-    /* Alvo específico: O primeiro bloco horizontal da página (que é o menu) */
-    div[data-testid="stHorizontalBlock"]:first-of-type button {
-        background-color: transparent !important;
-        color: #6B7280 !important;
+    /* === 1. MENU PRINCIPAL COM LOGO ALINHADA === */
+    /* Target estrito ao PRIMEIRO grupo de abas da página (O Menu). As sub-abas ignoram isso. */
+    div[data-testid="stTabs"]:first-of-type > div > div[data-baseweb="tab-list"] {
+        gap: 24px;
+        border-bottom: 2px solid #E5E7EB;
+        padding-left: 170px; /* Cria o espaço exato para a Logo */
+        position: relative;
+    }
+    /* Injeta a Logo da Arco diretamente dentro da barra de abas principal */
+    div[data-testid="stTabs"]:first-of-type > div > div[data-baseweb="tab-list"]::before {
+        content: "";
+        background-image: url('https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: left center;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 140px;
+        height: 35px;
+    }
+    div[data-testid="stTabs"]:first-of-type > div > div[data-baseweb="tab"] {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        color: #6B7280;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        background: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        font-family: 'Montserrat', sans-serif !important;
-        font-weight: 600 !important;
-        font-size: 1.05rem !important;
-        padding: 0 0 8px 0 !important; /* Padding APENAS embaixo para a linha laranja */
-        margin: 0 !important;
-        border-bottom: 3px solid transparent !important; /* Espaço pré-alocado para a linha */
-        border-radius: 0 !important;
-        display: flex !important;
-        justify-content: flex-start !important; /* Alinha o texto à esquerda */
     }
-    div[data-testid="stHorizontalBlock"]:first-of-type button:hover {
+    div[data-testid="stTabs"]:first-of-type > div > div[data-baseweb="tab"][aria-selected="true"] {
         color: #111827 !important;
-    }
-    /* Remove contornos e focos indesejados ao clicar no menu */
-    div[data-testid="stHorizontalBlock"]:first-of-type button:active,
-    div[data-testid="stHorizontalBlock"]:first-of-type button:focus {
-        outline: none !important;
-        box-shadow: none !important;
-        background-color: transparent !important;
-        color: #111827 !important;
+        border-bottom: 3px solid #F05D23 !important; /* Laranja Arco */
+        background: transparent !important;
     }
 
-   /* === BOTÃO GERAR ARTIGO (PRETO E TEXTO BRANCO) === */
-    div[data-testid="stButton"] button[kind="primary"] {
+    /* === 2. TODOS OS BOTÕES PRIMÁRIOS (Quadrados normais 8px) === */
+    div[data-testid="stButton"] > button[kind="primary"] {
         background-color: #111827 !important;
-        border-radius: 50px !important;
-        padding: 12px 48px !important;
-        width: 100% !important;
-        max-width: 300px !important;
-        margin: 0 auto !important;
-        display: block !important;
-        border: none !important;
-        transition: all 0.2s ease-in-out !important;
-    }
-    
-    /* O Segredo: Atingir TODAS as tags internas que o Streamlit usa para o texto */
-    div[data-testid="stButton"] button[kind="primary"] *,
-    div[data-testid="stButton"] button[kind="primary"] div,
-    div[data-testid="stButton"] button[kind="primary"] p {
         color: #FFFFFF !important;
-        fill: #FFFFFF !important; /* Para garantir que até o ícone de foguete, se for svg, fique visível */
-        font-family: 'Inter', sans-serif !important;
+        border-radius: 8px !important; /* Retorna para o quadrado com canto leve */
+        border: none !important;
+        padding: 10px 24px !important;
+        font-family: 'Inter', sans-serif;
         font-weight: 600 !important;
-        font-size: 1.1rem !important;
-        -webkit-text-stroke: 0px transparent !important; /* MATA A BORDA PRETA DO TEXTO */
-        text-shadow: none !important; /* MATA QUALQUER SOMBRA RESIDUAL */
+        height: 3.2em;
+        transition: all 0.2s ease-in-out !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
-
-    div[data-testid="stButton"] button[kind="primary"]:hover {
+    div[data-testid="stButton"] > button[kind="primary"]:hover {
         background-color: #374151 !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
     }
-    
-    /* ESTILO DOS CARDS DE VENDA (LLMs) */
+    div[data-testid="stButton"] > button[kind="primary"] *,
+    div[data-testid="stButton"] > button[kind="primary"] p {
+        color: #FFFFFF !important;
+        fill: #FFFFFF !important;
+        -webkit-text-stroke: 0px transparent !important;
+        text-shadow: none !important;
+    }
+
+    /* === 3. BOTÃO HERÓI CIRCULAR DA HOME (Exclusivo) === */
+    div[data-testid="stElementContainer"]:has(.hero-btn-hook) + div[data-testid="stElementContainer"] div[data-testid="stButton"] > button[kind="primary"] {
+        border-radius: 50px !important; /* APENAS se tiver essa classe invisível ele fica redondo */
+        height: 54px !important;
+    }
+
+    /* ESTILO DOS CARDS DE VENDA */
     .saas-card {
         background: #FFFFFF;
         border: 1px solid #E5E7EB;
@@ -194,15 +180,14 @@ st.markdown("""
     .pipeline-step:hover { color: #F05D23; }
 
     /* BOTÃO FLUTUANTE DE AJUDA (DIREITA) */
-    .floating-help-container {
-        position: fixed;
-        bottom: 40px;
-        right: 40px; /* <--- Alterado de left para right */
-        z-index: 99999;
-    }
-    /* Estilizando o Popover nativo do Streamlit para parecer um botão circular */
+    .floating-help-container {
+        position: fixed;
+        bottom: 40px;
+        right: 40px;
+        z-index: 99999;
+    }
     div[data-testid="stPopover"] > button {
-        background-color: #E21B22 !important; /* Vermelho Arco */
+        background-color: #E21B22 !important;
         color: white !important;
         border-radius: 50% !important;
         width: 65px !important;
@@ -220,7 +205,6 @@ st.markdown("""
         transform: scale(1.1);
         background-color: #C0141A !important;
     }
-    /* Texto dentro do botão flutuante */
     div[data-testid="stPopover"] > button p {
         font-size: 28px !important;
         font-weight: bold;
@@ -1824,14 +1808,14 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                     st.error(f"🔌 O domínio da marca {marca_selecionada} não respondeu a tempo (Timeout).")
                     WP_READY = False
 
-    # 2. DIRECIONANDO O CARREGAMENTO PARA A CAIXA DO TOPO
+    # 2. DIRECIONANDO O CARREGAMENTO PARA A COLUNA 2 (DIREITA)
     if gerar_btn:
         if not TOKEN:
             st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets.")
         elif not palavra_chave_input:
             st.warning("⚠️ Por favor, digite uma palavra-chave.")
         else:
-            with caixa_topo:
+            with col2: # <--- ISSO JOGA O SPINNER DE LOADING PARA A DIREITA
                 with st.status("🤖 Processando Motor GEO v7.0...", expanded=True) as status:
                     try:
                         (
