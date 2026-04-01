@@ -45,7 +45,7 @@ st.markdown("""
 
     /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT */
     [data-testid="stSidebar"], header[data-testid="stHeader"] { display: none !important; }
-    .block-container { padding-top: 2rem; max-width: 1200px; }
+    .block-container { padding-top: 1rem; max-width: 1200px; }
 
     .arco-tag {
         display: inline-flex;
@@ -253,7 +253,7 @@ for i, opcao in enumerate(opcoes_menu):
             st.session_state['current_page'] = opcao
             st.rerun()
 
-st.markdown("<div style='margin-bottom: 3rem;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-bottom: 0.5rem;'></div>", unsafe_allow_html=True)
 
 # ==========================================
 # BOTÃO FLUTUANTE DE AJUDA (ESQUERDA)
@@ -1650,7 +1650,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
         }
         </style>
         
-        <div style="text-align: center; margin-top: -2rem; margin-bottom: 2rem;">
+        <div style="text-align: center; margin-top: -3.5rem; margin-bottom: 1rem;">
             <div class="arco-tag" style="margin-bottom: 0.5rem;">MOTOR DE INTELIGÊNCIA</div>
             <h1 style="font-size: 3rem; margin-top: 0rem; margin-bottom: 0.5rem;">Motor GEO v7.0 <span style="color: #F05D23;">AI Search Native</span></h1>
             <p style="font-size: 1.1rem; color: #4B5563; margin-top: 0; font-family: 'Inter', sans-serif;">
