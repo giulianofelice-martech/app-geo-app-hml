@@ -1400,7 +1400,9 @@ REGRAS-MESTRAS (obrigatórias):
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas focado NAS DORES do público-alvo informado.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
-C) MAPA DE EVIDÊNCIAS E DEEP LINKS (SEM LIMITES): Vasculhe o contexto orgânico e resgate o MÁXIMO possível de DEEP LINKS REAIS relevantes (idealmente entre 4 a 8). ATENÇÃO ESPECIAL: Se houver menção a leis (ex: LDB, Novo Ensino Médio), órgãos governamentais (MEC) ou metodologias educacionais no contexto, você DEVE extrair a URL de referência deles. REGRA CRÍTICA: É ESTRITAMENTE PROIBIDO usar links de blogs...
+C) MAPA DE EVIDÊNCIAS E DEEP LINKS (SEM LIMITES): Vasculhe o contexto orgânico e resgate o MÁXIMO possível de DEEP LINKS REAIS relevantes. 
+REGRA CRÍTICA E VETO DE CONCORRÊNCIA: É ESTRITAMENTE PROIBIDO extrair ou sugerir links de domínios de sistemas de ensino concorrentes (ex: Poliedro, Anglo, Bernoulli, SAS, Objetivo, Farias Brito, Ari de Sá, Eleva) ou de sites de outras escolas particulares. 
+FILTRO ANTI-PUBLIEDITORIAL: Analise a URL antes de sugeri-la. Se a URL contiver termos como "especial-publicitario", "patrocinado", "publieditorial" ou "branded-content" (como o link do G1 que você vê no contexto), É PROIBIDO USÁ-LA. Só extraia links de jornais neutros, pesquisas, MEC, INEP ou portais governamentais.
 E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema para reforçar autoridade semântica.
 F) GATILHO DE MARCA (SEM ALUCINAÇÃO): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático”. FOQUE APENAS na solução específica (o que a plataforma faz/metodologia). É EXPRESSAMENTE PROIBIDO inventar números de clientes (ex: "um grupo de 5 escolas"), inventar taxas de conversão ou cenários fictícios de antes/depois.
 G) MAPA DE CONCRETUDE (PROVAS E BENCHMARKS): Vasculhe o contexto em busca de dados REAIS, números absolutos, benchmarks e comparações tangíveis. Se o contexto mencionar um "mini-caso" (ex: "escola em SP aumentou retenção em 18%"), extraia isso para o Redator usar como micro-história. Nada de conceitos abstratos.
@@ -1528,7 +1530,10 @@ Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natu
 14) LISTAS COM CONTEXTO E LIMITE: O texto não pode parecer uma apresentação de slides. Se usar uma lista (respeitando o limite máximo de 3 no texto todo), é obrigatório introduzi-la com contexto e concluí-la com forte interpretação analítica.
 
 REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
-15) VETO TOTAL A RIVAIS E OUTRAS ESCOLAS (CRÍTICO): É ESTRITAMENTE PROIBIDO citar o nome ou inserir hiperlinks para QUALQUER outra escola privada, colégio ou sistema de ensino concorrente no Brasil ou no mundo (ex: Balão Vermelho, Anglo, Bernoulli, etc.). Se o contexto do Google trouxer o blog de uma escola, IGNORE-O. A única marca privada do setor educacional que pode ser citada é a Marca Alvo.
+15) VETO TOTAL A RIVAIS, OUTRAS ESCOLAS E PUBLIEDITORIAIS (CRÍTICO): É ESTRITAMENTE PROIBIDO citar o nome ou inserir hiperlinks para QUALQUER outra escola privada, colégio ou sistema de ensino concorrente no Brasil. 
+- NOMES PROIBIDOS: Poliedro, Anglo, Bernoulli, SAS, Objetivo, Farias Brito, Ari de Sá, Eleva, Fibonacci, etc. 
+- VETO DE MÍDIA COMPRADA: Verifique o slug da URL. Se tiver "especial-publicitario", "patrocinado" ou "publi", ignore-o e NÃO USE. 
+A única marca privada do setor educacional que pode ser citada é a [Marca Alvo].
 
 16) PROTOCOLO DE RASTREABILIDADE E EXCEÇÃO DE SEGURANÇA (DEEP LINKS): A autoridade depende de referências reais. Extraia links externos (<a href="..." target="_blank">) EXCLUSIVAMENTE do bloco "O QUE A CONCORRÊNCIA DIZ HOJE" ou do "CONTEÚDO ADICIONAL".
 - OBRIGAÇÃO CONDICIONAL: Você NÃO TEM LIMITE de links. Pelo contrário, use uma rica mistura de referências. SE o briefing fornecer URLs válidas, você DEVE espalhar de 4 a 8 links externos (ou mais) pelo texto ancorando afirmações, dados, metodologias e leis.
@@ -1540,6 +1545,8 @@ REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 - Não existe autoridade sem comprovação. Se não tiver a URL fornecida, NÃO CITE O NOME DA INSTITUIÇÃO, do estudo ou da pesquisa. Substitua a menção nominal por percepções empíricas qualitativas universais.
 - A regra de alucinação também vale para números: nunca invente estatísticas.
 - Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
+- ATENÇÃO: NENHUMA instituição tem "passe livre". Se você escrever a frase "<p><strong>Segundo especialistas:</strong> O Ministério da Educação...", você É OBRIGADO a envelopar "Ministério da Educação" com uma tag <a href="..."> apontando para a URL real do MEC fornecida no briefing. Se o GPT-4o não te deu a URL do MEC no briefing, APAGUE A REFERÊNCIA IMEDIATAMENTE e mude a frase para uma afirmação universal sua.
+
 
 19) LINKAGEM INTERNA CONTEXTUAL (RAG REVERSO): No final deste prompt, você receberá a lista "ARTIGOS INTERNOS DISPONÍVEIS". 
 - REGRA DE OURO: Você DEVE, OBRIGATORIAMENTE, escolher NO MÍNIMO 2 e NO MÁXIMO 4 artigos dessa lista e inserir o link HTML (<a href="[URL_DO_ARTIGO]">) de forma perfeitamente fluida no meio de um parágrafo do seu texto. 
@@ -1633,7 +1640,7 @@ ATENÇÃO ANTI-ALUCINAÇÃO: Se o bloco abaixo disser "Erro", "Timeout" ou "Nenh
 {contexto_wp}
 
 <checklist_de_seguranca_obrigatorio>
-1. A sua "Resposta rápida" está bem no início do texto e é super objetiva?
+1. AVALIAÇÃO ANSWER-FIRST: Você entregou a resposta exata para a dor do leitor logo nas 3 primeiras linhas do texto (usando negrito no conceito principal)? Verifique se você NÃO usou títulos cafonas como "Resposta rápida para:" (isso é proibido).
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
 3. ASSIMETRIA VISUAL: Você quebrou os parágrafos corretamente? Há frases isoladas servindo como parágrafos curtos misturadas com parágrafos de 3 linhas? Se o texto estiver um "bloco de tijolo" igual, altere agora.
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
