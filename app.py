@@ -8,7 +8,6 @@ import json
 import re
 import concurrent.futures
 import urllib.parse
-import feedparser
 from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
