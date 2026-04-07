@@ -2850,6 +2850,6 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
 st.markdown("""
 <div style="text-align: center; color: #6b7280; font-size: 13px; margin-top: 60px; padding-top: 20px; border-top: 1px solid #e5e7eb; line-height: 1.8;">
     ⚙️ <strong>Feito para simplificar o complexo.</strong> Criação otimizada para humanos e novos motores de busca.<br>
-    ⚙️ <strong>Stack:</strong> Python | Streamlit | Pydantic &nbsp;&nbsp;&nbsp;&nbsp; 🧠 <strong>LLMs:</strong> GPT-4o | Claude 3.7 Sonnet &nbsp;&nbsp;&nbsp;&nbsp; 🔌 <strong>APIs:</strong> Serper.dev | Jina AI | Unsplash
+    ⚙️ <strong>Stack:</strong> Python | Streamlit | Pydantic &nbsp;&nbsp;&nbsp;&nbsp; 🧠 <strong>LLMs:</strong> GPT-4o | Claude 3.7 Sonnet | Gemini 2.5 Pro &nbsp;&nbsp;&nbsp;&nbsp; 🔌 <strong>APIs:</strong> Serper.dev | Jina AI | Unsplash
 </div>
 """, unsafe_allow_html=True)
