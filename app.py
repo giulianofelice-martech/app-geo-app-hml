@@ -1568,7 +1568,7 @@ Pare de escrever IMEDIATAMENTE após fechar a última tag HTML. NUNCA gere auto-
     bloco_instrucao_livre = ""
     if instrucao_livre and instrucao_livre.strip():
         bloco_instrucao_livre = f"""
-==================================================
+
 INSTRUCAO DIRETA DO USUARIO (PRIORIDADE MAXIMA)
 O usuario solicitou o seguinte formato, estrutura e conteudo:
 "{instrucao_livre}"
@@ -1578,7 +1578,7 @@ No entanto, voce DEVE manter:
 1. A formatacao em HTML puro.
 2. O Tom de Voz da marca.
 3. A regra de nao alucinar dados sem link.
-==================================================
+
 """
 
     user_2 = f"""
