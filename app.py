@@ -1332,7 +1332,10 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
     brandbook_txt = f"Tom de Voz: {marca_info['TomDeVoz']} | Regras: {marca_info.get('RegrasPositivas', '')} | Proibido: {marca_info['RegrasNegativas']}"
     referencias_locais = ler_referencias_locais(marca_alvo)
     
-    # ... código do especialista ...
+    # Busca os dados do especialista (Ghostwriting)
+    contexto_ghostwriting = ""
+    if especialista_nome:
+        contexto_ghostwriting = buscar_estilo_especialista(especialista_nome, st.session_state['especialistas_df'])
         
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
