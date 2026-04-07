@@ -319,7 +319,9 @@ def buscar_trending_topics_educacao():
             if feed.entries:
                 entry = feed.entries[0]
                 titulo_limpo = entry.title.split(' - ')[0].strip()
-                return titulo_limpo[:55] + "..." if len(titulo_limpo) > 55 else titulo_limpo
+                titulo_curto = titulo_limpo[:55] + "..." if len(titulo_limpo) > 55 else titulo_limpo
+                # Agora retorna uma tupla: (Título, Link)
+                return (titulo_curto, entry.link)
         except Exception:
             return None
         return None
@@ -327,8 +329,15 @@ def buscar_trending_topics_educacao():
     with concurrent.futures.ThreadPoolExecutor() as executor:
         resultados = list(executor.map(extrair_noticia, fontes_rss))
         
+    # Usamos set() para remover duplicatas baseadas na tupla inteira
     pautas_coletadas = list(set([res for res in resultados if res]))
-    pautas_fallback = ["Inovação tecnológica na gestão escolar", "Uso de IA no dia a dia da sala de aula", "Estratégias para retenção de alunos"]
+    
+    # Adicionamos um link vazio nas de fallback
+    pautas_fallback = [
+        ("Inovação tecnológica na gestão escolar", ""), 
+        ("Uso de IA no dia a dia da sala de aula", ""), 
+        ("Estratégias para retenção de alunos", "")
+    ]
     
     return (pautas_coletadas + pautas_fallback)[:3]
         
@@ -338,15 +347,28 @@ if st.session_state.get('show_inputs', False) and st.session_state.get('current_
         st.markdown("### 🔥 Pautas em Alta")
         st.caption("Tendências detectadas via Google News e MEC agora:")
         
-        # Chama sua função de busca de tendências
+        # Chama a função que agora retorna (Titulo, Link)
         pautas_quentes = buscar_trending_topics_educacao()
         
-        for pauta in pautas_quentes:
-            if st.button(f"👉 {pauta}", use_container_width=True, key=f"trend_{pauta}"):
-                st.session_state['pauta_sugerida'] = pauta
-                st.rerun()
-
-st.markdown('</div>', unsafe_allow_html=True)
+        for pauta, link in pautas_quentes:
+            col_btn, col_link = st.columns([8, 2])
+            
+            with col_btn:
+                # O botão continua preenchendo o input lá embaixo
+                if st.button(f"{pauta}", use_container_width=True, key=f"trend_{pauta}"):
+                    st.session_state['pauta_sugerida'] = pauta
+                    st.rerun()
+                    
+            with col_link:
+                # Se houver um link real, mostra o botão de abrir aba
+                if link:
+                    st.markdown(
+                        f"""<a href="{link}" target="_blank" title="Ler notícia original" 
+                        style="display: flex; align-items: center; justify-content: center; 
+                        height: 100%; text-decoration: none; font-size: 1.2rem; 
+                        background-color: #F3F4F6; border-radius: 8px;">🔗</a>""", 
+                        unsafe_allow_html=True
+                    )
 
 
 # Armazenando o HTML do pipeline para usar depois
