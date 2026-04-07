@@ -397,8 +397,12 @@ class MetadadosArtigo(BaseModel):
     @field_validator('title', mode='before')
     @classmethod
     def ajustar_tamanho_titulo(cls, v: str) -> str:
-        return v
-
+        # NOVA REGRA: Arranca anos (ex: 2024, 2025, 2026, etc) do título
+        v_limpo = re.sub(r'\b202[4-9]\b', '', v)
+        # Limpa hifens, dois pontos ou espaços que sobrarem soltos no final
+        v_limpo = re.sub(r'[-\s:]+$', '', v_limpo).strip()
+        return v_limpo
+        
     @field_validator('meta_description', mode='before')
     @classmethod
     def ajustar_tamanho_meta(cls, v: str) -> str:
@@ -1514,7 +1518,7 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 
 REGRAS HTML E FORMATAÇÃO VISUAL (CRÍTICAS E ABSOLUTAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
-10) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML. O título <h1> DEVE TER NO MÁXIMO 60 CARACTERES (cerca de 6 a 8 palavras) para não ser cortado no Google. Seja criativo, mas extremamente conciso.
+10) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML. O título <h1> DEVE TER NO MÁXIMO 60 CARACTERES. É ESTRITAMENTE PROIBIDO incluir o ano atual (ex: 2025, 2026) no título H1, mantenha-o atemporal.
 11) REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão gramatical brasileiro: APENAS a primeira letra da frase e nomes próprios/marcas devem ser maiúsculos (Ex: "Como a tecnologia ajuda escolas", NUNCA "Como A Tecnologia Ajuda Escolas").
 12) PROIBIDO PARÁGRAFOS SIMÉTRICOS: Verifique o texto antes de entregar. Se você notar que os parágrafos estão visualmente do mesmo tamanho, fragmente-os imediatamente. Obrigatoriamente inclua frases isoladas para criar respiros visuais profundos.
 13) VARIAÇÃO HUMANA DE RITMO (OBRIGATÓRIO E EXTREMO):
@@ -1593,8 +1597,8 @@ No entanto, voce DEVE manter:
 
 Palavra-chave ou Consulta: '{palavra_chave}'
 
-CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
-    
+CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência. NUNCA insira o ano no título principal (H1) ou no texto a menos que seja um dado histórico.
+
 CONTEÚDO ADICIONAL DO ESPECIALISTA (DIRECIONAMENTO HUMANO OBRIGATÓRIO):
 {conteudo_adicional if conteudo_adicional else "Nenhum conteúdo extra fornecido. Siga apenas o briefing."}
 
@@ -1672,7 +1676,7 @@ Retorne EXCLUSIVAMENTE um JSON puro, válido e COMPATÍVEL com este schema Pydan
 
 REGRAS CRÍTICAS:
 1. NUNCA inclua markdown, comentários ou campos extras.
-2. 'title': 45-60 caracteres (otimizado para H1/SEO, sem marca).
+2. 'title': 45-60 caracteres (otimizado para H1/SEO, sem marca). É ESTRITAMENTE PROIBIDO inserir o ano atual (ex: 2026) neste campo.
 3. 'meta_description': 130-150 caracteres (promessa clara + gancho, sem clickbait).
 4. 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students"). É ESTRITAMENTE PROIBIDO gerar frases longas.
 5. 'schema_faq': JSON-LD FAQPage com @context "[https://schema.org](https://schema.org)", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
