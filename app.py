@@ -2447,7 +2447,9 @@ elif st.session_state['current_page'] == "Revisor de GEO":
         elif modo_input == "Upload de Documentos (Base de Conhecimento)":
             arquivos_upados = st.file_uploader("📄 Arraste seus arquivos (PDF, DOCX, TXT). Pode enviar mais de um!", type=['pdf', 'docx', 'txt'], accept_multiple_files=True)
             
-            # NOVO: O Optin de Prompt Complementar
+            # ---> NOVO: AVISO DIDÁTICO PARA O USUÁRIO <---
+            st.info("💡 **Dica de Uso:** Se você preencher o campo abaixo, a IA vai criar um artigo estruturado exatamente como você pedir. Se deixar em branco, ela criará automaticamente um texto 'Teaser/Spoiler' focado em captar leads para baixar o documento original.")
+            
             instrucoes_extras = st.text_area(
                 "✍️ Direcionamento (Prompt Complementar)", 
                 height=150,
@@ -2459,7 +2461,7 @@ elif st.session_state['current_page'] == "Revisor de GEO":
                     conteudo_input = extrair_texto_documentos(arquivos_upados)
                 
                 if "[Erro ao ler" in conteudo_input and len(conteudo_input.strip()) < 100:
-                    st.error("Erro crítico ao ler os arquivos. Verifique os formatos.")
+                    st.error("Erro crítico ao ler os arquivos. Verifique se o pacote python-docx está no requirements.txt.")
                 else:
                     st.success(f"✅ Documentos lidos com sucesso! ({len(conteudo_input)} caracteres extraídos).")
                     with st.expander("Ver Texto Bruto Extraído"):
@@ -2479,23 +2481,19 @@ elif st.session_state['current_page'] == "Revisor de GEO":
                     else:
                         resultado_processamento = executar_revisao_geo_wp(palavra_chave_rev, publico_rev, marca_rev, conteudo_input)
                     
-                    # Tenta capturar apenas o conteúdo que está entre as chaves { }
+                    # Captura JSON da IA
                     match_json = re.search(r'\{.*\}', resultado_processamento.strip(), re.DOTALL)
                     json_limpo = match_json.group(0) if match_json else resultado_processamento.strip().removeprefix('```json').removesuffix('```').strip()
                     
-                    # TENTATIVA 1: O caminho feliz (Leitura JSON Padrão)
                     try:
                         dados_processados = json.loads(json_limpo, strict=False)
                     except json.JSONDecodeError:
-                        # TENTATIVA 2: O Plano B (Regex Rescue)
-                        # Se a IA colocou aspas duplas sem escapar e quebrou o JSON, resgatamos o HTML à força!
                         st.toast("⚠️ Corrigindo aspas duplas mal formatadas pela IA...", icon="🔧")
                         html_match = re.search(r'"html_novo"\s*:\s*"(.*?)"\s*\}?\s*$', json_limpo, re.DOTALL)
                         
                         html_resgatado = ""
                         if html_match:
                             html_resgatado = html_match.group(1).replace('\\"', '"').replace('\\n', '\n')
-                            # Limpa lixos residuais do fim do arquivo
                             if html_resgatado.endswith('"}'): html_resgatado = html_resgatado[:-2]
                             elif html_resgatado.endswith('"'): html_resgatado = html_resgatado[:-1]
                         
@@ -2523,7 +2521,49 @@ elif st.session_state['current_page'] == "Revisor de GEO":
                         
                     st.markdown("---")
                     st.markdown("### 👁️ Pré-visualização do Artigo")
-                    st.markdown(dados_processados.get('html_novo', ''), unsafe_allow_html=True)
+                    
+                    # ---> NOVO: BOTÃO DE COPIAR EMBUTIDO <---
+                    html_para_copiar = dados_processados.get('html_novo', '')
+                    
+                    componente_copiar_rev = f"""
+                    <div style="font-family: 'Inter', sans-serif;">
+                        <button id="copy-btn-rev" onclick="copyTextRev()" style="background-color: #111827; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.3s;">
+                            📋 Copiar Texto Formatado (Para colar no Docs/Word)
+                        </button>
+                        <div id="content-to-copy-rev" style="position: absolute; left: -9999px;">
+                            {html_para_copiar}
+                        </div>
+                        <script>
+                            function copyTextRev() {{
+                                var content = document.getElementById("content-to-copy-rev");
+                                var range = document.createRange();
+                                range.selectNodeContents(content);
+                                var selection = window.getSelection();
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                                try {{
+                                    document.execCommand("copy");
+                                    var btn = document.getElementById("copy-btn-rev");
+                                    btn.innerHTML = "✅ Texto copiado com sucesso! Agora é só dar Ctrl+V no Docs.";
+                                    btn.style.backgroundColor = "#10B981"; // Fica Verde
+                                    setTimeout(function() {{
+                                        btn.innerHTML = "📋 Copiar Texto Formatado (Para colar no Docs/Word)";
+                                        btn.style.backgroundColor = "#111827"; // Volta pro Preto
+                                    }}, 3000);
+                                }} catch (err) {{
+                                    console.error("Erro ao copiar: ", err);
+                                }}
+                                selection.removeAllRanges();
+                            }}
+                        </script>
+                    </div>
+                    """
+                    
+                    st.components.v1.html(componente_copiar_rev, height=65)
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    
+                    html_preview_rev = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF; color: #111827;'>{html_para_copiar}</div>"
+                    st.markdown(html_preview_rev, unsafe_allow_html=True)
                     
                 except Exception as e:
                     st.error(f"Erro ao processar: {e}")
