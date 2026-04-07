@@ -1639,6 +1639,7 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
 
 
 import PyPDF2
+import docx  # Essa linha é obrigatória para ler Word
 import io
 
 def extrair_texto_documentos(arquivos_upados):
