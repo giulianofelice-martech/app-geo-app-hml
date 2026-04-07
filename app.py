@@ -1651,7 +1651,8 @@ ANTI-CLOAKING E VALIDAÇÃO:
         score_originalidade, citabilidade, cluster, reverse_queries, 
         citation_score, entity_coverage, geo_score, retrieval_simulation, 
         hijacking_risk, ai_simulation, chunk_citability, answer_first, 
-        rag_chunks, evidence_density, information_gain, contexto_wp
+        rag_chunks, evidence_density, information_gain, contexto_wp,
+        manual_voz_gemini
     )
 
 def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
@@ -2096,7 +2097,8 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                             score_originalidade, citabilidade, cluster, reverse_queries, 
                             citation_score, entity_coverage, geo_score, retrieval_simulation, 
                             hijacking_risk, ai_simulation, chunk_citability, answer_first, 
-                            rag_chunks, evidence_density, information_gain, contexto_wp
+                            rag_chunks, evidence_density, information_gain, contexto_wp,
+                            manual_voz_gemini
                         ) = executar_geracao_completa(
                             palavra_chave_input, marca_selecionada, publico_selecionado, 
                             conteudo_adicional_input, conteudo_proprietario_input, modo_humanizado, especialista_selecionado
@@ -2306,6 +2308,12 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
             # --- SUB-ABA 3: RAIO-X TÉCNICO DE SEO ---
             with tab_seo:
                 st.info("**O que é esta aba?** Voltada para quem entende de SEO. Mostra se usamos o vocabulário certo e como amarrar este artigo com outros no seu blog.")
+                
+                # --- CAIXA DO GEMINI ADICIONADA AQUI ---
+                with st.expander("🎭 Manual de Voz (Gerado pelo Gemini)", expanded=True):
+                    st.markdown("Veja como o Gemini interpretou os PDFs da marca e quais regras ele passou para o Redator (Claude) imitar o estilo.")
+                    st.info(st.session_state.get('manual_voz_gemini', '⚠️ Sem dados do Gemini.'))
+                # ---------------------------------------    
                 
                 with st.expander("🧩 Uso de Jargões do Nicho (Entity Coverage)", expanded=True):
                     st.markdown("Avaliamos se o texto contém as 'Entidades' (termos técnicos e jargões) que provam para o Google que você é especialista no assunto, cobrindo buracos que os concorrentes deixaram (Entity Gap).")
