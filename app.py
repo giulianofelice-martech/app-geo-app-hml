@@ -1675,7 +1675,7 @@ def extrair_texto_documentos(arquivos_upados):
 def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs, instrucoes_usuario):
     """
     Transforma documentos brutos em um artigo. 
-    Se houver instruções, segue-as. Se não houver, age como o 'Gerador de Teaser/Spoiler' para Leads.
+    Se houver instruções, funde o pedido do usuário com a estrutura rígida GEO (Sanduíche GEO).
     """
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca].iloc[0].to_dict()
@@ -1685,54 +1685,53 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     # LÓGICA DE ROTEAMENTO (TEASER VS CUSTOMIZADO)
     # ==========================================
     if instrucoes_usuario and instrucoes_usuario.strip():
-        # MODO 1: SÍNTESE CUSTOMIZADA (O usuário deu a regra)
+        # MODO 1: SÍNTESE CUSTOMIZADA + BLINDAGEM GEO
         comportamento_alvo = f"""
-        OBJETIVO ESTRATÉGICO DO USUÁRIO (Siga à risca a estrutura e objetivo pedidos aqui):
+        OBJETIVO ESTRATÉGICO DO USUÁRIO:
         {instrucoes_usuario}
         
-        O objetivo não é fazer um resumo incompleto, mas sim criar um artigo ESTRUTURADO, AUTORAL e COMPLETO, atendendo estritamente ao pedido acima, utilizando APENAS a base de conhecimento anexada.
+        ATENÇÃO: Você deve obedecer aos tópicos e ângulos solicitados acima, MAS é estritamente obrigatório envelopar esse conteúdo na Estrutura GEO exigida nas regras abaixo (com Resumo, FAQ e Assimetria).
         """
     else:
-        # MODO 2: TEASER E CAPTAÇÃO DE LEADS (Padrão se o prompt estiver vazio)
+        # MODO 2: TEASER E CAPTAÇÃO DE LEADS
         comportamento_alvo = """
         OBJETIVO ESTRATÉGICO: ESTRUTURA TEASER (A TÉCNICA DO SPOILER)
-        O objetivo deste artigo NÃO é entregar todo o conteúdo dos documentos, mas sim gerar curiosidade e atuar como uma página de atração para que o leitor baixe o material completo.
-        - É expressamente PROIBIDO resumir todos os tópicos ou listar todas as perguntas/respostas do material. 
-        - Faça uma introdução sobre o cenário e escolha APENAS UM conceito forte ou UMA pergunta com resposta do material (que faça sentido para o Território da Marca) para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
-        - O GATILHO PARA O DOWNLOAD (TOM CONVIDATIVO): No final do texto, crie a transição para o download. Use este framework mental para a chamada: "Quer saber mais sobre quais são os outros pilares/pontos de [Tema] e como isso impacta a sua realidade? Baixe o material completo para receber direcionais práticos..."
-        - PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML:
+        O objetivo deste artigo NÃO é entregar todo o conteúdo dos documentos, mas gerar curiosidade e atuar como atração para baixar o material.
+        - Escolha APENAS UM conceito forte do material para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
+        - O GATILHO PARA O DOWNLOAD: No final do texto (antes do FAQ), crie a transição. Ex: "Quer saber mais sobre os outros pilares? Baixe o material completo..."
+        - PLACEHOLDER DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML:
           <div style='background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin-top: 20px;'><strong>[Formulário de Captura do Material inserido pelo time de Growth]</strong></div>
         """
 
     # ==========================================
-    # SYSTEM PROMPT BLINDADO (REGRAS DO SYSTEM_2 INCLUÍDAS)
+    # SYSTEM PROMPT BLINDADO (SANDUÍCHE GEO)
     # ==========================================
     system = f"""Você é um Copywriter Especialista, Arquiteto de Informação e Engenheiro de Conteúdo GEO.
-    Sua missão é ler os documentos brutos fornecidos e construir um novo material HTML.
+    Sua missão é ler o texto bruto colado na seção BASE DE CONHECIMENTO abaixo e construir um novo material HTML. Nunca peça links ou arquivos adicionais, todo o conteúdo necessário já foi extraído e colado no prompt para você.
 
     COMPORTAMENTO DEFINIDO PARA ESTA TAREFA:
     {comportamento_alvo}
 
     REGRAS INVIOLÁVEIS DE CONSTRUÇÃO E E-E-A-T (FONTE DA VERDADE):
-    1. ANTI-ALUCINAÇÃO ABSOLUTA: Use EXCLUSIVAMENTE as informações, dados, leis e exemplos presentes nos documentos fornecidos. Não invente funcionalidades, estatísticas ou conceitos de fora. A autoridade deste texto deriva ÚNICA E EXCLUSIVAMENTE dos documentos anexados.
-    2. ZERO LINKAGEM EXTERNA: Como este material é construído a partir de documentação interna, É ESTRITAMENTE PROIBIDO inventar links externos ou citar URLs da web (como MEC, OCDE, portais de notícias).
+    1. ANTI-ALUCINAÇÃO ABSOLUTA: Use EXCLUSIVAMENTE as informações, dados e exemplos presentes nos documentos fornecidos. A autoridade deste texto deriva ÚNICA E EXCLUSIVAMENTE dos documentos anexados.
+    2. ZERO LINKAGEM EXTERNA: É ESTRITAMENTE PROIBIDO inventar links externos ou citar URLs da web (como MEC, OCDE).
 
     MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
-    3. DIFERENCIAÇÃO EXTREMA DE MARCA: O seu texto DEVE ser guiado 100% pelo Posicionamento e Territórios da Marca Alvo. 
-    4. BRAND WEAVING (INSERÇÃO NATURAL DA MARCA): Integre o nome da marca, seus diferenciais e seu propósito no MEIO do texto. A autoridade e a história da marca devem estar costuradas na narrativa. É OBRIGATÓRIO transformar a primeira menção da marca em um link: <a href="{url_marca}" target="_blank">[NOME DA MARCA]</a>.
-    5. BLACKLIST DE IA (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar termos hiperbólicos, sensacionalistas ou jargões vazios corporativos. NUNCA use: "radicalmente", "revolucionário", "divisor de águas", "no cenário atual", "fundamental", "é inegável que", "neste artigo veremos", "excelência contemporânea". Seja factual, maduro e elegante. 
-    6. PROIBIÇÃO DE MATEMÁTICA FANTASMA: Se o documento original não trouxer um número exato, não invente proporções (%). Escreva de forma qualitativa ("aumenta a retenção", não "aumenta em 30%").
+    3. DIFERENCIAÇÃO EXTREMA: O seu texto DEVE ser guiado pelo Posicionamento da Marca Alvo. 
+    4. BRAND WEAVING: Integre o nome da marca no MEIO do texto. É OBRIGATÓRIO transformar a primeira menção da marca em um link: <a href="{url_marca}" target="_blank">[NOME DA MARCA]</a>.
+    5. BLACKLIST DE IA (TOLERÂNCIA ZERO): NUNCA use: "radicalmente", "revolucionário", "divisor de águas", "no cenário atual", "fundamental", "é inegável que", "neste artigo veremos", "excelência contemporânea".
+    6. PROIBIÇÃO DE CONCLUSÕES CLICHÊS: Nunca termine o texto com "Em suma", "Portanto" ou reafirmando o compromisso da marca. Termine com um corte seco analítico.
 
-    GEO E CHUNK CITABILITY (HTML E ESTRUTURA VISUAL):
-    7. INTRODUÇÃO DIRETA (ANSWER-FIRST): Logo no primeiro parágrafo, entregue o contexto principal em no máximo 4 linhas, de forma fluida. O texto DEVE começar obrigatoriamente com uma tag <h1>. Logo abaixo, crie um <h2>Resposta rápida para: [palavra-chave]</h2> e entregue a essência em 2 linhas (sem usar etiquetas robóticas como "Resposta direta:").
-    8. ASSIMETRIA VISUAL EXTREMA (CRÍTICO): É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho. Intercale parágrafos "maiores" (3 a 4 linhas) com frases de impacto isoladas em uma única linha. O ritmo visual deve oscilar drasticamente.
-    9. REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão brasileiro: APENAS a primeira letra da frase e nomes próprios devem ser maiúsculos. O H1 deve ter no máximo 60 caracteres.
+    GEO E CHUNK CITABILITY (ESTRUTURA VISUAL E MARCADORES OBRIGATÓRIOS):
+    7. INTRODUÇÃO DIRETA (ANSWER-FIRST): O texto DEVE começar com uma tag <h1> (máx 60 caracteres, Sentence Case). Logo abaixo, crie um <h2>Resposta rápida para: [palavra-chave]</h2> e entregue a essência em 2 linhas (sem usar a palavra "Resposta direta:").
+    8. ASSIMETRIA VISUAL EXTREMA (CRÍTICO): É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho. Intercale parágrafos "maiores" (3 a 4 linhas) com frases de impacto isoladas em uma única linha. 
+    9. OS MARCADORES DE IMAGEM (REGRA DE OURO INEGOCIÁVEL): O sistema de injeção visual depende de âncoras. Independentemente do que o usuário pediu, você É OBRIGADO a inserir exatamente a string `<br>Resumo Estratégico<br>` logo após a introdução, seguida de uma lista <ul>. E, no final do texto, você É OBRIGADO a inserir a string `<br>Perguntas Frequentes<br>`, seguida de 3 perguntas em <h3> com respostas curtas.
     10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <h2 class='titulo'>) em vez de aspas duplas. Se precisar usar aspas duplas no texto, escape-as com contra-barra (\\").
 
     RETORNE EXCLUSIVAMENTE UM JSON:
     {{
-        "diagnostico": "Explique brevemente a sua estratégia, como usou os documentos, qual spoiler escolheu (se aplicável) e como aplicou a Assimetria Visual.",
-        "melhorias_aplicadas": ["Estruturação sob medida", "Assimetria Visual Aplicada", "Brand Weaving", "Veto a jargões de IA respeitado"],
+        "diagnostico": "Explique brevemente a sua estratégia e como aplicou os marcadores GEO obrigatórios no meio do pedido do usuário.",
+        "melhorias_aplicadas": ["Estruturação sob medida", "Assimetria Visual Aplicada", "Marcadores de Imagem Injetados", "Brand Weaving"],
         "html_novo": "O código HTML completo usando aspas simples e escapando aspas duplas internas."
     }}
     """
@@ -1744,7 +1743,6 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     
     DIRETRIZES DA MARCA ({marca}):
     - Posicionamento: {marca_info['Posicionamento']}
-    - Territórios Estratégicos: {marca_info.get('Territorios', 'Educação')}
     - Tom de Voz Exigido: {marca_info['TomDeVoz']}
     - Regras Positivas: {marca_info.get('RegrasPositivas', '')}
     - Proibido (Regras Negativas): {marca_info['RegrasNegativas']}
