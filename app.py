@@ -1141,7 +1141,7 @@ def executar_revisao_geo_wp(palavra_chave, publico, marca, html_atual):
     {html_atual}
     """
     
-    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.3, response_format={"type": "json_object"})
+    return chamar_llm(system, user, model="anthropic/claude-4.5-sonnet", temperature=0.3, response_format={"type": "json_object"})
 
 # ==========================================================
 # NOVAS MÉTRICAS MATEMÁTICAS RAG / GEO (V7.0)
@@ -1279,7 +1279,7 @@ def refinar_artigo_html(html_atual, instrucoes):
     """
     user = f"INSTRUÇÃO DE ALTERAÇÃO:\n{instrucoes}\n\nARTIGO ORIGINAL (HTML):\n{html_atual}"
     
-    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.2)
+    return chamar_llm(system, user, model="anthropic/claude-4.5-sonnet", temperature=0.2)
 
 import os
 import unicodedata
@@ -1476,7 +1476,7 @@ Instruções:
 
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.3)
 
-    st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 3.7 Sonnet)...")
+    st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 4 Sonnet)...")
 
     if modo_humanizado:
         st.write("✨ Modo Empático ativado: Focando em cadência humana e fluidez...")
@@ -1707,7 +1707,7 @@ ATENÇÃO CRÍTICA: Você é OBRIGADO a incluir os exatos marcadores `<br>Resumo
 
 Pare de escrever IMEDIATAMENTE após fechar a última tag HTML do FAQ. NUNCA gere auto-avaliações, comentários ou textos que comecem com "AI:".
 """
-    artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.45)
+    artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-4.5-sonnet", temperature=0.45)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
     artigo_html = re.sub(r'<thought_process>.*?</thought_process>', '', artigo_html, flags=re.DOTALL).strip()
 
@@ -1741,7 +1741,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
 
     user_3 = f"HTML COMPLETO:\n{artigo_html}"
 
-    dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
+    dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-4.5-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
    # MOTOR DUPLO DE IMAGENS (UNSPLASH + FALLBACK POLLINATIONS)
     try:
@@ -2012,7 +2012,7 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     {texto_base_docs}
     """
     
-    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.3, response_format={"type": "json_object"})
+    return chamar_llm(system, user, model="anthropic/claude-4.5-sonnet", temperature=0.3, response_format={"type": "json_object"})
     
 # ==========================================
 # 5. INTERFACE PRINCIPAL
@@ -2119,7 +2119,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
             st.markdown("""
             <div class="saas-card">
                 <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Claude_AI_symbol.svg" alt="Claude 3.7 Logo" style="height: 32px; margin-bottom: 16px;">
-                <div class="card-title">Redator (Claude 3.7)</div>
+                <div class="card-title">Redator (Claude 4)</div>
                 <div class="card-text">A inteligência mais avançada para Copywriting.</div>
             </div>
             """, unsafe_allow_html=True)
@@ -3031,6 +3031,6 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
 st.markdown("""
 <div style="text-align: center; color: #6b7280; font-size: 13px; margin-top: 60px; padding-top: 20px; border-top: 1px solid #e5e7eb; line-height: 1.8;">
     ⚙️ <strong>Feito para simplificar o complexo.</strong> Criação otimizada para humanos e novos motores de busca.<br>
-    ⚙️ <strong>Stack:</strong> Python | Streamlit | Pydantic &nbsp;&nbsp;&nbsp;&nbsp; 🧠 <strong>LLMs:</strong> GPT-4o | Claude 3.7 Sonnet | Gemini 2.5 Pro &nbsp;&nbsp;&nbsp;&nbsp; 🔌 <strong>APIs:</strong> Serper.dev | Jina AI | Unsplash
+    ⚙️ <strong>Stack:</strong> Python | Streamlit | Pydantic &nbsp;&nbsp;&nbsp;&nbsp; 🧠 <strong>LLMs:</strong> GPT-4o | Claude 4 Sonnet | Gemini 2.5 Pro &nbsp;&nbsp;&nbsp;&nbsp; 🔌 <strong>APIs:</strong> Serper.dev | Jina AI | Unsplash
 </div>
 """, unsafe_allow_html=True)
