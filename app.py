@@ -1886,10 +1886,18 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     if instrucoes_usuario and instrucoes_usuario.strip():
         # MODO 1: SÍNTESE CUSTOMIZADA (O usuário deu a regra)
         comportamento_alvo = f"""
-        OBJETIVO ESTRATÉGICO DO USUÁRIO (Siga à risca a estrutura e objetivo pedidos aqui):
+        OBJETIVO ESTRATÉGICO DO USUÁRIO:
         {instrucoes_usuario}
         
-        O objetivo não é fazer um resumo incompleto, mas sim criar um artigo ESTRUTURADO, AUTORAL e COMPLETO, atendendo estritamente ao pedido acima, utilizando APENAS a base de conhecimento anexada.
+        REGRA DE ORDENAÇÃO (FRAMEWORK DE PRODUTO INEGOCIÁVEL):
+        ATENÇÃO CRÍTICA: Mesmo que a instrução do usuário acima peça tópicos ou H2 em uma ordem específica, você É OBRIGADO a reorganizar a estrutura para seguir ESTRITAMENTE a seguinte ordem narrativa:
+        
+        1. Parágrafo de introdução e apresentação.
+        2. Explicação resumida do produto, o problema que resolve e as VANTAGENS associadas (É estritamente proibido jogar as vantagens para o final do texto. Elas devem subir e ficar logo após a introdução).
+        3. Detalhes de "Como funciona" (pode conter vários parágrafos e a jornada do usuário).
+        4. Mais exemplos, dados e detalhes de implementação.
+        5. Parágrafo final de amarração.
+        6. FECHAMENTO OBRIGATÓRIO: Encerre o artigo criando um último <h2> sobre a marca "{marca}" (Ex: "Sobre o {marca}") contendo um CTA chamando o leitor para acessar o site oficial.
         """
     else:
         # MODO 2: TEASER E CAPTAÇÃO DE LEADS (Padrão se o prompt estiver vazio)
@@ -1919,8 +1927,9 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
     3. DIFERENCIAÇÃO EXTREMA DE MARCA: O seu texto DEVE ser guiado 100% pelo Posicionamento e Territórios da Marca Alvo. 
     4. BRAND WEAVING (INSERÇÃO NATURAL DA MARCA): Integre o nome da marca, seus diferenciais e seu propósito no MEIO do texto. A autoridade e a história da marca devem estar costuradas na narrativa. É OBRIGATÓRIO transformar a primeira menção da marca em um link: <a href="{url_marca}" target="_blank">[NOME DA MARCA]</a>.
-    5. BLACKLIST DE IA (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar advérbios terminados em "mente" (ex: significativamente), jargões corporativos ("influenciar o desempenho agregado da escola") ou locuções como "foi estruturado para oferecer" (use direto "oferece"). NUNCA use o H2 "Resposta rápida para:". O foco do texto deve ser o benefício para o ALUNO.
-    6. CONCRETUDE OBRIGATÓRIA: Não faça afirmações vazias (ex: "é importante") sem embasá-las com dados do documento ou exemplos. Não invente proporções (%) se o doc original não trouxer.
+    5. BLACKLIST DE IA E VETO DE CÓPIA (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar advérbios terminados em "mente" (ex: significativamente, extremamente), jargões corporativos (ex: "influenciar o desempenho agregado da escola", "escola parceira", "da coleção") ou locuções passivas como "foi estruturado para oferecer" (use o verbo direto: "oferece"). O foco de todo o benefício do texto DEVE SER O ALUNO.
+    ATENÇÃO CRÍTICA: Mesmo que essas palavras proibidas estejam escritas literalmente no documento base fornecido, VOCÊ É OBRIGADO A REESCREVÊ-LAS E CORTÁ-LAS. A Blacklist tem prioridade absoluta sobre a fidelidade ao texto original. NUNCA use o H2 "Resposta rápida para:".
+    6. CONCRETUDE OBRIGATÓRIA E REESCRITA DE CLICHÊS: Se o documento base fizer afirmações vazias (ex: "A redação é decisiva no ENEM"), você NÃO DEVE agir como um papagaio e apenas copiá-la. Você deve reescrevê-la ou enriquecê-la com fatos lógicos universais (ex: "visto que muitas instituições atribuem peso 2 ou 3 à nota final") para que a frase tenha peso. É proibido gerar introduções vazias.
 
     GEO E CHUNK CITABILITY (HTML E ESTRUTURA VISUAL):
     7. INTRODUÇÃO E LINHA FINA: O texto DEVE começar com o <h1>. Logo abaixo, crie uma "Linha Fina" (parágrafo em <em>) resumindo o texto. O 1º parágrafo normal deve introduzir a dor/solução direto ao ponto.
