@@ -350,6 +350,33 @@ class MetadadosArtigo(BaseModel):
     def ajustar_tamanho_meta(cls, v: str) -> str:
         return v[:147] + "..." if len(v) > 150 else v
 
+    @st.cache_data(ttl=3600, show_spinner=False)
+    def buscar_trending_topics_educacao():
+        """Busca pautas em múltiplas fontes simultaneamente de forma rápida"""
+        fontes_rss = [
+            "https://news.google.com/rss/search?q=MEC+OR+ENEM+OR+escolas&hl=pt-BR&gl=BR&ceid=BR:pt-419", 
+            "https://news.google.com/rss/search?q=edtech+OR+gestão+escolar+OR+inadimplência+escolar&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+            "https://g1.globo.com/rss/g1/educacao/" 
+        ]
+        
+        def extrair_noticia(url):
+            try:
+                feed = feedparser.parse(url)
+                if feed.entries:
+                    entry = feed.entries[0]
+                    titulo_limpo = entry.title.split(' - ')[0].strip()
+                    return titulo_limpo[:55] + "..." if len(titulo_limpo) > 55 else titulo_limpo
+            except Exception:
+                return None
+            return None
+    
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            resultados = list(executor.map(extrair_noticia, fontes_rss))
+            
+        pautas_coletadas = list(set([res for res in resultados if res]))
+        pautas_fallback = ["Inovação tecnológica na gestão escolar", "Uso de IA no dia a dia da sala de aula", "Estratégias para retenção de alunos"]
+        
+        return (pautas_coletadas + pautas_fallback)[:3]
 # ==========================================
 # 2. BRANDBOOK EMBUTIDO 
 # ==========================================
@@ -572,34 +599,7 @@ def obter_credenciais_cms(marca):
 # ==========================================
 # 3.2 FUNÇÕES DE CONTEXTO E BUSCA
 # ==========================================
-@st.cache_data(ttl=3600, show_spinner=False)
-def buscar_trending_topics_educacao():
-    """Busca pautas em múltiplas fontes simultaneamente de forma rápida"""
-    fontes_rss = [
-        "https://news.google.com/rss/search?q=MEC+OR+ENEM+OR+escolas&hl=pt-BR&gl=BR&ceid=BR:pt-419", 
-        "https://news.google.com/rss/search?q=edtech+OR+gestão+escolar+OR+inadimplência+escolar&hl=pt-BR&gl=BR&ceid=BR:pt-419",
-        "https://g1.globo.com/rss/g1/educacao/" 
-    ]
-    
-    def extrair_noticia(url):
-        try:
-            feed = feedparser.parse(url)
-            if feed.entries:
-                entry = feed.entries[0]
-                titulo_limpo = entry.title.split(' - ')[0].strip()
-                return titulo_limpo[:55] + "..." if len(titulo_limpo) > 55 else titulo_limpo
-        except Exception:
-            return None
-        return None
-
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        resultados = list(executor.map(extrair_noticia, fontes_rss))
-        
-    pautas_coletadas = list(set([res for res in resultados if res]))
-    pautas_fallback = ["Inovação tecnológica na gestão escolar", "Uso de IA no dia a dia da sala de aula", "Estratégias para retenção de alunos"]
-    
-    return (pautas_coletadas + pautas_fallback)[:3]
-    
+   
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_contexto_google(palavra_chave):
     if not SERPAPI_KEY:
