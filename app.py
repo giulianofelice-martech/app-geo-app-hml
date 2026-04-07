@@ -2208,7 +2208,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                         st.session_state['evidence_density'] = evidence_density
                         st.session_state['information_gain'] = information_gain
                         st.session_state['contexto_wp'] = contexto_wp
-                        
+                        st.session_state['manual_voz_gemini'] = manual_voz_gemini
                         st.session_state['marca_atual'] = marca_selecionada
                         st.session_state['keyword_atual'] = palavra_chave_input
                         status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
