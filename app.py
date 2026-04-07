@@ -1316,8 +1316,8 @@ def sintetizar_voz_gemini(brandbook_texto, conteudos_referencia):
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
-def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", conteudo_proprietario="", modo_humanizado=False, especialista_nome=None):
-    df = st.session_state['brandbook_df']
+def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", conteudo_proprietario="", modo_humanizado=False, especialista_nome=None, instrucao_livre=""):
+df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
     from datetime import datetime
@@ -1563,9 +1563,27 @@ Formato obrigatório:
 Após fechar a tag </thought_process>, inicie imediatamente o código HTML do artigo com a tag <h1>. 
 Lembre-se: Você é OBRIGADO a incluir os marcadores `<br>Resumo Estratégico<br>` e `<br>Perguntas Frequentes<br>`. Abaixo de Perguntas Frequentes, crie 3 perguntas com <h3> e respostas em <p>.
 Pare de escrever IMEDIATAMENTE após fechar a última tag HTML. NUNCA gere auto-avaliações ou comentários finais.
+
+# === LÓGICA DO PROMPT LIVRE ===
+    bloco_instrucao_livre = ""
+    if instrucao_livre and instrucao_livre.strip():
+        bloco_instrucao_livre = f"""
+==================================================
+🔥 INSTRUÇÃO DIRETA DO USUÁRIO (PRIORIDADE MÁXIMA) 🔥
+O usuário solicitou o seguinte formato, estrutura e conteúdo:
+"{instrucao_livre}"
+
+REGRA DE SOBRESCRIÇÃO: Você DEVE obedecer estritamente aos tópicos, perguntas (H2) e ao formato solicitados acima. Esta instrução substitui qualquer regra de estrutura do briefing anterior. 
+No entanto, você DEVE manter: 
+1. A formatação em HTML puro.
+2. O Tom de Voz da marca.
+3. A regra de não alucinar dados sem link.
+==================================================
 """
 
     user_2 = f"""
+{bloco_instrucao_livre}
+
 Palavra-chave ou Consulta: '{palavra_chave}'
 
 CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
@@ -2112,6 +2130,14 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                 help="Frases exatas, citações ou parágrafos que a IA é OBRIGADA a incluir literalmente no texto gerado sem alterar nenhuma palavra.",
                 placeholder="Ex: 'Segundo nosso diretor João, a educação transforma o amanhã.' (A IA vai colar este texto exato dentro do artigo)."
             )
+
+            # ---> NOVO CAMPO: PROMPT LIVRE DO USUÁRIO <---
+            instrucao_livre_input = st.text_area(
+                "💬 Instruções Específicas / Prompt Livre (Estilo ChatGPT)", 
+                height=120,
+                help="Dite as regras do texto! Peça uma estrutura específica, perguntas exatas para os H2 ou um formato sob medida.",
+                placeholder='Ex: "Preciso de um texto sobre o Vestibular da UERJ. Use uma estrutura de H2 respondendo: como funciona, o que cai, livros obrigatórios e a estrutura das provas."'
+            )
             
             # O NOSSO NOVO INTERRUPTOR A/B
             st.markdown("<br>", unsafe_allow_html=True)
@@ -2184,7 +2210,8 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                             manual_voz_gemini
                         ) = executar_geracao_completa(
                             palavra_chave_input, marca_selecionada, publico_selecionado, 
-                            conteudo_adicional_input, conteudo_proprietario_input, modo_humanizado, especialista_selecionado
+                            conteudo_adicional_input, conteudo_proprietario_input, modo_humanizado, especialista_selecionado,
+                            instrucao_livre_input # <--- ADICIONADO AQUI NO FINAL
                         )
                         
                         st.session_state['art_gerado'] = artigo_html
