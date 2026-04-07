@@ -1660,16 +1660,16 @@ Pare de escrever IMEDIATAMENTE após fechar a última tag HTML do FAQ. NUNCA ger
 
     system_3 = f"""
 Você é especialista em SEO técnico e Schema.org.
-Retorne EXCLUSIVAMENTE **um JSON** puro, válido e COMPATÍVEL com este schema Pydantic:
+Retorne EXCLUSIVAMENTE um JSON puro, válido e COMPATÍVEL com este schema Pydantic:
 {json.dumps(schema_gerado, ensure_ascii=False)}
 
 REGRAS CRÍTICAS:
-1) NUNCA inclua markdown, comentários, ```json ou campos extras.
-2) 'title': 45–60 caracteres (otimizado para H1/SEO, sem marca).
-3) 'meta_description': 130–150 caracteres (promessa clara + gancho, sem clickbait).
-4) 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students", "school"). É ESTRITAMENTE PROIBIDO gerar frases longas. Termos longos quebram a busca da API.
-5) 'schema_faq': JSON-LD **FAQPage** com @context "[https://schema.org](https://schema.org)", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
-    - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
+1. NUNCA inclua markdown, comentários ou campos extras.
+2. 'title': 45-60 caracteres (otimizado para H1/SEO, sem marca).
+3. 'meta_description': 130-150 caracteres (promessa clara + gancho, sem clickbait).
+4. 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students"). É ESTRITAMENTE PROIBIDO gerar frases longas.
+5. 'schema_faq': JSON-LD FAQPage com @context "[https://schema.org](https://schema.org)", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
+    - As perguntas e respostas DEVEM ser extraídas textualmente da seção Perguntas Frequentes presente no HTML fornecido.
     - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
 
 ANTI-CLOAKING E VALIDAÇÃO:
