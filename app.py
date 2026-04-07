@@ -1563,7 +1563,7 @@ Formato obrigatório:
 Após fechar a tag </thought_process>, inicie imediatamente o código HTML do artigo com a tag <h1>. 
 Lembre-se: Você é OBRIGADO a incluir os marcadores `<br>Resumo Estratégico<br>` e `<br>Perguntas Frequentes<br>`. Abaixo de Perguntas Frequentes, crie 3 perguntas com <h3> e respostas em <p>.
 Pare de escrever IMEDIATAMENTE após fechar a última tag HTML. NUNCA gere auto-avaliações ou comentários finais.
-
+"""
 # === LÓGICA DO PROMPT LIVRE ===
     bloco_instrucao_livre = ""
     if instrucao_livre and instrucao_livre.strip():
