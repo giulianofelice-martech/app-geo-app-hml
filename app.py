@@ -1065,7 +1065,7 @@ def simular_resposta_ai(keyword, artigo_html):
     return chamar_llm(system, user, "openai/gpt-4o-mini", 0.2, response_format={"type":"json_object"})
 
 def executar_revisao_geo_wp(palavra_chave, publico, marca, html_atual):
-    df = st.session_state['brandbook_df']
+        df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
 
