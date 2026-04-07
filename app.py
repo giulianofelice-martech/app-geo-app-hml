@@ -303,19 +303,22 @@ with st.popover("?"):
         * **Risco de Hijacking:** Mede o risco de um concorrente "roubar" o seu clique por ter explicado o assunto de forma mais direta e didática que você.
         """)
         
-with st.popover("🔥"):
-    st.markdown("### 🔥 Pautas em Alta")
-    st.caption("Tendências detectadas via Google News e MEC agora:")
-    
-    # Chama sua função de busca de tendências
-    pautas_quentes = buscar_trending_topics_educacao()
-    
-    for pauta in pautas_quentes:
-        if st.button(f"👉 {pauta}", use_container_width=True, key=f"trend_{pauta}"):
-            st.session_state['pauta_sugerida'] = pauta
-            st.rerun()
+# 2. O botão de Pautas (🔥) agora SÓ aparece se o formulário estiver aberto
+if st.session_state.get('show_inputs', False) and st.session_state.get('current_page') == "Gerar de Artigos":
+    with st.popover("🔥"):
+        st.markdown("### 🔥 Pautas em Alta")
+        st.caption("Tendências detectadas via Google News e MEC agora:")
+        
+        # Chama sua função de busca de tendências
+        pautas_quentes = buscar_trending_topics_educacao()
+        
+        for pauta in pautas_quentes:
+            if st.button(f"👉 {pauta}", use_container_width=True, key=f"trend_{pauta}"):
+                st.session_state['pauta_sugerida'] = pauta
+                st.rerun()
 
 st.markdown('</div>', unsafe_allow_html=True)
+
 
 # Armazenando o HTML do pipeline para usar depois
 pipeline_html = """
