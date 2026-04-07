@@ -364,6 +364,7 @@ class MetadadosArtigo(BaseModel):
         
         def extrair_noticia(url):
             try:
+                import feedparser # Certifique-se de importar o feedparser (adicionando no topo do arquivo se necessário)
                 feed = feedparser.parse(url)
                 if feed.entries:
                     entry = feed.entries[0]
