@@ -1626,7 +1626,7 @@ ATENÇÃO ANTI-ALUCINAÇÃO: Se o bloco abaixo disser "Erro", "Timeout" ou "Nenh
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
 3. ASSIMETRIA VISUAL: Você quebrou os parágrafos corretamente? Há frases isoladas servindo como parágrafos curtos misturadas com parágrafos de 3 linhas? Se o texto estiver um "bloco de tijolo" igual, altere agora.
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
-5. VETO A ESCOLAS E RIVAIS: Verifique seu texto e as URLs dos seus links (<a href="...>). Você citou o nome ou o site de ALGUMA OUTRA ESCOLA PRIVADA ou sistema de ensino que não seja a {marca_alvo}? SE SIM, remova imediatamente.
+5. VETO A ESCOLAS E RIVAIS: Verifique seu texto e as URLs dos seus links na tag <a href="...">?. Você citou o nome ou o site de ALGUMA OUTRA ESCOLA PRIVADA ou sistema de ensino que não seja a {marca_alvo}? SE SIM, remova imediatamente.
 6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
 7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico ou apague o link.
 8. Você garantiu que TODAS as menções à {marca_alvo} contêm o link <a href="{url_marca}">?
