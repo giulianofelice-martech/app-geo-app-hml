@@ -1172,6 +1172,73 @@ def refinar_artigo_html(html_atual, instrucoes):
     
     return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.2)
 
+import os
+import unicodedata
+
+def slugify(text):
+    """Transforma 'SAS Educação' em 'sas_educacao' para achar a pasta correta."""
+    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
+    return text.lower().replace(' ', '_').replace('-', '_')
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def ler_referencias_locais(marca_nome):
+    slug = slugify(marca_nome)
+    caminho_pasta = os.path.join("referencias_tom", slug)
+    
+    if not os.path.exists(caminho_pasta):
+        return ""
+        
+    texto_extraido = ""
+    try:
+        for nome_arquivo in os.listdir(caminho_pasta):
+            caminho_arquivo = os.path.join(caminho_pasta, nome_arquivo)
+            if os.path.isfile(caminho_arquivo):
+                if nome_arquivo.lower().endswith('.txt'):
+                    with open(caminho_arquivo, 'r', encoding='utf-8') as f:
+                        texto_extraido += f"\n--- {nome_arquivo} ---\n{f.read()[:3000]}\n"
+                elif nome_arquivo.lower().endswith('.pdf'):
+                    import PyPDF2
+                    with open(caminho_arquivo, 'rb') as f:
+                        leitor = PyPDF2.PdfReader(f)
+                        texto_pdf = ""
+                        for pagina in leitor.pages[:5]: # Lê até 5 páginas para não estourar tokens
+                            texto_pdf += pagina.extract_text() + "\n"
+                        texto_extraido += f"\n--- {nome_arquivo} ---\n{texto_pdf[:3000]}\n"
+                elif nome_arquivo.lower().endswith('.docx'):
+                    import docx
+                    doc = docx.Document(caminho_arquivo)
+                    texto_docx = "\n".join([p.text for p in doc.paragraphs])
+                    texto_extraido += f"\n--- {nome_arquivo} ---\n{texto_docx[:3000]}\n"
+    except Exception as e:
+        print(f"Erro ao ler referencias de {marca_nome}: {e}")
+        
+    return texto_extraido
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def sintetizar_voz_gemini(brandbook_texto, conteudos_referencia):
+    """Agente 1: Analisa os documentos e cria um Blueprint de Tom de Voz."""
+    if not conteudos_referencia or len(conteudos_referencia.strip()) < 50:
+        return f"Siga o Brandbook original:\n{brandbook_texto}"
+
+    system = """
+    Você é um Analista Chefe de Copywriting. Sua missão é ler um Brandbook oficial e cruzar com exemplos reais de textos já publicados pela marca.
+    Extraia um "Manual de Clonagem de Voz" cirúrgico contendo:
+    1. Comprimento médio das frases (curtas/rápidas ou longas/acadêmicas).
+    2. Nível de formalidade e jargões favoritos usados nos textos.
+    3. Como a marca faz transições.
+    4. O que a marca NUNCA faz (baseado na ausência de padrões).
+    
+    Devolva um guia estrito de instruções (máximo 400 palavras) para guiar o Redator (Claude).
+    """
+    
+    user = f"DIRETRIZES DO BRANDBOOK:\n{brandbook_texto}\n\nTEXTOS DE REFERÊNCIA (Aprenda com eles):\n{conteudos_referencia}"
+    
+    try:
+        # Usa o Gemini 2.5 Pro via OpenRouter
+        return chamar_llm(system, user, model="google/gemini-2.5-pro", temperature=0.2)
+    except Exception as e:
+        return f"Erro no Agente Gemini: {e} - Siga o brandbook: {brandbook_texto}"
+        
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
@@ -1185,18 +1252,23 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
     # ROTEADOR DE CMS AQUI
     cms_url, cms_user, cms_pwd, cms_type = obter_credenciais_cms(marca_alvo)
 
-    st.write(f"🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina), IAs e RAG Reverso ({cms_type.upper()})...")
+    st.write(f"🕵️‍♂️ Fase 0: Buscando Google, IAs e ativando Agente Gemini...")
     
-    # EXTRAI O ESTILO DO ESPECIALISTA SE ELE FOI SELECIONADO
-    contexto_ghostwriting = ""
-    if especialista_nome:
-        st.write(f"👔 Lendo artigos do autor: {especialista_nome}...")
-        contexto_ghostwriting = buscar_estilo_especialista(especialista_nome, st.session_state['especialistas_df'])
+    # Prepara os dados pro Gemini
+    brandbook_txt = f"Tom de Voz: {marca_info['TomDeVoz']} | Regras: {marca_info.get('RegrasPositivas', '')} | Proibido: {marca_info['RegrasNegativas']}"
+    referencias_locais = ler_referencias_locais(marca_alvo)
+    
+    # ... código do especialista ...
         
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
         futuro_reverse = executor.submit(gerar_reverse_queries, palavra_chave)
+        
+        # AGENTE GEMINI ENTRA AQUI
+        futuro_gemini = executor.submit(sintetizar_voz_gemini, brandbook_txt, referencias_locais)
+        
+        # ... rotas wp/drupal mantidas iguais ...
         
         # O script decide qual CMS atacar
         if cms_type == "drupal":
@@ -1216,6 +1288,10 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
             reverse_queries = futuro_reverse.result(timeout=20)
         except:
             reverse_queries = "{}"
+        try:
+            manual_voz_gemini = futuro_gemini.result(timeout=40)
+        except concurrent.futures.TimeoutError:
+            manual_voz_gemini = f"Timeout Gemini. Use Brandbook: {brandbook_txt}"    
         try:
             contexto_wp = futuro_wp_rag.result(timeout=25) # Aumentado para dar tempo do Firewall do WP responder
         except:
@@ -1432,11 +1508,14 @@ SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
 
 DIRECIONAMENTO DE COPYWRITING E MARCA:
 - Público-Alvo Deste Texto (Foque toda a narrativa neles): {publico_alvo}
-- Tom de Voz Exigido: {marca_info['TomDeVoz']}
 - Marca Alvo: {marca_alvo}
 - URL da Marca: {url_marca} (OBRIGATÓRIO: Linkar a marca para esta URL sempre que citada).
 - Posicionamento: {marca_info['Posicionamento']}
 - Territórios: {marca_info['Territorios']}
+
+MANUAL DE CLONAGEM DE VOZ (CRIADO PELO AGENTE GEMINI):
+Você é obrigado a escrever o artigo usando exatamente o ritmo, formalidade e regras extraídas abaixo a partir de textos reais da marca:
+{manual_voz_gemini}
 - Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
 - O que NÃO fazer: {marca_info['RegrasNegativas']}
 
@@ -1851,38 +1930,46 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
 
         # CARDS SELLING LLMS (COM ÍCONES NATIVOS À PROVA DE FALHAS)
         st.markdown("<h3 style='margin-top: 3rem; font-size: 1.5rem;'>As novidades. Veja o que acabou de chegar.</h3>", unsafe_allow_html=True)
-        c1, c2, c3, c4 = st.columns(4)
+        c1, c2, c3, c4, c5 = st.columns(5)
         
         with c1:
             st.markdown("""
             <div class="saas-card">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="GPT-4o Logo" style="height: 32px; margin-bottom: 16px;">
-                <div class="card-title">Estrategista (GPT-4o)</div>
-                <div class="card-text">Analisa a concorrência e cria o briefing estrutural com alto Information Gain e regras E-E-A-T.</div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" alt="Gemini Logo" style="height: 32px; margin-bottom: 16px;">
+                <div class="card-title">Refino de Marca (Gemini)</div>
+                <div class="card-text">Lê seus PDFs/Docs e cria um manual de clonagem de voz perfeito.</div>
             </div>
             """, unsafe_allow_html=True)
         with c2:
             st.markdown("""
             <div class="saas-card">
-                <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Claude_AI_symbol.svg" alt="Claude 3.7 Logo" style="height: 32px; margin-bottom: 16px;">
-                <div class="card-title">Redator (Claude 3.7)</div>
-                <div class="card-text">A inteligência mais avançada para Copywriting. Escreve com fluidez humana e variação rítmica.</div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="GPT-4o Logo" style="height: 32px; margin-bottom: 16px;">
+                <div class="card-title">Estrategista (GPT-4o)</div>
+                <div class="card-text">Analisa a concorrência e cria briefing com regras E-E-A-T.</div>
             </div>
             """, unsafe_allow_html=True)
         with c3:
             st.markdown("""
             <div class="saas-card">
-                <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
-                <div class="card-title">AI Search Native</div>
-                <div class="card-text">Realiza uma varredura profunda na web em tempo real, extraindo o conteúdo para mapear o 'Entity Gap' exato do seu nicho.</div>
+                <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Claude_AI_symbol.svg" alt="Claude 3.7 Logo" style="height: 32px; margin-bottom: 16px;">
+                <div class="card-title">Redator (Claude 3.7)</div>
+                <div class="card-text">A inteligência mais avançada para Copywriting.</div>
             </div>
             """, unsafe_allow_html=True)
         with c4:
             st.markdown("""
             <div class="saas-card">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
+                <div class="card-title">AI Search Native</div>
+                <div class="card-text">Extrai o conteúdo da web em tempo real para mapear 'Entity Gap'.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c5:
+            st.markdown("""
+            <div class="saas-card">
                 <div style="font-size: 2rem; margin-bottom: 8px;">🔗</div>
                 <div class="card-title">RAG Reverso (WP)</div>
-                <div class="card-text">Conecta-se ao seu CMS e faz a linkagem interna automática com os artigos que você já publicou.</div>
+                <div class="card-text">Faz linkagem interna com os artigos que você já publicou.</div>
             </div>
             """, unsafe_allow_html=True)
 
