@@ -1915,7 +1915,7 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     7. INTRODUÇÃO DIRETA (ANSWER-FIRST): Logo no primeiro parágrafo, entregue o contexto principal em no máximo 4 linhas, de forma fluida. O texto DEVE começar obrigatoriamente com uma tag <h1>. Logo abaixo, crie um <h2>Resposta rápida para: [palavra-chave]</h2> e entregue a essência em 2 linhas (sem usar etiquetas robóticas como "Resposta direta:").
     8. ASSIMETRIA VISUAL EXTREMA (CRÍTICO): É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho. Intercale parágrafos "maiores" (3 a 4 linhas) com frases de impacto isoladas em uma única linha. O ritmo visual deve oscilar drasticamente.
     9. REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão brasileiro: APENAS a primeira letra da frase e nomes próprios devem ser maiúsculos. O H1 deve ter no máximo 60 caracteres.
-    10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <h2 class='titulo'>) em vez de aspas duplas. Se precisar usar aspas duplas no texto, escape-as com contra-barra (\\").
+    10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <h2 class='titulo'>) em vez de aspas duplas. Se precisar usar aspas duplas no texto, coloque uma barra invertida antes da aspa.
 
     RETORNE EXCLUSIVAMENTE UM JSON:
     {{
