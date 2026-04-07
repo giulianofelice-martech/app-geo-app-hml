@@ -1317,7 +1317,7 @@ def sintetizar_voz_gemini(brandbook_texto, conteudos_referencia):
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
 def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", conteudo_proprietario="", modo_humanizado=False, especialista_nome=None, instrucao_livre=""):
-df = st.session_state['brandbook_df']
+    df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
     from datetime import datetime
