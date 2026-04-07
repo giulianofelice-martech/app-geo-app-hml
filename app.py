@@ -1569,15 +1569,15 @@ Pare de escrever IMEDIATAMENTE após fechar a última tag HTML. NUNCA gere auto-
     if instrucao_livre and instrucao_livre.strip():
         bloco_instrucao_livre = f"""
 ==================================================
-🔥 INSTRUÇÃO DIRETA DO USUÁRIO (PRIORIDADE MÁXIMA) 🔥
-O usuário solicitou o seguinte formato, estrutura e conteúdo:
+INSTRUCAO DIRETA DO USUARIO (PRIORIDADE MAXIMA)
+O usuario solicitou o seguinte formato, estrutura e conteudo:
 "{instrucao_livre}"
 
-REGRA DE SOBRESCRIÇÃO: Você DEVE obedecer estritamente aos tópicos, perguntas (H2) e ao formato solicitados acima. Esta instrução substitui qualquer regra de estrutura do briefing anterior. 
-No entanto, você DEVE manter: 
-1. A formatação em HTML puro.
+REGRA DE SOBRESCRICAO: Voce DEVE obedecer estritamente aos topicos, perguntas (H2) e ao formato solicitados acima. Esta instrucao substitui qualquer regra de estrutura do briefing anterior. 
+No entanto, voce DEVE manter: 
+1. A formatacao em HTML puro.
 2. O Tom de Voz da marca.
-3. A regra de não alucinar dados sem link.
+3. A regra de nao alucinar dados sem link.
 ==================================================
 """
 
