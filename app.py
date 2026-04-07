@@ -437,7 +437,7 @@ if 'brandbook_df' not in st.session_state:
             "Territorios": "Vestibulares, Esportes, Gestão escolar, Crescimento",
             "TomDeVoz": "Consultivo, parceiro, dinâmico. Viva, ponta firme, sagaz, aberta, contemporânea",
             "PublicoAlvo": "Mantenedores e Gestores. Coordenadores pedagógicos.",
-            "RegrasNegativas": "Não focar discurso apenas no aluno, não usar jargões sem explicação.",
+            "RegrasNegativas": "Jamais foque o discurso em 'desempenho agregado de escola', o foco principal do benefício deve ser sempre o Aluno. Nunca repita exaustivamente 'O Laboratório de Redação COC', abrevie ou omita o 'COC' após a primeira menção. Nunca use 'plataforma educacional', prefira chamá-la de 'ferramenta'.",
             "RegrasPositivas": "Destaque os diferenciais: - Mais de 60 anos, - Melhor consultoria do Brasil 2x premiada no Top Educação. Propósito: Impulsionar escolas rumo a uma educação contemporânea de excelência."
         },
         {
@@ -1483,8 +1483,8 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 1.2) Fale DIRETAMENTE com o Público-Alvo definido. Entenda a realidade deles (ex: um gestor busca eficiência; pais buscam segurança).
 1.3) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
 2) PROIBIDO usar jargões de IA como: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". 
-2.1) VETO DE VOCABULÁRIO IA E CORPORATIVO (BLACKLIST ABSOLUTA): Estão permanentemente banidas do seu vocabulário as expressões: "cenário em transformação", "mundo globalizado", "mundo contemporâneo", "não é apenas X, mas também Y", "verdadeiro divisor de águas", "é fundamental notar", "revolucionar", "gestores visionários", "transformação institucional", "excelência contemporânea", "inovador", "plataformas avançadas", "a revolução da", "excelência", "inovação".
-2.2) CONCRETUDE E MICRO-HISTÓRIAS (SHOW, DON'T TELL): Fuja de abstrações. Traduza conceitos em cenas reais e diretas. 
+2.1) VETO DE VOCABULÁRIO IA E CORPORATIVO (BLACKLIST ABSOLUTA): Estão permanentemente banidas expressões robóticas e advérbios longos: "significativamente", "extremamente", "primeiramente", "foi estruturado para oferecer" (use apenas "oferece"), "tanto X quanto para Y" (use apenas "e"). Banido também: "cenário em transformação", "verdadeiro divisor de águas", "influenciar o desempenho agregado das escolas" (o foco é sempre no ALUNO!).
+2.2) CONCRETUDE OBRIGATÓRIA (ZERO FRASES VAZIAS): É proibido fazer afirmações genéricas (ex: "a redação é decisiva") sem justificá-las com DADOS ou LÓGICA RÁPIDA (ex: "...visto que instituições atribuem peso 2 à nota"). Fuja de abstrações.
 - Exemplo Ruim: "Sistemas de ensino compartilham uma característica: personalização em escala."
 - Exemplo Bom: "Escolas que mais aprovam não ensinam todo mundo igual. Elas identificam onde cada aluno trava antes que o problema vire reprovação." 
 - Exemplo Bom 2: "Hoje, algumas escolas conseguem prever — com semanas de antecedência — quais alunos têm maior risco de baixo desempenho."
@@ -1500,8 +1500,15 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 4) LINK OFICIAL DA MARCA (ANTI-SPAM): A marca alvo e sua URL serão enviadas a você no briefing. Você É OBRIGADO a transformar o nome da marca em um hiperlink (<a href="[URL_AQUI]" target="_blank">) APENAS NA PRIMEIRA VEZ que ela aparecer no texto (geralmente no Estudo de Caso). Nas menções seguintes, escreva o nome da marca como texto puro, sem link, para não configurar spam aos olhos do Google.
 
 GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS:
-4) INTRODUÇÃO DIRETA (ANSWER-FIRST INTEGRADO): Logo no primeiro parágrafo, você DEVE explicar o conceito central e entregar a resposta principal em no máximo 4 linhas. Faça isso de forma orgânica e fluida. É ESTRITAMENTE PROIBIDO usar cabeçalhos como 'Resposta rápida para:' ou etiquetas como 'Definição:' e 'Resposta direta:'. Apenas explique o conceito e responda à dor do usuário de uma vez, garantindo que a palavra-chave principal esteja em <strong>negrito</strong>.
-5) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
+4) INTRODUÇÃO E LINHA FINA: Após o <h1>, crie uma "Linha Fina" (parágrafo curto em <em>) resumindo o artigo. O 1º parágrafo real deve introduzir o problema direto ao ponto, com dados, SEM usar cabeçalhos artificiais como 'Resposta rápida para'.
+4.1) FRAMEWORK DE PRODUTO OBRIGATÓRIO (H2): A estrutura do texto deve seguir EXATAMENTE esta ordem narrativa: 
+- 1. Introdução e Apresentação do Produto/Dor. 
+- 2. Explicação resumida do que é a ferramenta e problema que resolve. 
+- 3. Detalhes de Como Funciona (Jornada). 
+- 4. Vantagens (sempre após o 'Como funciona'). 
+- 5. Exemplos detalhados. 
+- 6. H2 de Encerramento (Ex: "Sobre o [Marca]") com CTA direto para o site.
+5) RESUMO ESTRATÉGICO: Insira a linha `<br>Resumo Estratégico<br>` após a introdução e crie um <ul> rápido.
 7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA EXTREMA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). É OBRIGATÓRIO QUEBRAR A SIMETRIA: Intercale parágrafos "maiores" (25 a 35 palavras) com parágrafos de impacto ultracurtos formados por UMA ÚNICA FRASE (8 a 15 palavras). É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho visual. LIMITAÇÃO DE LISTAS: Use no máximo 2 a 3 listas (<ul>) em todo o artigo.
 8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
 
@@ -1908,11 +1915,12 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
     3. DIFERENCIAÇÃO EXTREMA DE MARCA: O seu texto DEVE ser guiado 100% pelo Posicionamento e Territórios da Marca Alvo. 
     4. BRAND WEAVING (INSERÇÃO NATURAL DA MARCA): Integre o nome da marca, seus diferenciais e seu propósito no MEIO do texto. A autoridade e a história da marca devem estar costuradas na narrativa. É OBRIGATÓRIO transformar a primeira menção da marca em um link: <a href="{url_marca}" target="_blank">[NOME DA MARCA]</a>.
-    5. BLACKLIST DE IA (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar termos hiperbólicos, sensacionalistas ou jargões vazios corporativos. NUNCA use: "radicalmente", "revolucionário", "divisor de águas", "no cenário atual", "fundamental", "é inegável que", "neste artigo veremos", "excelência contemporânea". Seja factual, maduro e elegante. 
-    6. PROIBIÇÃO DE MATEMÁTICA FANTASMA: Se o documento original não trouxer um número exato, não invente proporções (%). Escreva de forma qualitativa ("aumenta a retenção", não "aumenta em 30%").
+    5. BLACKLIST DE IA (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar advérbios terminados em "mente" (ex: significativamente), jargões corporativos ("influenciar o desempenho agregado da escola") ou locuções como "foi estruturado para oferecer" (use direto "oferece"). NUNCA use o H2 "Resposta rápida para:". O foco do texto deve ser o benefício para o ALUNO.
+    6. CONCRETUDE OBRIGATÓRIA: Não faça afirmações vazias (ex: "é importante") sem embasá-las com dados do documento ou exemplos. Não invente proporções (%) se o doc original não trouxer.
 
     GEO E CHUNK CITABILITY (HTML E ESTRUTURA VISUAL):
-    7. INTRODUÇÃO DIRETA (ANSWER-FIRST): Logo no primeiro parágrafo, entregue o contexto principal em no máximo 4 linhas, de forma fluida. O texto DEVE começar obrigatoriamente com uma tag <h1>. Logo abaixo, crie um <h2>Resposta rápida para: [palavra-chave]</h2> e entregue a essência em 2 linhas (sem usar etiquetas robóticas como "Resposta direta:").
+    7. INTRODUÇÃO E LINHA FINA: O texto DEVE começar com o <h1>. Logo abaixo, crie uma "Linha Fina" (parágrafo em <em>) resumindo o texto. O 1º parágrafo normal deve introduzir a dor/solução direto ao ponto.
+    7.1. FRAMEWORK DE PRODUTO: Siga estritamente a ordem de H2: Introdução -> O que é a ferramenta/dor resolvida -> Como Funciona (Detalhes) -> Vantagens -> Exemplos -> CTA final sobre a marca.
     8. ASSIMETRIA VISUAL EXTREMA (CRÍTICO): É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho. Intercale parágrafos "maiores" (3 a 4 linhas) com frases de impacto isoladas em uma única linha. O ritmo visual deve oscilar drasticamente.
     9. REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão brasileiro: APENAS a primeira letra da frase e nomes próprios devem ser maiúsculos. O H1 deve ter no máximo 60 caracteres.
     10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <h2 class='titulo'>) em vez de aspas duplas. Se precisar usar aspas duplas no texto, coloque uma barra invertida antes da aspa.
