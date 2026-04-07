@@ -700,6 +700,37 @@ def chamar_llm(system_prompt, user_prompt, model, temperature=0.3, response_form
     return response.choices[0].message.content
 
 @st.cache_data(ttl=3600, show_spinner=False)
+def buscar_fontes_autoridade(palavra_chave):
+    """Busca links de alta autoridade (gov, pesquisas) para Deep Links seguros."""
+    if not SERPAPI_KEY:
+        return "Sem chave Serper configurada."
+    url = "https://google.serper.dev/search"
+    # Query focada em dados neutros para evitar blogs de concorrentes
+    query = f"{palavra_chave} (dados OR estatística OR MEC OR INEP OR pesquisa OR IBGE)"
+    payload = json.dumps({"q": query, "gl": "br", "hl": "pt-br", "num": 5})
+    headers = {'X-API-KEY': SERPAPI_KEY, 'Content-Type': 'application/json'}
+    try:
+        response = requests.request("POST", url, headers=headers, data=payload)
+        dados = response.json()
+        fontes = "🔗 FONTES DE AUTORIDADE EXTERNAS ENCONTRADAS (USE COMO DEEP LINKS SEGUROS):\n"
+        if "organic" in dados:
+            for idx, res in enumerate(dados["organic"]):
+                titulo = res.get('title', 'Sem Título')
+                link = res.get('link', '')
+                snippet = res.get('snippet', 'Sem resumo')
+                
+                # LISTA DE RIVAIS EXTERNOS (Removido saseducacao, geekie e outras da Arco)
+                rivals_externos = ['poliedro', 'anglo', 'bernoulli', 'objetivo', 'eleva', 'fariasbrito', 'aridesa', 'fibonacci']
+                
+                if any(rival in link.lower() for rival in rivals_externos):
+                    continue
+                    
+                fontes += f"- FONTE {idx+1}: {titulo}\n  URL EXATA: {link}\n  CONTEXTO: {snippet}\n\n"
+        return fontes
+    except Exception as e:
+        return f"Erro ao buscar fontes externas: {e}"
+
+@st.cache_data(ttl=3600, show_spinner=False)
 def buscar_baseline_llm(palavra_chave):
     system_prompt = "Você é um pesquisador de IA sênior. Forneça a resposta que uma IA daria hoje para o termo pesquisado, citando o consenso atual."
     user_prompt = f"O que você sabe sobre: '{palavra_chave}'? Retorne um resumo profundo de como esse tema é respondido atualmente pelas IAs."
@@ -1343,6 +1374,7 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
         
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
+        futuro_fontes = executor.submit(buscar_fontes_autoridade, palavra_chave) 
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
         futuro_reverse = executor.submit(gerar_reverse_queries, palavra_chave)
         
@@ -1362,6 +1394,10 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
         except concurrent.futures.TimeoutError:
             contexto_google = "Aviso: A busca orgânica demorou muito. Conteúdo ignorado para manter a velocidade."
         try:
+            fontes_externas = futuro_fontes.result(timeout=45) 
+        except:
+            fontes_externas = "Aviso: Sem fontes externas adicionais."
+        try:
             baseline_ia = futuro_ia.result(timeout=60) # Aumentado
         except concurrent.futures.TimeoutError:
             baseline_ia = "Aviso: O motor de Baseline demorou muito a responder. Ignorado."
@@ -1377,6 +1413,7 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
             contexto_wp = futuro_wp_rag.result(timeout=25) # Aumentado para dar tempo do Firewall do WP responder
         except:
             contexto_wp = "Erro de timeout ao buscar links internos."
+        
 
     st.write("🔍 Fase 0.5: Analisando Entity Gap e Oportunidades Semânticas...")
     entity_gap = analisar_entity_gap(contexto_google, palavra_chave)
@@ -1417,7 +1454,8 @@ CONTEÚDO ADICIONAL DO ESPECIALISTA (DIRECIONAMENTO HUMANO):
 {conteudo_adicional if conteudo_adicional else "Nenhum conteúdo extra fornecido."}
 
 Contexto extraído do Google (Serper + Jina):
-{contexto_google}
+Contexto Google: {contexto_google}
+DEEP LINKS DE AUTORIDADE: {fontes_externas}
 
 Baseline de IAs (consenso atual):
 {baseline_ia}
@@ -1605,6 +1643,9 @@ No entanto, voce DEVE manter:
 {bloco_instrucao_livre}
 
 Palavra-chave ou Consulta: '{palavra_chave}'
+
+DEEP LINKS EXTERNOS (FONTES REAIS):
+{fontes_externas}
 
 CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência. NUNCA insira o ano no título principal (H1) ou no texto a menos que seja um dado histórico.
 
