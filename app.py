@@ -8,6 +8,7 @@ import json
 import re
 import concurrent.futures
 import urllib.parse
+import feedparser
 from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
@@ -179,37 +180,42 @@ st.markdown("""
     }
     .pipeline-step:hover { color: #F05D23; }
 
-    /* BOTÃO FLUTUANTE DE AJUDA (DIREITA) */
-    .floating-help-container {
+    /* CONTAINER FLUTUANTE ÚNICO (LADO ESQUERDO) */
+    .floating-controls-container {
         position: fixed;
-        bottom: 40px;
-        right: 40px;
+        top: 110px; /* Ajuste para descer ou subir no eixo Y */
+        left: 25px;
         z-index: 99999;
+        display: flex;
+        gap: 10px;
     }
-    div[data-testid="stPopover"] > button {
+
+    /* Botão de Ajuda (Vermelho) */
+    div[data-testid="stPopover"]:first-child > button {
         background-color: #E21B22 !important;
         color: white !important;
-        border-radius: 50% !important;
-        width: 65px !important;
-        height: 65px !important;
+        border-radius: 12px !important; /* Estilo mais moderno/quadrado suave */
+        width: 50px !important;
+        height: 50px !important;
         border: none !important;
-        box-shadow: 0 10px 15px -3px rgba(226, 27, 34, 0.4) !important;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: transform 0.2s;
-        padding: 0 !important;
-        margin: 0 !important;
+        box-shadow: 0 4px 12px rgba(226, 27, 34, 0.3) !important;
     }
-    div[data-testid="stPopover"] > button:hover {
-        transform: scale(1.1);
-        background-color: #C0141A !important;
+
+    /* Botão de Pautas (Laranja) - Usando seletor de irmão */
+    div[data-testid="stPopover"]:nth-child(2) > button {
+        background-color: #F05D23 !important;
+        color: white !important;
+        border-radius: 12px !important;
+        width: 50px !important;
+        height: 50px !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(240, 93, 35, 0.3) !important;
     }
-    div[data-testid="stPopover"] > button p {
-        font-size: 28px !important;
+
+    div[data-testid="stPopover"] button p {
+        font-size: 22px !important;
         font-weight: bold;
         margin: 0 !important;
-        color: white !important;
     }
     /* Remove as bordas e fundos dos botões do menu */
     div[data-testid="stButton"] > button[kind="secondary"] {
@@ -258,7 +264,7 @@ st.markdown("<div style='margin-bottom: 0.5rem;'></div>", unsafe_allow_html=True
 # ==========================================
 # BOTÃO FLUTUANTE DE AJUDA (ESQUERDA)
 # ==========================================
-st.markdown('<div class="floating-help-container">', unsafe_allow_html=True)
+st.markdown('<div class="floating-controls-container">', unsafe_allow_html=True)
 with st.popover("?"):
     st.header("📖 Guia Prático do Motor")
     st.markdown("Bem-vindo à v7.0. Este motor funciona como sua **equipe particular de especialistas**. Ele espiona a concorrência, entende as regras do Google e das IAs, e escreve conteúdos usando a voz exata da sua marca.")
@@ -297,6 +303,19 @@ with st.popover("?"):
         * **Retrieval Simulation:** É a chance de uma IA escolher o seu texto como fonte oficial para responder a um usuário.
         * **Risco de Hijacking:** Mede o risco de um concorrente "roubar" o seu clique por ter explicado o assunto de forma mais direta e didática que você.
         """)
+        
+with st.popover("🔥"):
+    st.markdown("### 🔥 Pautas em Alta")
+    st.caption("Tendências detectadas via Google News e MEC agora:")
+    
+    # Chama sua função de busca de tendências
+    pautas_quentes = buscar_trending_topics_educacao()
+    
+    for pauta in pautas_quentes:
+        if st.button(f"👉 {pauta}", use_container_width=True, key=f"trend_{pauta}"):
+            st.session_state['pauta_sugerida'] = pauta
+            st.rerun()
+
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Armazenando o HTML do pipeline para usar depois
@@ -554,6 +573,34 @@ def obter_credenciais_cms(marca):
 # ==========================================
 # 3.2 FUNÇÕES DE CONTEXTO E BUSCA
 # ==========================================
+@st.cache_data(ttl=3600, show_spinner=False)
+def buscar_trending_topics_educacao():
+    """Busca pautas em múltiplas fontes simultaneamente de forma rápida"""
+    fontes_rss = [
+        "https://news.google.com/rss/search?q=MEC+OR+ENEM+OR+escolas&hl=pt-BR&gl=BR&ceid=BR:pt-419", 
+        "https://news.google.com/rss/search?q=edtech+OR+gestão+escolar+OR+inadimplência+escolar&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+        "https://g1.globo.com/rss/g1/educacao/" 
+    ]
+    
+    def extrair_noticia(url):
+        try:
+            feed = feedparser.parse(url)
+            if feed.entries:
+                entry = feed.entries[0]
+                titulo_limpo = entry.title.split(' - ')[0].strip()
+                return titulo_limpo[:55] + "..." if len(titulo_limpo) > 55 else titulo_limpo
+        except Exception:
+            return None
+        return None
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        resultados = list(executor.map(extrair_noticia, fontes_rss))
+        
+    pautas_coletadas = list(set([res for res in resultados if res]))
+    pautas_fallback = ["Inovação tecnológica na gestão escolar", "Uso de IA no dia a dia da sala de aula", "Estratégias para retenção de alunos"]
+    
+    return (pautas_coletadas + pautas_fallback)[:3]
+    
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_contexto_google(palavra_chave):
     if not SERPAPI_KEY:
@@ -2011,9 +2058,15 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
             # ----------------------------------------------
             # NOVOS INPUTS DO GERADOR
             # ----------------------------------------------
+            # Inicializa a pauta se não existir
+            if 'pauta_sugerida' not in st.session_state:
+                st.session_state['pauta_sugerida'] = ""
+            
+            # ... dentro da coluna de inputs ...
             palavra_chave_input = st.text_area(
                 "🔑 Palavra-chave ou Consulta/Query de Pesquisa", 
-                placeholder="Ex: metodologia bilíngue nas escolas OU como implementar a cultura maker no ensino médio?"
+                value=st.session_state['pauta_sugerida'], # <--- Conecta aqui
+                placeholder="Ex: metodologia bilíngue..."
             )
             
             conteudo_adicional_input = st.text_area(
