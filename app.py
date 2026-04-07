@@ -1938,7 +1938,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
             <div class="saas-card">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" alt="Gemini Logo" style="height: 32px; margin-bottom: 16px;">
                 <div class="card-title">Refino de Marca (Gemini)</div>
-                <div class="card-text">Lê seus PDFs/Docs e cria um manual de clonagem de voz perfeito.</div>
+                <div class="card-text">Lê seus materiais de referência, o OURO da marca, e treina o motor para escrever com a sua voz exata.</div>
             </div>
             """, unsafe_allow_html=True)
         with c2:
