@@ -304,7 +304,7 @@ with st.popover("?"):
         """)
         
 # 2. O botão de Pautas (🔥) agora SÓ aparece se o formulário estiver aberto
-if st.session_state.get('show_inputs', False) and st.session_state.get('current_page') == "Gerar de Artigos":
+if st.session_state.get('show_inputs', False) and st.session_state.get('current_page') == "Gerador de Artigos":
     with st.popover("🔥"):
         st.markdown("### 🔥 Pautas em Alta")
         st.caption("Tendências detectadas via Google News e MEC agora:")
