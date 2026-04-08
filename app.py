@@ -43,26 +43,31 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
-   /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT (CORRIGIDO) */
+   /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT */
     [data-testid="stSidebar"] { display: none !important; }
     
-    /* Deixa o topo transparente e faz o mouse "atravessar" a parte invisível dele */
+    /* Torna o topo transparente e ignora o mouse na área vazia */
     header[data-testid="stHeader"] { 
         background: transparent !important; 
         z-index: 999990 !important; 
-        pointer-events: none !important; /* Libera o clique nos botões abaixo dele */
+        pointer-events: none !important; 
     }
     
-    /* Reativa o clique OBRIGATORIAMENTE no menu superior direito */
+    /* Reativa o clique APENAS nos elementos do canto direito */
     [data-testid="stHeaderActionElements"] {
         pointer-events: auto !important;
     }
 
-    /* Esconde GitHub, Fork, Deploy, etc., deixando SÓ os 3 pontinhos */
+    /* DESTRÓI O GITHUB, FORK E DEPLOY DO STREAMLIT CLOUD */
     .stAppDeployButton, 
-    [data-testid="stHeaderActionElements"] > a, 
-    [data-testid="stHeaderActionElements"] > button:not([data-testid="stAppOptions"]) { 
+    .stDeployButton,
+    .viewerBadge_container__1QSob, 
+    .viewerBadge_link__1S137,
+    [data-testid="manage-app-button"],
+    [data-testid="stHeaderActionElements"] > a { 
         display: none !important; 
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
 
     .arco-tag {
@@ -201,55 +206,59 @@ st.markdown("""
        BOTÕES FLUTUANTES (BRANCOS E 100% CLICÁVEIS)
        ========================================== */
     
-    /* Esconde a âncora para ela não bugar o layout */
+    /* Oculta as âncoras para não gerarem espaços extras */
     div[data-testid="stElementContainer"]:has(.help-btn-hook),
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) {
         display: none !important;
     }
 
-    /* Posicionamento do Botão Vermelho (?) -> Agora Branco */
+    /* Z-Index Máximo (2147483647) para furar qualquer bloqueio invisível da Home */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div[data-testid="stElementContainer"] {
         position: fixed !important;
         top: 110px !important;
         left: 25px !important;
-        z-index: 9999999 !important;
+        z-index: 2147483647 !important; 
+        pointer-events: auto !important; 
     }
 
-    /* Posicionamento do Botão Laranja (🔥) -> Agora Branco */
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div[data-testid="stElementContainer"] {
         position: fixed !important;
         top: 110px !important;
         left: 85px !important; 
-        z-index: 9999999 !important;
+        z-index: 2147483647 !important;
+        pointer-events: auto !important;
     }
 
-    /* Estilo visual Brancão, Limpo e Minimalista */
+    /* Estilo Brancão Limpo para os dois botões */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button,
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button {
         background-color: #FFFFFF !important;
-        color: #111827 !important; /* Cor do ícone */
+        color: #111827 !important;
         border-radius: 12px !important;
         width: 50px !important;
         height: 50px !important;
-        border: 1px solid #E5E7EB !important; /* Bordinha cinza sutil */
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        pointer-events: auto !important; /* Força a liberação do clique */
         transition: all 0.2s ease-in-out !important;
     }
 
-    /* Efeito ao passar o mouse */
+    /* Efeito de Hover (Passar o mouse) */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button:hover,
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button:hover {
         background-color: #F9FAFB !important;
         border-color: #D1D5DB !important;
         transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
     }
 
-    /* Tamanho das Fontes/Emojis */
+    /* Ajuste dos Emojis */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div p,
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div p {
         font-size: 22px !important;
         font-weight: bold;
         margin: 0 !important;
+        pointer-events: none !important; /* Evita que o texto bloqueie o clique do botão */
     }
     
     /* Remove as bordas e fundos dos botões do menu */
