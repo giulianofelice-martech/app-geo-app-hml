@@ -44,8 +44,8 @@ st.markdown("""
     }
 
     /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT */
-    [data-testid="stSidebar"], header[data-testid="stHeader"] { display: none !important; }
-    .block-container { padding-top: 1rem; max-width: 1200px; }
+    [data-testid="stSidebar"] { display: none !important; }
+    header[data-testid="stHeader"] { background-color: transparent !important; }
 
     .arco-tag {
         display: inline-flex;
@@ -179,29 +179,38 @@ st.markdown("""
     }
     .pipeline-step:hover { color: #F05D23; }
 
-    /* CONTAINER FLUTUANTE ÚNICO (LADO ESQUERDO) */
-    .floating-controls-container {
+    /* ==========================================
+       NOVO SISTEMA DE BOTÕES FLUTUANTES
+       ========================================== */
+    /* Container do botão vermelho (?) */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div[data-testid="stElementContainer"] {
         position: fixed;
-        top: 110px; /* Ajuste para descer ou subir no eixo Y */
+        top: 110px;
         left: 25px;
-        z-index: 99999;
-        display: flex;
-        gap: 10px;
+        z-index: 999999; /* Z-index altíssimo para furar a Hero Section */
     }
 
-    /* Botão de Ajuda (Vermelho) */
-    div[data-testid="stPopover"]:first-child > button {
+    /* Container do botão laranja */
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div[data-testid="stElementContainer"] {
+        position: fixed;
+        top: 110px;
+        left: 85px; /* Espaçamento exato para ficar ao lado do vermelho */
+        z-index: 999999;
+    }
+
+    /* Estilo do Botão de Ajuda (Vermelho) */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div[data-testid="stElementContainer"] button {
         background-color: #E21B22 !important;
         color: white !important;
-        border-radius: 12px !important; /* Estilo mais moderno/quadrado suave */
+        border-radius: 12px !important;
         width: 50px !important;
         height: 50px !important;
         border: none !important;
         box-shadow: 0 4px 12px rgba(226, 27, 34, 0.3) !important;
     }
 
-    /* Botão de Pautas (Laranja) - Usando seletor de irmão */
-    div[data-testid="stPopover"]:nth-child(2) > button {
+    /* Estilo do Botão de Pautas (Laranja) */
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div[data-testid="stElementContainer"] button {
         background-color: #F05D23 !important;
         color: white !important;
         border-radius: 12px !important;
@@ -211,11 +220,14 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(240, 93, 35, 0.3) !important;
     }
 
-    div[data-testid="stPopover"] button p {
+    /* Tamanho do emoji dentro dos botões */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div p,
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div p {
         font-size: 22px !important;
         font-weight: bold;
         margin: 0 !important;
     }
+    
     /* Remove as bordas e fundos dos botões do menu */
     div[data-testid="stButton"] > button[kind="secondary"] {
         border: none !important;
@@ -263,7 +275,7 @@ st.markdown("<div style='margin-bottom: 0.5rem;'></div>", unsafe_allow_html=True
 # ==========================================
 # BOTÃO FLUTUANTE DE AJUDA (ESQUERDA)
 # ==========================================
-st.markdown('<div class="floating-controls-container">', unsafe_allow_html=True)
+st.markdown('<span class="help-btn-hook"></span>', unsafe_allow_html=True)
 with st.popover("?"):
     st.header("📖 Guia Prático do Motor")
     st.markdown("Bem-vindo à v7.0. Este motor funciona como sua **equipe particular de especialistas**. Ele espiona a concorrência, entende as regras do Google e das IAs, e escreve conteúdos usando a voz exata da sua marca.")
@@ -343,6 +355,8 @@ def buscar_trending_topics_educacao():
         
 # 2. O botão de Pautas (🔥) agora SÓ aparece se o formulário estiver aberto
 if st.session_state.get('show_inputs', False) and st.session_state.get('current_page') == "Gerador de Artigos":
+    # Nova âncora invisível
+    st.markdown('<span class="pautas-btn-hook"></span>', unsafe_allow_html=True)
     with st.popover("🔥"):
         st.markdown("### 🔥 Pautas em Alta")
         st.caption("Tendências detectadas via Google News e MEC agora:")
