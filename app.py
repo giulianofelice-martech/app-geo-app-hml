@@ -43,9 +43,19 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
-    /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT */
+    /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT (CORRIGIDO) */
     [data-testid="stSidebar"] { display: none !important; }
-    header[data-testid="stHeader"] { background-color: transparent !important; }
+    
+    /* Deixa o topo transparente, mas MANTÉM os 3 pontinhos visíveis */
+    header[data-testid="stHeader"] { 
+        background: transparent !important; 
+        z-index: 999990 !important; 
+    }
+    
+    /* Esconde apenas o botão de Deploy/Github do topo */
+    .stAppDeployButton, [data-testid="stDeployButton"] { 
+        display: none !important; 
+    }
 
     .arco-tag {
         display: inline-flex;
@@ -180,47 +190,46 @@ st.markdown("""
     .pipeline-step:hover { color: #F05D23; }
 
     /* ==========================================
-       NOVO SISTEMA DE BOTÕES FLUTUANTES
+       BOTÕES FLUTUANTES (CORRIGIDO PARA FURAR O BLOQUEIO)
        ========================================== */
-    /* Container do botão vermelho (?) */
+    /* Container do Botão Vermelho (?) */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div[data-testid="stElementContainer"] {
-        position: fixed;
-        top: 110px;
-        left: 25px;
-        z-index: 999999; /* Z-index altíssimo para furar a Hero Section */
+        position: fixed !important;
+        top: 110px !important;
+        left: 25px !important;
+        z-index: 9999999 !important; /* Z-index massivo para não ser coberto pela Home */
     }
 
-    /* Container do botão laranja */
+    /* Container do Botão Laranja */
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div[data-testid="stElementContainer"] {
-        position: fixed;
-        top: 110px;
-        left: 85px; /* Espaçamento exato para ficar ao lado do vermelho */
-        z-index: 999999;
+        position: fixed !important;
+        top: 110px !important;
+        left: 85px !important; /* Espaçamento exato para ficar ao lado do vermelho */
+        z-index: 9999999 !important;
     }
 
-    /* Estilo do Botão de Ajuda (Vermelho) */
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div[data-testid="stElementContainer"] button {
-        background-color: #E21B22 !important;
+    /* Estilo Base para ambos os botões */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button,
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button {
         color: white !important;
         border-radius: 12px !important;
         width: 50px !important;
         height: 50px !important;
         border: none !important;
+    }
+
+    /* Cores Específicas */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button {
+        background-color: #E21B22 !important;
         box-shadow: 0 4px 12px rgba(226, 27, 34, 0.3) !important;
     }
 
-    /* Estilo do Botão de Pautas (Laranja) */
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div[data-testid="stElementContainer"] button {
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button {
         background-color: #F05D23 !important;
-        color: white !important;
-        border-radius: 12px !important;
-        width: 50px !important;
-        height: 50px !important;
-        border: none !important;
         box-shadow: 0 4px 12px rgba(240, 93, 35, 0.3) !important;
     }
 
-    /* Tamanho do emoji dentro dos botões */
+    /* Tamanho das Fontes/Emojis */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div p,
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div p {
         font-size: 22px !important;
