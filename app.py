@@ -43,17 +43,25 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
-    /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT (CORRIGIDO) */
+   /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT (CORRIGIDO) */
     [data-testid="stSidebar"] { display: none !important; }
     
-    /* Deixa o topo transparente, mas MANTÉM os 3 pontinhos visíveis */
+    /* Deixa o topo transparente e faz o mouse "atravessar" a parte invisível dele */
     header[data-testid="stHeader"] { 
         background: transparent !important; 
         z-index: 999990 !important; 
+        pointer-events: none !important; /* Libera o clique nos botões abaixo dele */
     }
     
-    /* Esconde apenas o botão de Deploy/Github do topo */
-    .stAppDeployButton, [data-testid="stDeployButton"] { 
+    /* Reativa o clique OBRIGATORIAMENTE no menu superior direito */
+    [data-testid="stHeaderActionElements"] {
+        pointer-events: auto !important;
+    }
+
+    /* Esconde GitHub, Fork, Deploy, etc., deixando SÓ os 3 pontinhos */
+    .stAppDeployButton, 
+    [data-testid="stHeaderActionElements"] > a, 
+    [data-testid="stHeaderActionElements"] > button:not([data-testid="stAppOptions"]) { 
         display: none !important; 
     }
 
@@ -190,43 +198,50 @@ st.markdown("""
     .pipeline-step:hover { color: #F05D23; }
 
     /* ==========================================
-       BOTÕES FLUTUANTES (CORRIGIDO PARA FURAR O BLOQUEIO)
+       BOTÕES FLUTUANTES (BRANCOS E 100% CLICÁVEIS)
        ========================================== */
-    /* Container do Botão Vermelho (?) */
+    
+    /* Esconde a âncora para ela não bugar o layout */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook),
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) {
+        display: none !important;
+    }
+
+    /* Posicionamento do Botão Vermelho (?) -> Agora Branco */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div[data-testid="stElementContainer"] {
         position: fixed !important;
         top: 110px !important;
         left: 25px !important;
-        z-index: 9999999 !important; /* Z-index massivo para não ser coberto pela Home */
-    }
-
-    /* Container do Botão Laranja */
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div[data-testid="stElementContainer"] {
-        position: fixed !important;
-        top: 110px !important;
-        left: 85px !important; /* Espaçamento exato para ficar ao lado do vermelho */
         z-index: 9999999 !important;
     }
 
-    /* Estilo Base para ambos os botões */
+    /* Posicionamento do Botão Laranja (🔥) -> Agora Branco */
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div[data-testid="stElementContainer"] {
+        position: fixed !important;
+        top: 110px !important;
+        left: 85px !important; 
+        z-index: 9999999 !important;
+    }
+
+    /* Estilo visual Brancão, Limpo e Minimalista */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button,
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button {
-        color: white !important;
+        background-color: #FFFFFF !important;
+        color: #111827 !important; /* Cor do ícone */
         border-radius: 12px !important;
         width: 50px !important;
         height: 50px !important;
-        border: none !important;
+        border: 1px solid #E5E7EB !important; /* Bordinha cinza sutil */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.2s ease-in-out !important;
     }
 
-    /* Cores Específicas */
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button {
-        background-color: #E21B22 !important;
-        box-shadow: 0 4px 12px rgba(226, 27, 34, 0.3) !important;
-    }
-
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button {
-        background-color: #F05D23 !important;
-        box-shadow: 0 4px 12px rgba(240, 93, 35, 0.3) !important;
+    /* Efeito ao passar o mouse */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button:hover,
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button:hover {
+        background-color: #F9FAFB !important;
+        border-color: #D1D5DB !important;
+        transform: translateY(-2px) !important;
     }
 
     /* Tamanho das Fontes/Emojis */
