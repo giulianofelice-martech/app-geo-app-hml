@@ -700,33 +700,106 @@ def chamar_llm(system_prompt, user_prompt, model, temperature=0.3, response_form
     return response.choices[0].message.content
 
 @st.cache_data(ttl=3600, show_spinner=False)
-def buscar_fontes_autoridade(palavra_chave):
-    """Busca links de alta autoridade (gov, pesquisas) para Deep Links seguros."""
+Com certeza! Nada melhor do que pegar o bloco inteiro já estruturado, limpo e pronto para rodar.
+
+Aqui está a versão definitiva da função buscar_fontes_autoridade, já implementando a arquitetura Zero-Trust, a separação de responsabilidades (Clean Code) e o filtro dinâmico de "Fogo Amigo".
+
+Basta copiar o bloco abaixo e substituir a sua função antiga por inteiro:
+
+Python
+import json
+import requests
+import streamlit as st
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def buscar_fontes_autoridade(palavra_chave, marca_alvo):
+    """
+    Busca links usando arquitetura Zero-Trust com Detector Anti-Publi, 
+    Anti-Rival e filtro dinâmico de Fogo-Amigo (Ecossistema Arco).
+    """
+    # Certifique-se de que a variável SERPAPI_KEY está acessível no seu escopo
     if not SERPAPI_KEY:
         return "Sem chave Serper configurada."
+    
     url = "https://google.serper.dev/search"
-    # Query focada em dados neutros para evitar blogs de concorrentes
-    query = f"{palavra_chave} (dados OR estatística OR MEC OR INEP OR pesquisa OR IBGE)"
-    payload = json.dumps({"q": query, "gl": "br", "hl": "pt-br", "num": 5})
+    
+    # Query limpa e focada em extrair pesquisas de mercado e dados
+    query = f"{palavra_chave} (dados OR estatística OR pesquisa OR estudo)"
+    
+    # Pede 10 resultados para termos gordura para queimar nos filtros
+    payload = json.dumps({"q": query, "gl": "br", "hl": "pt-br", "num": 10})
     headers = {'X-API-KEY': SERPAPI_KEY, 'Content-Type': 'application/json'}
+    
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
         dados = response.json()
         fontes = "🔗 FONTES DE AUTORIDADE EXTERNAS ENCONTRADAS (USE COMO DEEP LINKS SEGUROS):\n"
+        
+        # 1. A PORTA DA FRENTE: Whitelist de Imprensa Confiável
+        imprensa_confiavel = [
+            'g1.globo.com', 'uol.com.br', 'estadao.com.br', 'folha.uol.com.br', 
+            'cnnbrasil.com.br', 'bbc.com', 'agenciabrasil.ebc.com.br', 'exame.com', 
+            'valor.globo.com', 'veja.abril.com.br', 'forbes.com.br'
+        ]
+        
+        # 2. CONCORRENTES DE MERCADO (Sempre bloqueados, B2B e B2C)
+        concorrentes = [
+            'poliedro', 'anglo', 'bernoulli', 'objetivo', 'eleva', 'fariasbrito', 
+            'aridesa', 'fibonacci', 'estrategia', 'stoodi', 'descomplica', 
+            'mesalva', 'aprovatotal', 'ferretto'
+        ]
+        
+        # 3. ECOSSISTEMA (Marcas Próprias / Evitar Fogo Amigo)
+        marcas_proprias = [
+            'sas', 'geekie', 'coc', 'positivo', 'sae', 'isaac', 'classapp', 
+            'conquista', 'naveavela', 'pleno'
+        ]
+        
+        # Lógica Dinâmica: Descobre qual é a marca atual e cria a lista de bloqueio apenas para as irmãs
+        marca_limpa = str(marca_alvo).lower().split()[0]
+        irmas_para_bloquear = [m for m in marcas_proprias if m not in marca_limpa and marca_limpa not in m]
+        
+        # 4. TERMOS DE PUBLIEDITORIAL (Matéria Comprada)
+        termos_publi = ['especial-publicitario', 'patrocinado', 'publieditorial', 'branded']
+
+        links_aprovados = 0
         if "organic" in dados:
-            for idx, res in enumerate(dados["organic"]):
+            for res in dados["organic"]:
                 titulo = res.get('title', 'Sem Título')
                 link = res.get('link', '')
                 snippet = res.get('snippet', 'Sem resumo')
                 
-                # LISTA DE RIVAIS EXTERNOS (Removido saseducacao, geekie e outras da Arco)
-                rivals_externos = ['poliedro', 'anglo', 'bernoulli', 'objetivo', 'eleva', 'fariasbrito', 'aridesa', 'fibonacci']
+                link_lower = link.lower()
+                snippet_lower = snippet.lower()
                 
-                if any(rival in link.lower() for rival in rivals_externos):
-                    continue
+                # --- PASSO A: O domínio é confiável? ---
+                is_oficial = any(ext in link_lower for ext in ['.gov.br', '.edu.br', '.org.br', '.org/'])
+                is_news = any(portal in link_lower for portal in imprensa_confiavel)
+                
+                if not (is_oficial or is_news):
+                    continue # Barrado na porta da frente (Domínio não autorizado)
+                
+                # --- PASSO B: Anti-Publi ---
+                if any(publi in link_lower for publi in termos_publi):
+                    continue # Barrado (Matéria comprada)
                     
-                fontes += f"- FONTE {idx+1}: {titulo}\n  URL EXATA: {link}\n  CONTEXTO: {snippet}\n\n"
-        return fontes
+                # --- PASSO C: Anti-Rival (Concorrência Direta) ---
+                if any(rival in link_lower or rival in snippet_lower for rival in concorrentes):
+                    continue # Barrado (Cita concorrente de mercado)
+                    
+                # --- PASSO D: Anti Fogo-Amigo ---
+                if any(irma in link_lower or irma in snippet_lower for irma in irmas_para_bloquear):
+                    continue # Barrado (Cita marca irmã, gerando canibalização de tráfego)
+                
+                # Se sobreviveu a todos os filtros, o link é seguro e de altíssima qualidade!
+                fontes += f"- FONTE {links_aprovados+1}: {titulo}\n  URL EXATA: {link}\n  CONTEXTO: {snippet}\n\n"
+                links_aprovados += 1
+                
+                # Limita a 4 links perfeitos para economizar tokens de contexto no LLM
+                if links_aprovados >= 4:
+                    break
+                    
+        return fontes if links_aprovados > 0 else "Nenhuma fonte de alta autoridade neutra encontrada."
     except Exception as e:
         return f"Erro ao buscar fontes externas: {e}"
 
@@ -1493,7 +1566,7 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
         
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
-        futuro_fontes = executor.submit(buscar_fontes_autoridade, palavra_chave) 
+        futuro_fontes = executor.submit(buscar_fontes_autoridade, palavra_chave, marca_alvo)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
         futuro_reverse = executor.submit(gerar_reverse_queries, palavra_chave)
         
@@ -1692,7 +1765,7 @@ Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natu
 
 REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 15) VETO TOTAL A RIVAIS, OUTRAS ESCOLAS E PUBLIEDITORIAIS (CRÍTICO): É ESTRITAMENTE PROIBIDO citar o nome ou inserir hiperlinks para QUALQUER outra escola privada, colégio ou sistema de ensino concorrente no Brasil. 
-- NOMES PROIBIDOS: Poliedro, Anglo, Bernoulli, SAS, Objetivo, Farias Brito, Ari de Sá, Eleva, Fibonacci, etc. 
+- NOMES PROIBIDOS: Poliedro, Anglo, Bernoulli, Objetivo, Farias Brito, Eleva, Fibonacci, etc. 
 - VETO DE MÍDIA COMPRADA: Verifique o slug da URL. Se tiver "especial-publicitario", "patrocinado" ou "publi", ignore-o e NÃO USE. 
 A única marca privada do setor educacional que pode ser citada é a [Marca Alvo].
 
