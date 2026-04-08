@@ -1691,7 +1691,8 @@ Sua missão é traduzir o Tom de Voz corporativo em um texto que não pareça um
 5. REGRAS DE LINKAGEM E BLINDAGEM E-E-A-T (TOLERÂNCIA ZERO):
 - VETO TOTAL A RIVAIS: É ESTRITAMENTE PROIBIDO citar o nome ou link de QUALQUER outra escola privada ou sistema de ensino concorrente no Brasil (ex: Balão Vermelho, Anglo, Bernoulli). Ignore-os se aparecerem na pesquisa. A única marca privada permitida é a [Marca Alvo].
 - LINK DA MARCA: Sempre que citar a [Marca Alvo], transforme-a num link HTML OBRIGATÓRIO: <a href="[URL_DA_MARCA]" target="_blank">[NOME_DA_MARCA]</a>.
-- RASTREABILIDADE (DEEP LINKS): Use os links externos fornecidos no briefing (MEC, OCDE, Portais de Notícias). Ancore-os naturalmente. Se não tiver a URL real fornecida no briefing para um dado/pesquisa, NÃO cite a instituição ou os números. Evite alucinação de fontes.
+- RASTREABILIDADE E DENSIDADE DE EVIDÊNCIAS (CRÍTICO): O briefing fornecerá uma lista de "FONTES DE AUTORIDADE EXTERNAS". Você É OBRIGADO a utilizar NO MÍNIMO 3 LINKS EXTERNOS DIFERENTES dessa lista ao longo do artigo. Costure esses links organicamente no meio dos parágrafos usando âncoras naturais. Se não tiver a URL real fornecida no briefing, NÃO cite a instituição ou números.
+- ESCANEABILIDADE GEO: Use a tag <strong> para destacar dados estatísticos, jargões e frases de impacto ao longo do texto.
 - RAG REVERSO (LINKS INTERNOS): Você receberá "ARTIGOS INTERNOS DISPONÍVEIS". É uma exigência técnica inegociável inserir hiperlinks <a> para 1 ou 2 desses artigos no meio do seu texto, de forma natural.
 
 6. DIRECIONAMENTO E HTML:
@@ -1760,9 +1761,10 @@ REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 - VETO DE MÍDIA COMPRADA: Verifique o slug da URL. Se tiver "especial-publicitario", "patrocinado" ou "publi", ignore-o e NÃO USE. 
 A única marca privada do setor educacional que pode ser citada é a [Marca Alvo].
 
-16) PROTOCOLO DE RASTREABILIDADE E EXCEÇÃO DE SEGURANÇA (DEEP LINKS): A autoridade depende de referências reais. Extraia links externos (<a href="..." target="_blank">) EXCLUSIVAMENTE do bloco "O QUE A CONCORRÊNCIA DIZ HOJE" ou do "CONTEÚDO ADICIONAL".
-- OBRIGAÇÃO CONDICIONAL: Você NÃO TEM LIMITE de links. Pelo contrário, use uma rica mistura de referências. SE o briefing fornecer URLs válidas, você DEVE espalhar de 4 a 8 links externos (ou mais) pelo texto ancorando afirmações, dados, metodologias e leis.
-- EXCEÇÃO DE LEIS E METODOLOGIAS: Sempre que citar uma Lei Federal, diretriz do MEC ou uma Metodologia Ativa específica, é mandatório colocar um link de referência (mesmo que seja um portal do governo como planalto.gov.br ou mec.gov.br).
+16) REGRA DE DENSIDADE DE EVIDÊNCIAS E ESCANEABILIDADE (CRÍTICO PARA NOTA 5/5): O briefing fornecerá uma lista de "FONTES DE AUTORIDADE EXTERNAS". Você É OBRIGADO a utilizar NO MÍNIMO 3 LINKS EXTERNOS DIFERENTES dessa lista ao longo do artigo. 
+- Como usar: Não faça uma lista de referências no final. Você deve costurar esses links organicamente no meio dos parágrafos, em H2s diferentes, usando âncoras (anchor texts) naturais. 
+- ESCANEABILIDADE GEO: Use a tag <strong> para destacar dados estatísticos, jargões e frases de impacto ao longo do texto. Coloque pelo menos um ou dois negritos por H2.
+- EXCEÇÃO DE LEIS E METODOLOGIAS: Sempre que citar uma Lei Federal, diretriz do MEC ou Metodologia, é mandatório colocar um link de referência real fornecido no briefing.
 
 17) DIVERSIDADE DE FONTES E VETO A HOMEPAGES: Valorizamos publicações jornalísticas e acadêmicas de todos os tipos. Contudo, é ESTRITAMENTE PROIBIDO fazer link para homepages genéricas (ex: a página inicial de um jornal ou de um ministério). O link DEVE ser um caminho completo (Deep Link) extraído do briefing para a matéria/pesquisa específica.
 
