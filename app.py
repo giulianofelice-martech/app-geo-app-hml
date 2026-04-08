@@ -15,22 +15,6 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide", initial_sidebar_state="collapsed")
-# --- BOTÃO DE TESTE TEMPORÁRIO ---
-if st.button("🚨 TESTAR API WEBFLOW PURA"):
-    url_teste = "https://api.webflow.com/v2/collections/632c9383393497540313b702/items"
-    token_teste = "ws-88fd54aae0908934096a1a930801b081e873d1bef3bd19e7e1ab2f298711115e"
-    
-    headers_teste = {
-        "accept": "application/json",
-        "authorization": f"Bearer {token_teste}"
-    }
-    
-    st.write("Batendo na porta do Webflow...")
-    res_teste = requests.get(url_teste, headers=headers_teste)
-    
-    st.write(f"**Código:** {res_teste.status_code}")
-    st.json(res_teste.json())
-# ---------------------------------
 
 # Lógica de Navegação via Query Parameters (Mais estável que botões)
 query_params = st.query_params
