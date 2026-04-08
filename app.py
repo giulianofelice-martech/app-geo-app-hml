@@ -786,8 +786,8 @@ def buscar_fontes_autoridade(palavra_chave, marca_alvo):
                 fontes += f"- FONTE {links_aprovados+1}: {titulo}\n  URL EXATA: {link}\n  CONTEXTO: {snippet}\n\n"
                 links_aprovados += 1
                 
-                # Mantemos o limite de 5 links entregues para o LLM
-                if links_aprovados >= 5:
+                # Mantemos o limite de 10 links entregues para o LLM
+                if links_aprovados >= 10:
                     break
                     
         return fontes if links_aprovados > 0 else "Nenhuma fonte de alta autoridade e recente encontrada."
