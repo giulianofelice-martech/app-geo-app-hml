@@ -700,18 +700,6 @@ def chamar_llm(system_prompt, user_prompt, model, temperature=0.3, response_form
     return response.choices[0].message.content
 
 @st.cache_data(ttl=3600, show_spinner=False)
-Com certeza! Nada melhor do que pegar o bloco inteiro já estruturado, limpo e pronto para rodar.
-
-Aqui está a versão definitiva da função buscar_fontes_autoridade, já implementando a arquitetura Zero-Trust, a separação de responsabilidades (Clean Code) e o filtro dinâmico de "Fogo Amigo".
-
-Basta copiar o bloco abaixo e substituir a sua função antiga por inteiro:
-
-Python
-import json
-import requests
-import streamlit as st
-
-@st.cache_data(ttl=3600, show_spinner=False)
 def buscar_fontes_autoridade(palavra_chave, marca_alvo):
     """
     Busca links usando arquitetura Zero-Trust com Detector Anti-Publi, 
