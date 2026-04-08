@@ -43,34 +43,36 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
-   /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT (VERSÃO DEFINITIVA) */
+   /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT (BLINDADO) */
     [data-testid="stSidebar"] { display: none !important; }
     
-    /* 1. Limpa o Header, deixando só os 3 pontos. Fura todos os escudos invisíveis. */
+    /* Limpa o Header e libera o clique através dele */
     header[data-testid="stHeader"] { 
         background: transparent !important; 
-        pointer-events: none !important; /* Mouse atravessa tudo */
+        pointer-events: none !important; 
     }
     
-    /* 2. Reativa o clique SÓ no ícone de 3 pontos do Streamlit (Configurações) */
-    [data-testid="stAppOptions"] {
+    /* Reativa o clique APENAS na caixa de ações do canto direito */
+    [data-testid="stHeaderActionElements"] {
         pointer-events: auto !important;
-        cursor: pointer !important;
     }
 
-    /* 3. MATA GITHUB, FORK E DEPLOY NO STREAMLIT CLOUD (Método agressivo) */
-    .viewerBadge_container__1QSob, 
-    .viewerBadge_link__1S137,
-    [data-testid="stHeaderActionElements"] a, 
-    [data-testid="manage-app-button"],
-    [data-testid="stDeployButton"] { 
-        display: none !important; 
-        width: 0px !important;
-        height: 0px !important;
-        opacity: 0 !important;
+    /* A MÁGICA CONTRA O GITHUB/FORK NO STREAMLIT CLOUD: 
+       Esconde TUDO do topo direito, EXCETO o último item (os 3 pontinhos) */
+    [data-testid="stHeaderActionElements"] > *:not(:last-child) {
+        display: none !important;
         visibility: hidden !important;
-        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        opacity: 0 !important;
     }
+
+    /* Garante que o último item (os 3 pontinhos) fique visível */
+    [data-testid="stHeaderActionElements"] > *:last-child {
+        display: block !important;
+        visibility: visible !important;
+    }
+    
     .arco-tag {
         display: inline-flex;
         align-items: center;
@@ -204,77 +206,86 @@ st.markdown("""
     .pipeline-step:hover { color: #F05D23; }
 
     /* ==========================================
-       BOTÕES FLUTUANTES (BRANCOS E 100% CLICÁVEIS)
+       BOTÕES FLUTUANTES (HITBOX 100% ALINHADA)
        ========================================== */
     
-    /* Sumiço real das âncoras para não gerar 'caixas' fantasmas ao lado dos botões */
+    /* Oculta as âncoras para não gerarem caixas fantasmas na tela */
     div[data-testid="stElementContainer"]:has(.help-btn-hook),
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) {
         display: none !important;
-        height: 0px !important;
-        margin: 0px !important;
     }
 
-    /* Posicionamento base dos Contêineres Flutuantes */
+    /* O SEGREDO DO CLIQUE: Cravamos o tamanho e zeramos margens/transformações do container 
+       para que a área de clique não "descole" do visual do botão */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div[data-testid="stElementContainer"] {
         position: fixed !important;
         top: 110px !important;
         left: 25px !important;
-        z-index: 2147483647 !important;
+        width: 50px !important;
+        height: 50px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: none !important; /* Trava o botão no lugar real dele */
+        z-index: 2147483647 !important; /* Z-Index máximo absoluto */
     }
 
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div[data-testid="stElementContainer"] {
         position: fixed !important;
         top: 110px !important;
         left: 85px !important; 
+        width: 50px !important;
+        height: 50px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: none !important;
         z-index: 2147483647 !important;
     }
 
-    /* * O SEGREDO DO CLIQUE:
-     * O Streamlit empacota os popovers num div com data-testid="stPopover".
-     * O botão REAL está lá dentro. Nós dizemos pro container não atrapalhar
-     * e ativamos o ponteiro diretamente no botão.
-     */
-    div[data-testid="stPopover"] {
-        pointer-events: auto !important; 
+    /* Força os elementos internos do botão a preencherem exatos 100% (50x50) */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div div[data-testid="stPopover"],
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div div[data-testid="stPopover"],
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button,
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button {
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div div[data-testid="stPopover"] > button,
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div div[data-testid="stPopover"] > button {
+    /* Estilo Visual Brancão e Limpo */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button,
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button {
         background-color: #FFFFFF !important;
         color: #111827 !important;
         border-radius: 12px !important;
-        width: 50px !important;
-        height: 50px !important;
         border: 1px solid #E5E7EB !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-        transition: all 0.2s ease-in-out !important;
-        pointer-events: auto !important; /* Libera 100% da área do botão */
+        pointer-events: auto !important; 
         cursor: pointer !important;
-        padding: 0 !important; /* Remove padding que o Streamlit coloca e cria bordas mortas */
+        transition: all 0.2s ease-in-out !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
-    /* Efeito de Hover */
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div div[data-testid="stPopover"] > button:hover,
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div div[data-testid="stPopover"] > button:hover {
+    /* Efeito de Hover (Mouse em cima) */
+    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button:hover,
+    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button:hover {
         background-color: #F9FAFB !important;
         border-color: #D1D5DB !important;
-        transform: translateY(-2px) !important;
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+        transform: translateY(-2px) !important;
     }
 
-    /* Fixa os Emojis no centro morto do botão e impede que o texto roube o clique */
+    /* Ajuste do Texto/Emoji para não roubar o clique */
     div[data-testid="stElementContainer"]:has(.help-btn-hook) + div p,
     div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div p {
         font-size: 22px !important;
-        font-weight: bold;
+        font-weight: bold !important;
         margin: 0 !important;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        width: 100%;
-        pointer-events: none !important;
+        pointer-events: none !important; 
     }
     
     /* Remove as bordas e fundos dos botões do menu */
