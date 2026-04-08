@@ -43,36 +43,10 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
-   /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT (BLINDADO) */
-    [data-testid="stSidebar"] { display: none !important; }
-    
-    /* Limpa o Header e libera o clique através dele */
-    header[data-testid="stHeader"] { 
-        background: transparent !important; 
-        pointer-events: none !important; 
-    }
-    
-    /* Reativa o clique APENAS na caixa de ações do canto direito */
-    [data-testid="stHeaderActionElements"] {
-        pointer-events: auto !important;
-    }
+    /* ESCONDER COMPONENTES NATIVOS DO STREAMLIT */
+    [data-testid="stSidebar"], header[data-testid="stHeader"] { display: none !important; }
+    .block-container { padding-top: 1rem; max-width: 1200px; }
 
-    /* A MÁGICA CONTRA O GITHUB/FORK NO STREAMLIT CLOUD: 
-       Esconde TUDO do topo direito, EXCETO o último item (os 3 pontinhos) */
-    [data-testid="stHeaderActionElements"] > *:not(:last-child) {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        opacity: 0 !important;
-    }
-
-    /* Garante que o último item (os 3 pontinhos) fique visível */
-    [data-testid="stHeaderActionElements"] > *:last-child {
-        display: block !important;
-        visibility: visible !important;
-    }
-    
     .arco-tag {
         display: inline-flex;
         align-items: center;
@@ -205,89 +179,43 @@ st.markdown("""
     }
     .pipeline-step:hover { color: #F05D23; }
 
-    /* ==========================================
-       BOTÕES FLUTUANTES (HITBOX 100% ALINHADA)
-       ========================================== */
-    
-    /* Oculta as âncoras para não gerarem caixas fantasmas na tela */
-    div[data-testid="stElementContainer"]:has(.help-btn-hook),
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) {
-        display: none !important;
+    /* CONTAINER FLUTUANTE ÚNICO (LADO ESQUERDO) */
+    .floating-controls-container {
+        position: fixed;
+        top: 110px; /* Ajuste para descer ou subir no eixo Y */
+        left: 25px;
+        z-index: 99999;
+        display: flex;
+        gap: 10px;
     }
 
-    /* O SEGREDO DO CLIQUE: Cravamos o tamanho e zeramos margens/transformações do container 
-       para que a área de clique não "descole" do visual do botão */
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div[data-testid="stElementContainer"] {
-        position: fixed !important;
-        top: 110px !important;
-        left: 25px !important;
+    /* Botão de Ajuda (Vermelho) */
+    div[data-testid="stPopover"]:first-child > button {
+        background-color: #E21B22 !important;
+        color: white !important;
+        border-radius: 12px !important; /* Estilo mais moderno/quadrado suave */
         width: 50px !important;
         height: 50px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        transform: none !important; /* Trava o botão no lugar real dele */
-        z-index: 2147483647 !important; /* Z-Index máximo absoluto */
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(226, 27, 34, 0.3) !important;
     }
 
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div[data-testid="stElementContainer"] {
-        position: fixed !important;
-        top: 110px !important;
-        left: 85px !important; 
-        width: 50px !important;
-        height: 50px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        transform: none !important;
-        z-index: 2147483647 !important;
-    }
-
-    /* Força os elementos internos do botão a preencherem exatos 100% (50x50) */
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div div[data-testid="stPopover"],
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div div[data-testid="stPopover"],
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button,
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button {
-        width: 100% !important;
-        height: 100% !important;
-        min-width: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* Estilo Visual Brancão e Limpo */
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button,
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button {
-        background-color: #FFFFFF !important;
-        color: #111827 !important;
+    /* Botão de Pautas (Laranja) - Usando seletor de irmão */
+    div[data-testid="stPopover"]:nth-child(2) > button {
+        background-color: #F05D23 !important;
+        color: white !important;
         border-radius: 12px !important;
-        border: 1px solid #E5E7EB !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-        pointer-events: auto !important; 
-        cursor: pointer !important;
-        transition: all 0.2s ease-in-out !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        width: 50px !important;
+        height: 50px !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(240, 93, 35, 0.3) !important;
     }
 
-    /* Efeito de Hover (Mouse em cima) */
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div button:hover,
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div button:hover {
-        background-color: #F9FAFB !important;
-        border-color: #D1D5DB !important;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
-        transform: translateY(-2px) !important;
-    }
-
-    /* Ajuste do Texto/Emoji para não roubar o clique */
-    div[data-testid="stElementContainer"]:has(.help-btn-hook) + div p,
-    div[data-testid="stElementContainer"]:has(.pautas-btn-hook) + div p {
+    div[data-testid="stPopover"] button p {
         font-size: 22px !important;
-        font-weight: bold !important;
+        font-weight: bold;
         margin: 0 !important;
-        pointer-events: none !important; 
     }
-    
     /* Remove as bordas e fundos dos botões do menu */
     div[data-testid="stButton"] > button[kind="secondary"] {
         border: none !important;
@@ -335,7 +263,7 @@ st.markdown("<div style='margin-bottom: 0.5rem;'></div>", unsafe_allow_html=True
 # ==========================================
 # BOTÃO FLUTUANTE DE AJUDA (ESQUERDA)
 # ==========================================
-st.markdown('<span class="help-btn-hook"></span>', unsafe_allow_html=True)
+st.markdown('<div class="floating-controls-container">', unsafe_allow_html=True)
 with st.popover("?"):
     st.header("📖 Guia Prático do Motor")
     st.markdown("Bem-vindo à v7.0. Este motor funciona como sua **equipe particular de especialistas**. Ele espiona a concorrência, entende as regras do Google e das IAs, e escreve conteúdos usando a voz exata da sua marca.")
@@ -415,8 +343,6 @@ def buscar_trending_topics_educacao():
         
 # 2. O botão de Pautas (🔥) agora SÓ aparece se o formulário estiver aberto
 if st.session_state.get('show_inputs', False) and st.session_state.get('current_page') == "Gerador de Artigos":
-    # Nova âncora invisível
-    st.markdown('<span class="pautas-btn-hook"></span>', unsafe_allow_html=True)
     with st.popover("🔥"):
         st.markdown("### 🔥 Pautas em Alta")
         st.caption("Tendências detectadas via Google News e MEC agora:")
