@@ -13,62 +13,54 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 import streamlit.components.v1 as components
 
 def injetar_ga4(path_atual):
-    """Injeta o GA4 travando os parâmetros globais para evitar eventos fantasmas."""
+    """Injeta o GA4 com trava absoluta no backend (Python) para evitar duplicações."""
     GA4_ID = "G-343MMKCTX3"
     
     titulo_pagina = f"Motor GEO | {path_atual.strip('/').capitalize()}"
     if path_atual == "/home": titulo_pagina = "Motor GEO | Home"
     
-    timestamp = int(time.time() * 1000)
-    
-    ga4_script = f"""
-    <script id="ga4-exec-{timestamp}">
-        try {{
-            const parentWindow = window.parent;
-            const parentDoc = parentWindow.document;
-            const currentPath = '{path_atual}';
-            const currentTitle = '{titulo_pagina}';
-            const ga4Id = '{GA4_ID}';
-
-            // 1. Instalação Básica (Só rola na primeira vez)
-            if (!parentDoc.getElementById('ga4-base-script')) {{
-                const script1 = parentDoc.createElement('script');
-                script1.id = 'ga4-base-script';
-                script1.async = true;
-                script1.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
-                parentDoc.head.appendChild(script1);
-
-                parentWindow.dataLayer = parentWindow.dataLayer || [];
-                parentWindow.gtag = function() {{ parentWindow.dataLayer.push(arguments); }};
-                parentWindow.gtag('js', new Date());
-                
-                // Desliga a carga automática do config
-                parentWindow.gtag('config', ga4Id, {{ 'send_page_view': false }});
-                
-                // Garante que não teremos duplicações se o usuário voltar para o home
-                parentWindow.lastReportedPath = '';
-            }}
-
-            // 2. Trava os valores globais para qualquer evento que o GA4 quiser atirar
-            parentWindow.gtag('set', {{
-                'page_path': currentPath,
-                'page_title': currentTitle
-            }});
-
-            // 3. Dispara a visualização apenas se o path mudou
-            if (parentWindow.lastReportedPath !== currentPath) {{
-                parentWindow.gtag('event', 'page_view', {{
-                    'send_to': ga4Id
-                }});
-                parentWindow.lastReportedPath = currentPath;
-            }}
-
-        }} catch(e) {{
-            console.error("Erro GA4 Custom:", e);
+    # 1. SCRIPT BASE (Garante que o Google está instalado na página pai)
+    base_script = f"""
+    <script>
+        const pDoc = window.parent.document;
+        if (!pDoc.getElementById('ga4-base-script')) {{
+            const s = pDoc.createElement('script');
+            s.id = 'ga4-base-script';
+            s.async = true;
+            s.src = 'https://www.googletagmanager.com/gtag/js?id={GA4_ID}';
+            pDoc.head.appendChild(s);
+            
+            window.parent.dataLayer = window.parent.dataLayer || [];
+            window.parent.gtag = function() {{ window.parent.dataLayer.push(arguments); }};
+            window.parent.gtag('js', new Date());
+            
+            // Trava o disparo automático para assumirmos o controle manual
+            window.parent.gtag('config', '{GA4_ID}', {{ 'send_page_view': false }});
         }}
     </script>
     """
-    components.html(ga4_script, width=0, height=0)
+    components.html(base_script, width=0, height=0)
+
+    # 2. CADEADO PYTHON: Só constrói o evento de page_view se a aba REALMENTE mudou
+    if st.session_state.get('last_ga_path') != path_atual:
+        event_script = f"""
+        <script>
+            // Pequeno delay (300ms) para garantir que a base do GA4 carregou
+            setTimeout(function() {{
+                if (typeof window.parent.gtag === 'function') {{
+                    window.parent.gtag('event', 'page_view', {{
+                        'page_path': '{path_atual}',
+                        'page_title': '{titulo_pagina}',
+                        'send_to': '{GA4_ID}'
+                    }});
+                }}
+            }}, 300);
+        </script>
+        """
+        components.html(event_script, width=0, height=0)
+        
+        # Tranca o cadeado. O Streamlit não vai mais disparar até você mudar de aba!
+        st.session_state['last_ga_path'] = path_atual
     
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
