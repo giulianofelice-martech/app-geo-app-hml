@@ -13,55 +13,59 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 import streamlit.components.v1 as components
 
 def injetar_ga4(path_atual):
-    """Injeta o GA4 com trava absoluta no backend (Python) para evitar duplicações."""
+    """Injeta o GA4 sem delays (Disparo Instantâneo)."""
     GA4_ID = "G-343MMKCTX3"
     
     titulo_pagina = f"Motor GEO | {path_atual.strip('/').capitalize()}"
     if path_atual == "/home": titulo_pagina = "Motor GEO | Home"
     
-    # 1. SCRIPT BASE (Garante que o Google está instalado na página pai)
-    base_script = f"""
-    <script>
-        const pDoc = window.parent.document;
-        if (!pDoc.getElementById('ga4-base-script')) {{
-            const s = pDoc.createElement('script');
-            s.id = 'ga4-base-script';
-            s.async = true;
-            s.src = 'https://www.googletagmanager.com/gtag/js?id={GA4_ID}';
-            pDoc.head.appendChild(s);
-            
-            window.parent.dataLayer = window.parent.dataLayer || [];
-            window.parent.gtag = function() {{ window.parent.dataLayer.push(arguments); }};
-            window.parent.gtag('js', new Date());
-            
-            // Trava o disparo automático para assumirmos o controle manual
-            window.parent.gtag('config', '{GA4_ID}', {{ 'send_page_view': false }});
+    timestamp = int(time.time() * 1000)
+    
+    ga4_script = f"""
+    <script id="ga4-exec-{timestamp}">
+        try {{
+            const pWin = window.parent;
+            const pDoc = pWin.document;
+            const cPath = '{path_atual}';
+            const cTitle = '{titulo_pagina}';
+            const ga4Id = '{GA4_ID}';
+
+            // 1. Instalação Básica 
+            if (!pDoc.getElementById('ga4-base-script')) {{
+                const s = pDoc.createElement('script');
+                s.id = 'ga4-base-script';
+                s.async = true;
+                s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
+                pDoc.head.appendChild(s);
+
+                pWin.dataLayer = pWin.dataLayer || [];
+                pWin.gtag = function() {{ pWin.dataLayer.push(arguments); }};
+                pWin.gtag('js', new Date());
+                
+                // Desliga disparo automático
+                pWin.gtag('config', ga4Id, {{ 'send_page_view': false }});
+            }}
+
+            // 2. Disparo Imediato (Sem setTimeout)
+            if (typeof pWin.gtag === 'function') {{
+                pWin.gtag('event', 'page_view', {{
+                    'page_path': cPath,
+                    'page_title': cTitle,
+                    'send_to': ga4Id
+                }});
+            }}
+
+        }} catch(e) {{
+            console.error("Erro GA4 Custom:", e);
         }}
     </script>
     """
-    components.html(base_script, width=0, height=0)
-
-    # 2. CADEADO PYTHON: Só constrói o evento de page_view se a aba REALMENTE mudou
-    if st.session_state.get('last_ga_path') != path_atual:
-        event_script = f"""
-        <script>
-            // Pequeno delay (300ms) para garantir que a base do GA4 carregou
-            setTimeout(function() {{
-                if (typeof window.parent.gtag === 'function') {{
-                    window.parent.gtag('event', 'page_view', {{
-                        'page_path': '{path_atual}',
-                        'page_title': '{titulo_pagina}',
-                        'send_to': '{GA4_ID}'
-                    }});
-                }}
-            }}, 300);
-        </script>
-        """
-        components.html(event_script, width=0, height=0)
-        
-        # Tranca o cadeado. O Streamlit não vai mais disparar até você mudar de aba!
-        st.session_state['last_ga_path'] = path_atual
     
+    # 3. Cadeado Python
+    if st.session_state.get('last_ga_path') != path_atual:
+        components.html(ga4_script, width=0, height=0)
+        st.session_state['last_ga_path'] = path_atual
+        
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
