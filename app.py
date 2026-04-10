@@ -13,59 +13,62 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 import streamlit.components.v1 as components
 
 def injetar_ga4(path_atual):
-    """Injeta o GA4 e dispara page_views virtuais quando a aba muda."""
-    GA4_ID = "G-343MMKCTX3" # Seu ID atualizado
+    """Injeta o GA4 e dispara page_views virtuais com controle manual absoluto."""
+    GA4_ID = "G-343MMKCTX3"
     
     # Cria títulos dinâmicos para facilitar a leitura no painel do GA4
     titulo_pagina = f"Motor GEO | {path_atual.strip('/').capitalize()}"
     if path_atual == "/home": titulo_pagina = "Motor GEO | Home"
     
+    # O SEGREDO: O timestamp forçará o Streamlit a executar o JS em toda mudança de aba!
+    timestamp = int(time.time() * 1000)
+    
     ga4_script = f"""
-    <script>
+    <script id="ga4-exec-{timestamp}">
         try {{
-            // Acessa o navegador real (fora do iframe do Streamlit)
             const parentWindow = window.parent;
             const parentDoc = parentWindow.document;
             const currentPath = '{path_atual}';
             const currentTitle = '{titulo_pagina}';
             const ga4Id = '{GA4_ID}';
 
-            // 1. Instala a biblioteca do Google apenas na primeira vez que a pessoa abre o app
-            if (!parentDoc.getElementById('ga4-script')) {{
+            // 1. Instalação Única da base do Google
+            if (!parentDoc.getElementById('ga4-base-script')) {{
                 const script1 = parentDoc.createElement('script');
-                script1.id = 'ga4-script';
+                script1.id = 'ga4-base-script';
                 script1.async = true;
                 script1.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
                 parentDoc.head.appendChild(script1);
 
-                // Cria o DataLayer no pai
                 parentWindow.dataLayer = parentWindow.dataLayer || [];
                 parentWindow.gtag = function() {{ parentWindow.dataLayer.push(arguments); }};
                 parentWindow.gtag('js', new Date());
+
+                // DESLIGA o disparo automático para não dar conflito com a URL do Streamlit
+                parentWindow.gtag('config', ga4Id, {{
+                    'send_page_view': false 
+                }});
             }}
 
-            // 2. Lógica de disparo de Page Views (Funciona na abertura e nas trocas de aba)
+            // 2. Disparo Manual Controlado
             parentWindow.lastReportedPath = parentWindow.lastReportedPath || '';
 
-            // Se o caminho que o Streamlit quer carregar for diferente do último enviado...
             if (parentWindow.lastReportedPath !== currentPath) {{
-                
-                // Dispara o 'config', que o GA4 entende automaticamente como um novo page_view
-                parentWindow.gtag('config', ga4Id, {{
+                // Força o envio exato do Caminho (dp) e Título (dt)
+                parentWindow.gtag('event', 'page_view', {{
                     'page_path': currentPath,
-                    'page_title': currentTitle
+                    'page_title': currentTitle,
+                    'send_to': ga4Id
                 }});
-                
-                // Atualiza a memória para não disparar duplicado se o usuário apertar um botão na mesma aba
                 parentWindow.lastReportedPath = currentPath;
             }}
         }} catch(e) {{
-            console.error("Erro ao injetar GA4: ", e);
+            console.error("Erro GA4 Custom:", e);
         }}
     </script>
     """
     components.html(ga4_script, width=0, height=0)
-
+    
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
