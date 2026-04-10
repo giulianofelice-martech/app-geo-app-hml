@@ -14,53 +14,53 @@ import streamlit.components.v1 as components
 
 def injetar_ga4(path_atual):
     """Injeta o GA4 e dispara page_views virtuais quando a aba muda."""
-    GA4_ID = "G-343MMKCTX3"
+    GA4_ID = "G-343MMKCTX3" # Seu ID atualizado
     
-    # Adicionando um título amigável para o painel do GA4
+    # Cria títulos dinâmicos para facilitar a leitura no painel do GA4
     titulo_pagina = f"Motor GEO | {path_atual.strip('/').capitalize()}"
     if path_atual == "/home": titulo_pagina = "Motor GEO | Home"
     
     ga4_script = f"""
     <script>
-        const parentWindow = window.parent;
-        const parentDoc = parentWindow.document;
-        const currentPath = '{path_atual}';
-        const currentTitle = '{titulo_pagina}';
+        try {{
+            // Acessa o navegador real (fora do iframe do Streamlit)
+            const parentWindow = window.parent;
+            const parentDoc = parentWindow.document;
+            const currentPath = '{path_atual}';
+            const currentTitle = '{titulo_pagina}';
+            const ga4Id = '{GA4_ID}';
 
-        if (!parentDoc.getElementById('ga4-script')) {{
-            // 1. Instala o script base do GA4 na primeira vez
-            const script1 = parentDoc.createElement('script');
-            script1.id = 'ga4-script';
-            script1.async = true;
-            script1.src = 'https://www.googletagmanager.com/gtag/js?id={GA4_ID}';
-            parentDoc.head.appendChild(script1);
+            // 1. Instala a biblioteca do Google apenas na primeira vez que a pessoa abre o app
+            if (!parentDoc.getElementById('ga4-script')) {{
+                const script1 = parentDoc.createElement('script');
+                script1.id = 'ga4-script';
+                script1.async = true;
+                script1.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
+                parentDoc.head.appendChild(script1);
 
-            // 2. Configura e dispara o PRIMEIRO page_view
-            const script2 = parentDoc.createElement('script');
-            script2.innerHTML = `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){{dataLayer.push(arguments);}}
-                parentWindow.gtag = gtag; // Deixa o gtag acessível globalmente
-                gtag('js', new Date());
+                // Cria o DataLayer no pai
+                parentWindow.dataLayer = parentWindow.dataLayer || [];
+                parentWindow.gtag = function() {{ parentWindow.dataLayer.push(arguments); }};
+                parentWindow.gtag('js', new Date());
+            }}
+
+            // 2. Lógica de disparo de Page Views (Funciona na abertura e nas trocas de aba)
+            parentWindow.lastReportedPath = parentWindow.lastReportedPath || '';
+
+            // Se o caminho que o Streamlit quer carregar for diferente do último enviado...
+            if (parentWindow.lastReportedPath !== currentPath) {{
                 
-                // Envia a primeira visualização com o path customizado
-                gtag('config', '{GA4_ID}', {{
+                // Dispara o 'config', que o GA4 entende automaticamente como um novo page_view
+                parentWindow.gtag('config', ga4Id, {{
                     'page_path': currentPath,
                     'page_title': currentTitle
                 }});
-                parentWindow.lastReportedPath = currentPath;
-            `;
-            parentDoc.head.appendChild(script2);
-        }} else {{
-            // 3. SE O SCRIPT JÁ EXISTE E A ABA MUDOU, DISPARA O VIRTUAL PAGEVIEW
-            if (parentWindow.lastReportedPath !== currentPath && typeof parentWindow.gtag === 'function') {{
-                parentWindow.gtag('event', 'page_view', {{
-                    'page_path': currentPath,
-                    'page_title': currentTitle,
-                    'send_to': '{GA4_ID}'
-                }});
+                
+                // Atualiza a memória para não disparar duplicado se o usuário apertar um botão na mesma aba
                 parentWindow.lastReportedPath = currentPath;
             }}
+        }} catch(e) {{
+            console.error("Erro ao injetar GA4: ", e);
         }}
     </script>
     """
