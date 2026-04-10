@@ -16,11 +16,16 @@ def injetar_ga4(path_atual):
     """Injeta o GA4 e dispara page_views virtuais quando a aba muda."""
     GA4_ID = "G-343MMKCTX3"
     
+    # Adicionando um título amigável para o painel do GA4
+    titulo_pagina = f"Motor GEO | {path_atual.strip('/').capitalize()}"
+    if path_atual == "/home": titulo_pagina = "Motor GEO | Home"
+    
     ga4_script = f"""
     <script>
         const parentWindow = window.parent;
         const parentDoc = parentWindow.document;
         const currentPath = '{path_atual}';
+        const currentTitle = '{titulo_pagina}';
 
         if (!parentDoc.getElementById('ga4-script')) {{
             // 1. Instala o script base do GA4 na primeira vez
@@ -40,7 +45,8 @@ def injetar_ga4(path_atual):
                 
                 // Envia a primeira visualização com o path customizado
                 gtag('config', '{GA4_ID}', {{
-                    'page_path': currentPath
+                    'page_path': currentPath,
+                    'page_title': currentTitle
                 }});
                 parentWindow.lastReportedPath = currentPath;
             `;
@@ -50,6 +56,7 @@ def injetar_ga4(path_atual):
             if (parentWindow.lastReportedPath !== currentPath && typeof parentWindow.gtag === 'function') {{
                 parentWindow.gtag('event', 'page_view', {{
                     'page_path': currentPath,
+                    'page_title': currentTitle,
                     'send_to': '{GA4_ID}'
                 }});
                 parentWindow.lastReportedPath = currentPath;
@@ -64,24 +71,25 @@ def injetar_ga4(path_atual):
 # ==========================================
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide", initial_sidebar_state="collapsed")
 
+# 1.1 Lógica de Navegação via Query Parameters (APENAS UMA VEZ)
 query_params = st.query_params
+
 if 'current_page' not in st.session_state:
-    # Lê a URL ao abrir (se houver param ?page=)
+    # Lê a URL ao abrir o app
     mapa_reverso = {
         "gerador": "Gerador de Artigos", "brandbook": "BrandBook", 
         "monitor": "Monitor de GEO", "revisor": "Revisor de GEO", "auditor": "Auditor de Artigos"
     }
-    pagina_url = query_params.get("page", "home")
+    pagina_url = query_params.get("page", "gerador")
     st.session_state['current_page'] = mapa_reverso.get(pagina_url, "Gerador de Artigos")
 
 if 'show_inputs' not in st.session_state:
     st.session_state['show_inputs'] = False
 
-# --- LÓGICA DE RASTREAMENTO GA4 E URL PATHS ---
+# 1.2 Mapeia o estado atual para o Path do GA4
 page_name = st.session_state.get('current_page')
 show_inputs = st.session_state.get('show_inputs')
 
-# Mapeia o estado atual para o Path que vai pro GA4
 if page_name == "Gerador de Artigos":
     path_atual = "/gerador" if show_inputs else "/home"
 elif page_name == "BrandBook":
@@ -95,17 +103,11 @@ elif page_name == "Auditor de Artigos":
 else:
     path_atual = "/home"
 
-# 1. Atualiza visualmente a URL no navegador (ex: seudominio.com/?page=monitor)
+# 1.3 Atualiza a URL visualmente no navegador
 st.query_params["page"] = path_atual.strip("/")
 
-# 2. Faz o Push silencioso do Virtual PageView no GA4
+# 1.4 Injeta o GA4 com o path correto
 injetar_ga4(path_atual)
-# Lógica de Navegação via Query Parameters (Mais estável que botões)
-query_params = st.query_params
-if 'current_page' not in st.session_state:
-    st.session_state['current_page'] = query_params.get("page", "Gerador de Artigos")
-if 'show_inputs' not in st.session_state:
-    st.session_state['show_inputs'] = False
 
 # ==========================================
 # ESTILOS GLOBAIS
