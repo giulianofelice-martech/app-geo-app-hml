@@ -12,42 +12,94 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
 import streamlit.components.v1 as components
 
-def injetar_ga4():
-    """Injeta o Google Analytics 4 no DOM principal do Streamlit."""
+def injetar_ga4(path_atual):
+    """Injeta o GA4 e dispara page_views virtuais quando a aba muda."""
     GA4_ID = "G-343MMKCTX3"
     
     ga4_script = f"""
     <script>
-        const parentDoc = window.parent.document;
+        const parentWindow = window.parent;
+        const parentDoc = parentWindow.document;
+        const currentPath = '{path_atual}';
+
         if (!parentDoc.getElementById('ga4-script')) {{
+            // 1. Instala o script base do GA4 na primeira vez
             const script1 = parentDoc.createElement('script');
             script1.id = 'ga4-script';
             script1.async = true;
             script1.src = 'https://www.googletagmanager.com/gtag/js?id={GA4_ID}';
             parentDoc.head.appendChild(script1);
 
+            // 2. Configura e dispara o PRIMEIRO page_view
             const script2 = parentDoc.createElement('script');
             script2.innerHTML = `
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){{dataLayer.push(arguments);}}
+                parentWindow.gtag = gtag; // Deixa o gtag acessível globalmente
                 gtag('js', new Date());
-                gtag('config', '{GA4_ID}');
+                
+                // Envia a primeira visualização com o path customizado
+                gtag('config', '{GA4_ID}', {{
+                    'page_path': currentPath
+                }});
+                parentWindow.lastReportedPath = currentPath;
             `;
             parentDoc.head.appendChild(script2);
+        }} else {{
+            // 3. SE O SCRIPT JÁ EXISTE E A ABA MUDOU, DISPARA O VIRTUAL PAGEVIEW
+            if (parentWindow.lastReportedPath !== currentPath && typeof parentWindow.gtag === 'function') {{
+                parentWindow.gtag('event', 'page_view', {{
+                    'page_path': currentPath,
+                    'send_to': '{GA4_ID}'
+                }});
+                parentWindow.lastReportedPath = currentPath;
+            }}
         }}
     </script>
     """
     components.html(ga4_script, width=0, height=0)
-
 
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide", initial_sidebar_state="collapsed")
 
-# ATIVA O GOOGLE ANALYTICS 4
-injetar_ga4()
+query_params = st.query_params
+if 'current_page' not in st.session_state:
+    # Lê a URL ao abrir (se houver param ?page=)
+    mapa_reverso = {
+        "gerador": "Gerador de Artigos", "brandbook": "BrandBook", 
+        "monitor": "Monitor de GEO", "revisor": "Revisor de GEO", "auditor": "Auditor de Artigos"
+    }
+    pagina_url = query_params.get("page", "home")
+    st.session_state['current_page'] = mapa_reverso.get(pagina_url, "Gerador de Artigos")
 
+if 'show_inputs' not in st.session_state:
+    st.session_state['show_inputs'] = False
+
+# --- LÓGICA DE RASTREAMENTO GA4 E URL PATHS ---
+page_name = st.session_state.get('current_page')
+show_inputs = st.session_state.get('show_inputs')
+
+# Mapeia o estado atual para o Path que vai pro GA4
+if page_name == "Gerador de Artigos":
+    path_atual = "/gerador" if show_inputs else "/home"
+elif page_name == "BrandBook":
+    path_atual = "/brandbook"
+elif page_name == "Monitor de GEO":
+    path_atual = "/monitor"
+elif page_name == "Revisor de GEO":
+    path_atual = "/revisor"
+elif page_name == "Auditor de Artigos":
+    path_atual = "/auditor"
+else:
+    path_atual = "/home"
+
+# 1. Atualiza visualmente a URL no navegador (ex: seudominio.com/?page=monitor)
+st.query_params["page"] = path_atual.strip("/")
+
+# 2. Faz o Push silencioso do Virtual PageView no GA4
+injetar_ga4(path_atual)
 # Lógica de Navegação via Query Parameters (Mais estável que botões)
 query_params = st.query_params
 if 'current_page' not in st.session_state:
