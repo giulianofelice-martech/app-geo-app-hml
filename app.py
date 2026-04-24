@@ -96,29 +96,45 @@ def disparar_evento_geracao(keyword, marca):
     """
     components.html(evento_script, width=0, height=0)
 
-def disparar_evento_customizado(nome_evento, keyword, marca):
-    """Dispara eventos customizados no GA4 com proteção de caracteres."""
-    GA4_ID = "G-343MMKCTX3"
+def disparar_evento_geracao(keyword, marca, publico, conteudo_add, conteudo_prop, prompt_livre, empatia, especialista):
+    """Dispara evento customizado informando a geração e envia até 100 caracteres dos textos utilizados."""
+    GA4_ID = "G-YWQ3BETC7C" # O ID que você usa na ferramenta
     
     timestamp = int(time.time() * 1000)
     
-    # Limpeza brutal para evitar que aspas quebrem o Javascript
-    keyword_limpa = str(keyword).replace("'", "").replace('"', '').replace('\n', ' ')
-    marca_limpa = str(marca).replace("'", "").replace('"', '')
+    # Função auxiliar para limpar quebras de linha e travar no limite de 100 caracteres do GA4
+    def limpa_e_corta(texto):
+        if not texto: return ""
+        # Troca quebras de linha por espaço para não quebrar o visual no GA4
+        t_limpo = str(texto).strip().replace('\n', ' ').replace('\r', '')
+        # Retorna o texto real cortado no limite cravado do Google
+        return t_limpo[:100]
+    
+    # Preparamos os parâmetros passando o texto real (fatiado em 100 caracteres)
+    params = {
+        'search_query': limpa_e_corta(keyword),
+        'marca_alvo': limpa_e_corta(marca),
+        'publico_alvo': limpa_e_corta(publico),
+        'conteudo_add': limpa_e_corta(conteudo_add),
+        'conteudo_prop': limpa_e_corta(conteudo_prop),
+        'prompt_livre': limpa_e_corta(prompt_livre),
+        'ativou_empatia': "Sim" if empatia else "Não",
+        'ativou_especialista': "Sim" if especialista else "Não",
+        'send_to': GA4_ID
+    }
+
+    # Convertemos para JSON seguro (blinda aspas e caracteres especiais do usuário)
+    params_json = json.dumps(params)
     
     evento_script = f"""
-    <script id="ga4-{nome_evento}-{timestamp}">
+    <script id="ga4-gerador-{timestamp}">
         try {{
             const pWin = window.parent;
             if (typeof pWin.gtag === 'function') {{
-                pWin.gtag('event', '{nome_evento}', {{
-                    'search_query': '{keyword_limpa}',
-                    'marca_alvo': '{marca_limpa}',
-                    'send_to': '{GA4_ID}'
-                }});
+                pWin.gtag('event', 'artigo_gerado', {params_json});
             }}
         }} catch(e) {{
-            console.error("Erro GA4 Event ({nome_evento}):", e);
+            console.error("Erro GA4 Event Gerador:", e);
         }}
     </script>
     """
@@ -2735,8 +2751,17 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                         st.session_state['keyword_atual'] = palavra_chave_input
                         status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
 
-                        # Gatilho do GA4 (Dispara a query e a marca para o painel)
-                        disparar_evento_geracao(palavra_chave_input, marca_selecionada)
+                        # Gatilho do GA4 enviando todos os textos e seleções da tela
+                        disparar_evento_geracao(
+                            keyword=palavra_chave_input, 
+                            marca=marca_selecionada,
+                            publico=publico_selecionado,
+                            conteudo_add=conteudo_adicional_input,
+                            conteudo_prop=conteudo_proprietario_input,
+                            prompt_livre=instrucao_livre_input,
+                            empatia=modo_humanizado,
+                            especialista=modo_especialista
+                        )
                         
                     except Exception as e:
                         status.update(label="❌ Erro durante a geração", state="error")
