@@ -2748,44 +2748,36 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                         st.session_state['keyword_atual'] = palavra_chave_input
                         status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
 
-                        # --- LÓGICA BLINDADA PARA PEGAR O USUÁRIO (V3) ---
+                        # --- LÓGICA DE CAPTURA DO USUÁRIO (X-Streamlit-User Base64) ---
                         usuario_ga4 = "anonimo"
-                        
-                        # 1. Tentativa Oficial Streamlit Cloud (st.experimental_user)
                         try:
-                            if hasattr(st, "experimental_user") and getattr(st.experimental_user, "email", None):
-                                email_completo = st.experimental_user.email
-                                usuario_ga4 = str(email_completo).split('@')[0]
-                        except Exception:
-                            pass
-
-                        # 2. Tentativa via st.context (Streamlit >= 1.32)
-                        if usuario_ga4 == "anonimo":
-                            try:
-                                if hasattr(st, "context") and hasattr(st.context, "headers"):
-                                    headers = st.context.headers
-                                    email_completo = headers.get("X-Goog-Authenticated-User-Email") or headers.get("X-Auth-Request-Email")
-                                    if email_completo:
-                                        email_limpo = str(email_completo).replace('accounts.google.com:', '').strip()
-                                        usuario_ga4 = email_limpo.split('@')[0]
-                            except Exception:
-                                pass
+                            import base64
+                            import json
+                            
+                            # Acessa os cabeçalhos do Streamlit
+                            if hasattr(st, "context") and hasattr(st.context, "headers"):
+                                headers = st.context.headers
                                 
-                        # 3. Fallback Header Antigo (Streamlit < 1.30)
-                        if usuario_ga4 == "anonimo":
-                            try:
-                                from streamlit.web.server.websocket_headers import _get_websocket_headers
-                                headers = _get_websocket_headers()
-                                if headers:
-                                    email_completo = headers.get("X-Goog-Authenticated-User-Email", "") or headers.get("X-Auth-Request-Email", "")
+                                # Procura o token secreto que vimos no Debug
+                                if "X-Streamlit-User" in headers:
+                                    token_b64 = headers["X-Streamlit-User"]
+                                    
+                                    # Adiciona padding de base64 caso falte (segurança extra)
+                                    token_b64 += "=" * ((4 - len(token_b64) % 4) % 4)
+                                    
+                                    # Decodifica de Base64 para String
+                                    token_decodificado = base64.b64decode(token_b64).decode('utf-8')
+                                    
+                                    # Transforma a String num Dicionário e pega o email
+                                    dados_usuario = json.loads(token_decodificado)
+                                    email_completo = dados_usuario.get("email", "")
+                                    
                                     if email_completo:
-                                        email_limpo = str(email_completo).replace('accounts.google.com:', '').strip()
-                                        usuario_ga4 = email_limpo.split('@')[0]
-                            except Exception:
-                                pass
-                                
-                        # Pequeno Toast para você ver na tela se funcionou durante o teste
-                        # st.toast(f"Usuário identificado: {usuario_ga4}", icon="🕵️‍♂️")
+                                        # Fica só com a parte antes do @ (ex: giuliano.felice)
+                                        usuario_ga4 = str(email_completo).split('@')[0]
+                                        
+                        except Exception as e:
+                            print(f"Erro ao decodificar X-Streamlit-User: {e}")
                         # ------------------------------------------------------------------------
 
                         # Gatilho do GA4 enviando todos os textos e o USUÁRIO
